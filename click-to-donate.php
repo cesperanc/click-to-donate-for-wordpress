@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name: Click-to-donate
-Description: This extension provides a system for managing image advertising campaigns based on visits of visitors
+Plugin Name: Click to donate
+Description: This extension provides a system for managing image advertising campaigns based on clicks of visitors
 Version: 0.18
 Author: Cláudio Esperança, Diogo Serra
 Author URI: http://dei.estg.ipleiria.pt/
