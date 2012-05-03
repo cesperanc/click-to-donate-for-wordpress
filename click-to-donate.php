@@ -99,18 +99,95 @@ if(!class_exists('ClickToDonate')):
                     return $posts;
                 
                 foreach($posts as $index=>$post):
-                    if(get_post_type($post)==self::POST_TYPE):
+                    // If is a countable post type, is a single post and we are getting the post from the front office, verify and count the visit
+                    if(get_post_type($post)==self::POST_TYPE && $query->is_single($post) && !is_admin()):
                         // @TODO Implement the code to verify if the banner can be shown and register the click. If the banner couldn't not be shown, replace the content by the error message
-                        $views = get_post_custom_values(__CLASS__.'_views', $post->ID);
+			// if not admin show			
+			$views = get_post_custom_values(__CLASS__.'_views', $post->ID);
                         if(!empty($views) && isset($views[0])):
                             $views = $views[0];
                         endif;
                         update_post_meta($post->ID, __CLASS__.'_views', ((int)$views+1));
+                        
                         $posts[$index]->post_content.="<hr/>Clique contabilizado";
                     endif;
                 endforeach;
                 
                 return $posts;
+            }
+            
+            /**
+             * Register the scripts to be loaded on the backoffice, on our custom post type
+             */
+            public function adminEnqueueScripts() {
+                if(is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type==self::POST_TYPE):
+                    // Register the script
+                    wp_enqueue_script(__CLASS__.'_admin', plugins_url('js/admin.js', __FILE__), array('jquery-ui-datepicker'), '1.0');
+
+                    // Localize the script
+                    wp_localize_script(__CLASS__.'_admin', 'ctdAdmin', array(
+                        'closeText'=>__( 'Done', __CLASS__),
+                        'currentText'=>__( 'Today', __CLASS__),
+                        'dateFormat'=>__( 'mm/dd/yy', __CLASS__),
+                        'dayNamesSunday'=>__( 'Sunday', __CLASS__),
+                        'dayNamesMonday'=>__( 'Monday', __CLASS__),
+                        'dayNamesTuesday'=>__( 'Tuesday', __CLASS__),
+                        'dayNamesWednesday'=>__( 'Wednesday', __CLASS__),
+                        'dayNamesThursday'=>__( 'Thursday', __CLASS__),
+                        'dayNamesFriday'=>__( 'Friday', __CLASS__),
+                        'dayNamesSaturday'=>__( 'Saturday', __CLASS__),
+                        'dayNamesMinSu'=>__( 'Su', __CLASS__),
+                        'dayNamesMinMo'=>__( 'Mo', __CLASS__),
+                        'dayNamesMinTu'=>__( 'Tu', __CLASS__),
+                        'dayNamesMinWe'=>__( 'We', __CLASS__),
+                        'dayNamesMinTh'=>__( 'Th', __CLASS__),
+                        'dayNamesMinFr'=>__( 'Fr', __CLASS__),
+                        'dayNamesMinSa'=>__( 'Sa', __CLASS__),
+                        'dayNamesShortSun'=>__( 'Sun', __CLASS__),
+                        'dayNamesShortMon'=>__( 'Mon', __CLASS__),
+                        'dayNamesShortTue'=>__( 'Tue', __CLASS__),
+                        'dayNamesShortWed'=>__( 'Wed', __CLASS__),
+                        'dayNamesShortThu'=>__( 'Thu', __CLASS__),
+                        'dayNamesShortFri'=>__( 'Fri', __CLASS__),
+                        'dayNamesShortSat'=>__( 'Sat', __CLASS__),
+                        'monthNamesJanuary'=>__( 'January', __CLASS__),
+                        'monthNamesFebruary'=>__( 'February', __CLASS__),
+                        'monthNamesMarch'=>__( 'March', __CLASS__),
+                        'monthNamesApril'=>__( 'April', __CLASS__),
+                        'monthNamesMay'=>__( 'May', __CLASS__),
+                        'monthNamesJune'=>__( 'June', __CLASS__),
+                        'monthNamesJuly'=>__( 'July', __CLASS__),
+                        'monthNamesAugust'=>__( 'August', __CLASS__),
+                        'monthNamesSeptember'=>__( 'September', __CLASS__),
+                        'monthNamesOctober'=>__( 'October', __CLASS__),
+                        'monthNamesNovember'=>__( 'November', __CLASS__),
+                        'monthNamesDecember'=>__( 'December', __CLASS__),
+                        'monthNamesShortJan'=>__( 'Jan', __CLASS__),
+                        'monthNamesShortFeb'=>__( 'Feb', __CLASS__),
+                        'monthNamesShortMar'=>__( 'Mar', __CLASS__),
+                        'monthNamesShortApr'=>__( 'Apr', __CLASS__),
+                        'monthNamesShortMay'=>__( 'May', __CLASS__),
+                        'monthNamesShortJun'=>__( 'Jun', __CLASS__),
+                        'monthNamesShortJul'=>__( 'Jul', __CLASS__),
+                        'monthNamesShortAug'=>__( 'Aug', __CLASS__),
+                        'monthNamesShortSep'=>__( 'Sep', __CLASS__),
+                        'monthNamesShortOct'=>__( 'Oct', __CLASS__),
+                        'monthNamesShortNov'=>__( 'Nov', __CLASS__),
+                        'monthNamesShortDec'=>__( 'Dec', __CLASS__),
+                        'nextText'=>__( 'Next', __CLASS__),
+                        'prevText'=>__( 'Prev', __CLASS__),
+                        'weekHeader'=>__( 'Wk', __CLASS__)
+                    ));
+                endif;
+            }
+            
+            /**
+             * Register the styles to be loaded on the backoffice on our custom post type
+             */
+            public function adminPrintStyles() {
+                if(is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type==self::POST_TYPE):
+                    wp_enqueue_style('jQuery-ui', plugins_url('css/jquery-ui/smoothness/jquery.ui.all.css', __FILE__), array(), '1.8.20');
+                endif;
             }
             
             /**
@@ -125,11 +202,36 @@ if(!class_exists('ClickToDonate')):
                         $views = $views[0];
                     endif;
 
-                    ?>
-                        <div>
-                            <?php printf(__( 'Views: %s', __CLASS__), $views); ?>
-                        </div>
-                    <?php
+                    $enableClicksLimit = get_post_custom_values(__CLASS__.'_enable_click_limits', $postId);
+                    $maxClicks = get_post_custom_values(__CLASS__.'_maxClicks', $postId);
+
+                    $enableStartDate = get_post_custom_values(__CLASS__.'_enable_startDate', $postId);
+                    $startDate =  get_post_custom_values(__CLASS__.'_startDate', $postId);
+
+                    $enableEndDate = get_post_custom_values(__CLASS__.'_enable_endDate', $postId);
+                    $endDate =  get_post_custom_values(__CLASS__.'_endDate', $postId);
+                    
+                    // @TODO: add the time to the dates and validate the number format
+                ?>
+                    <fieldset id="ctd-enable-maxclicks-container" class="ctd-enable-container">
+                        <legend><label class="selectit"><input id="ctd-enable-maxclicks" name="<?php echo(__CLASS__.'_enable_click_limits'); ?>" value="enable_click_limits"<?php checked('enable_click_limits', $enableClicksLimit[0]); ?> type="checkbox"/><?php _e('Limit the number of clicks', __CLASS__); ?></label></legend>
+                        <div id="ctd-maxclicks-container" class="start-hidden"><label class="selectit"><?php _e('Clicks limit:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the number of clicks allowed before disabling the campaign', __CLASS__) ?>" id="ctd-maximum-clicks-limit" type="text" name="<?php echo(__CLASS__.'_maxClicks'); ?>" value="<?php echo($maxClicks[0]); ?>" /></label></div>
+                    </fieldset>
+
+                    <fieldset id="ctd-enable-startdate-container" class="ctd-enable-container">
+                        <legend><label class="selectit"><input id="ctd-enable-startdate" name="<?php echo(__CLASS__.'_enable_startDate'); ?>" value="enable_startDate"<?php checked('enable_startDate', $enableStartDate[0]); ?> type="checkbox"/><?php _e('Set the campaign start date', __CLASS__); ?></label></legend>
+                        <div id="ctd-startdate-container" class="start-hidden"><label class="selectit"><?php _e('Start date:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the start date when the campaign is supposed to start', __CLASS__) ?>" id="ctd-startdate" type="text" name="<?php echo(__CLASS__.'_startDate'); ?>" value="<?php echo($startDate[0]); ?>" /></label></div>
+                    </fieldset>
+
+                    <fieldset id="ctd-enable-enddate-container" class="ctd-enable-container">
+                        <legend><label class="selectit"><input id="ctd-enable-enddate" name="<?php echo(__CLASS__.'_enable_endDate'); ?>" value="enable_endDate"<?php checked('enable_endDate', $enableEndDate[0]); ?> type="checkbox"/><?php _e('Set the campaign end date', __CLASS__); ?></label></legend>
+                        <div id="ctd-enddate-container" class="start-hidden"><label class="selectit"><?php _e('End date:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the end date when the campaign is supposed to end', __CLASS__) ?>" id="ctd-enddate" type="text" name="<?php echo(__CLASS__.'_endDate'); ?>" value="<?php echo($endDate[0]); ?>" /></label></div>
+                    </fieldset>
+
+                    <div>
+                        <?php printf(__( 'Views: %s', __CLASS__), $views); ?>
+                    </div>
+                <?php
                 }, self::POST_TYPE, 'advanced', 'high');
             }
             
@@ -145,10 +247,40 @@ if(!class_exists('ClickToDonate')):
                 endif;
                 switch(get_post_type($postId)):
                     case self::POST_TYPE:
-//                        // Get the posted data
-//                        $field = isset($_POST[__CLASS__.'_fieldname'])?$_POST[__CLASS__.'_fieldname']:'';
-//                        // Save the object in the database
-//                        update_post_meta($postId, __CLASS__.'_fieldname', $field);
+                        // Get the posted data
+                        if(isset($_POST[__CLASS__.'_enable_click_limits'])):
+                            $enableClickLimits = $_POST[__CLASS__.'_enable_click_limits'];
+                            $maxClicks = isset($_POST[__CLASS__.'_maxClicks'])?$_POST[__CLASS__.'_maxClicks']:-1;
+                        else:
+                            $enableClickLimits=false;
+                            $maxClicks = -1;
+                        endif;
+                        
+                        if(isset($_POST[__CLASS__.'_enable_startDate'])):
+                            $enableStartDate = $_POST[__CLASS__.'_enable_startDate'];
+                            $startDate = isset($_POST[__CLASS__.'_startDate'])?$_POST[__CLASS__.'_startDate']:'';
+                        else:
+                            $enableStartDate=false;
+                            $startDate = '';
+                        endif;
+                        
+                        if(isset($_POST[__CLASS__.'_enable_endDate'])):
+                            $enableEndDate = $_POST[__CLASS__.'_enable_endDate'];
+                            $endDate = isset($_POST[__CLASS__.'_endDate'])?$_POST[__CLASS__.'_endDate']:'';
+                        else:
+                            $enableEndDate=false;
+                            $endDate = '';
+                        endif;
+                        
+                        // Save the object in the database
+                        update_post_meta($postId, __CLASS__.'_enable_click_limits', $enableClickLimits);
+                        update_post_meta($postId, __CLASS__.'_maxClicks', $maxClicks);
+                        update_post_meta($postId, __CLASS__.'_enable_startDate', $enableStartDate);
+                        update_post_meta($postId, __CLASS__.'_startDate', $startDate);
+                        update_post_meta($postId, __CLASS__.'_enable_endDate', $enableEndDate);
+                        update_post_meta($postId, __CLASS__.'_endDate', $endDate);
+                        
+                        error_log($_POST[__CLASS__.'_enable_click_limits']);
 
                         break;
                 endswitch;
@@ -340,6 +472,15 @@ if(!class_exists('ClickToDonate')):
                 
                 // Add thePosts method to filter the_posts
                 add_filter('the_posts', array(__CLASS__, 'thePosts'), 10, 2);
+                
+                
+                
+                // Register the adminEnqueueScripts method to the Wordpress admin_enqueue_scripts action hook
+                add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
+                
+                // Register the adminPrintStyles method to the Wordpress admin_print_styles action hook
+                add_action('admin_print_styles', array(__CLASS__, 'adminPrintStyles'));
+                
             }
         }
 endif;
