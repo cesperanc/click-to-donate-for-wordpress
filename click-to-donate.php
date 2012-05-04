@@ -121,8 +121,9 @@ if(!class_exists('ClickToDonate')):
              */
             public function adminEnqueueScripts() {
                 if(is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type==self::POST_TYPE):
-                    // Register the script
-                    wp_enqueue_script(__CLASS__.'_admin', plugins_url('js/admin.js', __FILE__), array('jquery-ui-datepicker'), '1.0');
+                    // Register the scripts
+                    wp_enqueue_script('ui-spinner', plugins_url('js/jquery-ui/ui.spinner.min.js', __FILE__), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
+                    wp_enqueue_script(__CLASS__.'_admin', plugins_url('js/admin.js', __FILE__), array('jquery-ui-datepicker', 'ui-spinner'), '1.0');
 
                     // Localize the script
                     wp_localize_script(__CLASS__.'_admin', 'ctdAdmin', array(
@@ -186,7 +187,10 @@ if(!class_exists('ClickToDonate')):
              */
             public function adminPrintStyles() {
                 if(is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type==self::POST_TYPE):
-                    wp_enqueue_style('jQuery-ui', plugins_url('css/jquery-ui/smoothness/jquery.ui.all.css', __FILE__), array(), '1.8.20');
+                    wp_enqueue_style('jquery-ui-core', plugins_url('css/jquery-ui/smoothness/jquery.ui.core.css', __FILE__), array(), '1.8.20');
+                    wp_enqueue_style('jquery-ui-datepicker', plugins_url('css/jquery-ui/smoothness/jquery.ui.datepicker.css', __FILE__), array('jquery-ui-core'), '1.8.20');
+                    wp_enqueue_style('jquery-ui-theme', plugins_url('css/jquery-ui/smoothness/jquery.ui.theme.css', __FILE__), array('jquery-ui-core'), '1.8.20');
+                    wp_enqueue_style('ui-spinner', plugins_url('css/jquery-ui/ui.spinner.css', __FILE__), array(), '1.20');
                 endif;
             }
             
@@ -215,17 +219,29 @@ if(!class_exists('ClickToDonate')):
                 ?>
                     <fieldset id="ctd-enable-maxclicks-container" class="ctd-enable-container">
                         <legend><label class="selectit"><input id="ctd-enable-maxclicks" name="<?php echo(__CLASS__.'_enable_click_limits'); ?>" value="enable_click_limits"<?php checked('enable_click_limits', $enableClicksLimit[0]); ?> type="checkbox"/><?php _e('Limit the number of clicks', __CLASS__); ?></label></legend>
-                        <div id="ctd-maxclicks-container" class="start-hidden"><label class="selectit"><?php _e('Clicks limit:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the number of clicks allowed before disabling the campaign', __CLASS__) ?>" id="ctd-maximum-clicks-limit" type="text" name="<?php echo(__CLASS__.'_maxClicks'); ?>" value="<?php echo($maxClicks[0]); ?>" /></label></div>
+                        <div id="ctd-maxclicks-container" class="start-hidden">
+                            <label class="selectit"><?php _e('Clicks limit:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the number of clicks allowed before disabling the campaign', __CLASS__) ?>" id="ctd-maximum-clicks-limit" type="text" name="<?php echo(__CLASS__.'_maxClicks'); ?>" value="<?php echo($maxClicks[0]); ?>" /></label>
+                        </div>
+                        
                     </fieldset>
 
                     <fieldset id="ctd-enable-startdate-container" class="ctd-enable-container">
-                        <legend><label class="selectit"><input id="ctd-enable-startdate" name="<?php echo(__CLASS__.'_enable_startDate'); ?>" value="enable_startDate"<?php checked('enable_startDate', $enableStartDate[0]); ?> type="checkbox"/><?php _e('Set the campaign start date', __CLASS__); ?></label></legend>
-                        <div id="ctd-startdate-container" class="start-hidden"><label class="selectit"><?php _e('Start date:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the start date when the campaign is supposed to start', __CLASS__) ?>" id="ctd-startdate" type="text" name="<?php echo(__CLASS__.'_startDate'); ?>" value="<?php echo($startDate[0]); ?>" /></label></div>
+                        <legend>
+                            <label class="selectit"><input id="ctd-enable-startdate" name="<?php echo(__CLASS__.'_enable_startDate'); ?>" value="enable_startDate"<?php checked('enable_startDate', $enableStartDate[0]); ?> type="checkbox"/><?php _e('Set the campaign start date', __CLASS__); ?></label></legend>
+                            <div id="ctd-startdate-container" class="start-hidden">
+                                <label class="selectit"><?php _e('Start date:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the start date when the campaign is supposed to start', __CLASS__) ?>" id="ctd-startdate" type="text" /></label>
+                                <input id="ctd-hidden-startdate" type="hidden" name="<?php echo(__CLASS__.'_startDate'); ?>" value="<?php echo($startDate[0]); ?>" />
+                            </div>
                     </fieldset>
 
                     <fieldset id="ctd-enable-enddate-container" class="ctd-enable-container">
-                        <legend><label class="selectit"><input id="ctd-enable-enddate" name="<?php echo(__CLASS__.'_enable_endDate'); ?>" value="enable_endDate"<?php checked('enable_endDate', $enableEndDate[0]); ?> type="checkbox"/><?php _e('Set the campaign end date', __CLASS__); ?></label></legend>
-                        <div id="ctd-enddate-container" class="start-hidden"><label class="selectit"><?php _e('End date:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the end date when the campaign is supposed to end', __CLASS__) ?>" id="ctd-enddate" type="text" name="<?php echo(__CLASS__.'_endDate'); ?>" value="<?php echo($endDate[0]); ?>" /></label></div>
+                        <legend>
+                            <label class="selectit"><input id="ctd-enable-enddate" name="<?php echo(__CLASS__.'_enable_endDate'); ?>" value="enable_endDate"<?php checked('enable_endDate', $enableEndDate[0]); ?> type="checkbox"/><?php _e('Set the campaign end date', __CLASS__); ?></label>
+                        </legend>
+                        <div id="ctd-enddate-container" class="start-hidden">
+                            <label class="selectit"><?php _e('End date:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the end date when the campaign is supposed to end', __CLASS__) ?>" id="ctd-enddate" type="text" name="<?php echo(__CLASS__.'_endDate'); ?>" /></label>
+                            <input id="ctd-hidden-enddate" type="hidden" name="<?php echo(__CLASS__.'_endDate'); ?>" value="<?php echo($endDate[0]); ?>" />
+                        </div>
                     </fieldset>
 
                     <div>
