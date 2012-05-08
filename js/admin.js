@@ -76,7 +76,12 @@ $j(function(){
         changeYear: true
     };
     
-    // Attach the spinner
+    $j('#ctd-campaign-admin').css({
+        'padding': '6px 10px 8px',
+        'margin-top' : '6px'
+    });
+    
+    // Attach the spinner to the clicks limit field
     $j('#ctd-maximum-clicks-limit').spinner({
         min: 0, 
         increment: 'fast',
@@ -84,6 +89,30 @@ $j(function(){
         mouseWheel: true,
         step: 100,
         largeStep: 1000
+    });
+    
+    // Attach the spinner to the time fields
+    var timeDefaults = {
+        'min': 0,
+        'showOn': 'none',
+        'width': 24,
+        'mouseWheel': true,
+        'step': 1,
+        'largeStep': 1
+    };
+    
+    $j('#ctd-starthours, #ctd-endhours').spinner($j.extend(true, {}, timeDefaults, {
+        'max': 23
+    })).css({
+        'margin-right': 0,
+        'text-align': 'right'
+    });
+    
+    $j('#ctd-startminutes, #ctd-endminutes').spinner($j.extend(true, {}, timeDefaults, {
+        'max': 59
+    })).css({
+        'margin-right': 0,
+        'text-align': 'right'
     });
     
     // Hide the hidden elements
@@ -101,7 +130,7 @@ $j(function(){
     var showContainer = function(innerContainer, outerContainer, show){
         if(show){
             $j(innerContainer).show();
-            $j(outerContainer).css({'margin': '10px 2px', 'border': '1px solid #ECECEC'});
+            $j(outerContainer).css({'margin': '0 2px 10px', 'border': '1px solid #ECECEC'});
         }else{
             $j(innerContainer).hide();
             $j(outerContainer).css({'margin': '0 2px', 'border': '0px none'});
