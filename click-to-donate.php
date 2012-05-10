@@ -28,12 +28,11 @@ if (!class_exists('ClickToDonate')):
          * The database variable name to store the plugin database version
          */
         const DB_VERSION_FIELD_NAME = 'ClickToDonate_Database_version';
-        const STATUS_published = 'publish';
-        const STATUS_scheduled = 'ctd-scheduled';
+        const STATUS_online = 'ctd-online';
         const STATUS_finished = 'ctd-finished';
-        const STATUS_draft = 'draft';
-        const STATUS_trash = 'trash';
-
+        const STATUS_scheduled = 'ctd-scheduled';
+        const STATUS_unavailable = 'ctd-unavailable';
+        
         // Table variables
         private static $tableClicks = 'clicks';
         private static $tableClicksID = 'ID';
@@ -44,6 +43,17 @@ if (!class_exists('ClickToDonate')):
         private static $tableSponsoredCampaigns = 'sponsoredCampaign';
         private static $tableSponsoredCampaignsCampaignID = 'campaignID';
         private static $tableSponsoredCampaignsUserID = 'userID';
+        
+        private static $enableCoolOff = '_enable_cool_off';
+        private static $coolOff = '_cool_off_time';
+        private static $restrictByCookie = '_restrict_by_cookie';
+        private static $restrictByLogin = '_restrict_by_login';
+        private static $enableClickLimits = '_enable_click_limits';
+        private static $maxClicks = '_maxClicks';
+        private static $enableStartDate = '_enable_startDate';
+        private static $startDate = '_startDate';
+        private static $enableEndDate = '_enable_endDate';
+        private static $endDate = '_endDate';
 
         // Methods
         /**
@@ -52,7 +62,7 @@ if (!class_exists('ClickToDonate')):
         public function __construct() {
             
         }
-
+        
         /**
          * Load the plugin language pack, and register the post type for the campaigns
          */
@@ -87,9 +97,10 @@ if (!class_exists('ClickToDonate')):
                     'with_front' => 'false'
                 ),
                 'query_var' => true,
+                /* // Maybe we can use this in the module 2
                 'capability_type' => self::POST_TYPE,
                 'capabilities' => array(
-                    'publish_posts' => 'publish_' . self::POST_TYPE,
+                    //'publish_posts' => 'publish_' . self::POST_TYPE,
                     'edit_posts' => 'edit_pages',
                     'edit_others_posts' => 'edit_others_pages',
                     'delete_posts' => 'delete_pages',
@@ -99,41 +110,70 @@ if (!class_exists('ClickToDonate')):
                     'delete_post' => 'delete_pages',
                     'read_post' => 'read_pages'
                 )
-                    )
-            );
-            /*
-              if(!post_type_exists(self::STATUS_published)):
-              register_post_status( self::STATUS_published, array(
-              'label' => __( 'Published', __CLASS__ ),
-              'public' => true,
-              'exclude_from_search' => true,
-              'show_in_admin_all_list' => true,
-              'show_in_admin_status_list' => true,
-              'label_count' => _n_noop( 'Unread <span class="count">(%s)</span>', 'Unread <span class="count">(%s)</span>' ),
-              ) );
-              endif;
-
-              if(!post_type_exists(self::STATUS_published)):
-              register_post_status( 'unread', array(
-              'label' => __( 'Unread', __CLASS__ ),
-              'public' => true,
-              'exclude_from_search' => false,
-              'show_in_admin_all_list' => true,
-              'show_in_admin_status_list' => true,
-              'label_count' => _n_noop( 'Unread <span class="count">(%s)</span>', 'Unread <span class="count">(%s)</span>' ),
-              ) );
-              endif;
-             */
-        }
-
-        public function mapMetaCapabilities($caps, $cap, $userId, $args) {
-            // If we are checking for the publish capability on our post type, return empty capabities to block the content publication (we will be using our own mechanism)
-            if ('publish_' . self::POST_TYPE == $cap):
-                return array('do_not_allow');
+                */
+            ));
+            
+            if(!post_type_exists(self::STATUS_online)):
+                register_post_status( self::STATUS_online, array(
+                    'label' => __( 'Online', __CLASS__ ),
+                    'public' => true,
+                    'internal'=>false,
+                    'private'=>false,
+                    'exclude_from_search' => true,
+                    'show_in_admin_all_list' => true,
+                    'show_in_admin_status_list' => true,
+                    'label_count' => _n_noop( 'Online <span class="count">(%s)</span>', 'Online <span class="count">(%s)</span>' ),
+                ) );
             endif;
-
-            return $caps;
+            
+            if(!post_type_exists(self::STATUS_scheduled)):
+                register_post_status( self::STATUS_scheduled, array(
+                    'label' => __( 'Scheduled', __CLASS__ ),
+                    'public' => false,
+                    'internal'=>false,
+                    'private'=>true,
+                    'exclude_from_search' => true,
+                    'show_in_admin_all_list' => true,
+                    'show_in_admin_status_list' => true,
+                    'label_count' => _n_noop( 'Scheduled <span class="count">(%s)</span>', 'Scheduled <span class="count">(%s)</span>' ),
+                ) );
+            endif;
+            
+            if(!post_type_exists(self::STATUS_finished)):
+                register_post_status( self::STATUS_finished, array(
+                    'label' => __( 'Finished', __CLASS__ ),
+                    'public' => false,
+                    'internal'=>false,
+                    'private'=>true,
+                    'exclude_from_search' => true,
+                    'show_in_admin_all_list' => true,
+                    'show_in_admin_status_list' => true,
+                    'label_count' => _n_noop( 'Finished <span class="count">(%s)</span>', 'Finished <span class="count">(%s)</span>' ),
+                ) );
+            endif;
+            
+            if(!post_type_exists(self::STATUS_unavailable)):
+                register_post_status( self::STATUS_unavailable, array(
+                    'label' => __( 'Unavailable', __CLASS__ ),
+                    'public' => false,
+                    'internal'=>false,
+                    'private'=>true,
+                    'exclude_from_search' => true,
+                    'show_in_admin_all_list' => true,
+                    'show_in_admin_status_list' => true,
+                    'label_count' => _n_noop( 'Unavailable <span class="count">(%s)</span>', 'Unavailable <span class="count">(%s)</span>' ),
+                ) );
+            endif;
         }
+// Maybe we can use this in the module 2
+//        public function mapMetaCapabilities($caps, $cap, $userId, $args) {
+//            // If we are checking for the publish capability on our post type, return empty capabities to block the content publication (we will be using our own mechanism)
+//            if ('publish_' . self::POST_TYPE == $cap):
+//                return array('do_not_allow');
+//            endif;
+//
+//            return $caps;
+//        }
 
         /**
          * Filter the posts content if they are campaigns, or count the visualizations
@@ -168,7 +208,7 @@ if (!class_exists('ClickToDonate')):
          * Register the scripts to be loaded on the backoffice, on our custom post type
          */
         public function adminEnqueueScripts() {
-            if (is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type == self::POST_TYPE):
+            if (is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type == self::POST_TYPE /*&& $current_screen->base=='post'*/):
                 // Register the scripts
                 wp_enqueue_script('ui-spinner', plugins_url('js/jquery-ui/ui.spinner.min.js', __FILE__), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
                 wp_enqueue_script(__CLASS__ . '_admin', plugins_url('js/admin.js', __FILE__), array('jquery-ui-datepicker', 'ui-spinner'), '1.0');
@@ -259,24 +299,30 @@ if (!class_exists('ClickToDonate')):
 
                         <?php // Hidden submit button early on so that the browser chooses the right button when form is submitted with Return key  ?>
                         <div style="display:none;">
-                            <?php submit_button(__('Save'), 'button', 'save'); ?>
+                            <?php submit_button(__('Save', __CLASS__), 'button', 'save'); ?>
                         </div>
 
                         <div id="minor-publishing-actions">
+                            <div id="save-action">
+                                <?php if (in_array($post->post_status, array(self::STATUS_unavailable, 'auto-draft')) || 0 == $post->ID): ?>
+                                    <input type="submit" name="save" id="save-post" value="<?php esc_attr_e('Save', __CLASS__); ?>" tabindex="4" class="button button-highlighted" />
+                                <?php endif; ?>
+                                <img src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" class="ajax-loading" id="draft-ajax-loading" alt="" />
+                            </div>
                             <div id="preview-action">
                                 <?php
-                                if ('publish' == $post->post_status) {
-                                    $preview_link = esc_url(get_permalink($post->ID));
-                                    $preview_button = __('Preview Changes');
-                                } else {
-                                    $preview_link = get_permalink($post->ID);
-                                    if (is_ssl())
-                                        $preview_link = str_replace('http://', 'https://', $preview_link);
-                                    $preview_link = esc_url(apply_filters('preview_post_link', add_query_arg('preview', 'true', $preview_link)));
-                                    $preview_button = __('Preview');
-                                }
+                                    if (in_array($post->post_status, array(self::STATUS_online, self::STATUS_finished, self::STATUS_scheduled))):
+                                        $preview_link = esc_url(get_permalink($post->ID));
+                                        $preview_button = __('Preview Changes', __CLASS__);
+                                    else:
+                                        $preview_link = get_permalink($post->ID);
+                                        if (is_ssl())
+                                            $preview_link = str_replace('http://', 'https://', $preview_link);
+                                        $preview_link = esc_url(apply_filters('preview_post_link', add_query_arg('preview', 'true', $preview_link)));
+                                        $preview_button = __('Preview', __CLASS__);
+                                    endif;
                                 ?>
-                                <a class="preview button" href="<?php echo $preview_link; ?>" target="wp-preview" id="post-preview" tabindex="4"><?php echo $preview_button; ?></a>
+                                <a class="preview button" href="<?php echo($preview_link); ?>" target="wp-preview" id="post-preview" tabindex="4"><?php echo($preview_button); ?></a>
                                 <input type="hidden" name="wp-preview" id="wp-preview" value="" />
                             </div>
 
@@ -284,133 +330,86 @@ if (!class_exists('ClickToDonate')):
                         </div><?php // /minor-publishing-actions  ?>
 
                         <?php 
-                            // campaign configuration
+                            // retrieve the campaign data
+                            $startDate = self::getStartDate($post->ID);
 
-                            $views = get_post_custom_values(__CLASS__ . '_views', $post->ID);
-                            if (!empty($views) && isset($views[0])):
-                                $views = $views[0];
-                            endif;
-
-                            $enableClicksLimit = get_post_custom_values(__CLASS__ . '_enable_click_limits', $post->ID);
-                            $maxClicks = get_post_custom_values(__CLASS__ . '_maxClicks', $post->ID);
-
-                            $enableStartDate = get_post_custom_values(__CLASS__ . '_enable_startDate', $post->ID);
-                            $startDate = get_post_custom_values(__CLASS__ . '_startDate', $post->ID);
-
-                            $enableEndDate = get_post_custom_values(__CLASS__ . '_enable_endDate', $post->ID);
-                            $endDate = get_post_custom_values(__CLASS__ . '_endDate', $post->ID);
+                            $endDate = self::getEndDate($post->ID);
                             
                             // Extract the hours from the timestamp
-                            if(empty($startDate) || empty($startDate[0])):
+                            if(!self::hasStartDate($post->ID)):
                                 $startHours = array('0');
-                            else:
-                                $startHours = array(date('G', $startDate[0]));
-                            endif;
-                            if(empty($startDate) || empty($startDate[0])):
                                 $startMinutes = array('00');
                             else:
-                                $startMinutes = array(date('i', $startDate[0]));
+                                $startHours = array(date('G', $startDate));
+                                $startMinutes = array(date('i', $startDate));
                             endif;
                             
                             // Extract the minutes from the timestamp
-                            if(empty($endDate) || empty($endDate[0])):
+                            if(!self::hasEndDate($post->ID)):
                                 $endHours = array('0');
-                            else:
-                                $endHours = array(date('G', $endDate[0]));
-                            endif;
-                            if(empty($endDate) || empty($endDate[0])):
                                 $endMinutes = array('00');
                             else:
-                                $endMinutes = array(date('i', $endDate[0]));
+                                $endHours = array(date('G', $endDate));
+                                $endMinutes = array(date('i', $endDate));
                             endif;
-                            
                         ?>
                         <div id="ctd-campaign-admin" class="hide-if-no-js misc-pub-section">
+                            <fieldset id="ctd-enable-cool-off-container" class="ctd-enable-container">
+                                <legend><input id="ctd-enable-cool-off" name="<?php echo(__CLASS__.self::$enableCoolOff); ?>" value="enable_cool_off"<?php checked(self::hasCoolOffLimit($post->ID)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-cool-off"><?php _e('Cooling-off period', __CLASS__); ?></label></legend>
+                                <div id="ctd-cool-off-container" class="start-hidden">
+                                    <div><label class="selectit"><?php _e('Cooling-off period:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the number of seconds between visits on the same campaign', __CLASS__) ?>" id="ctd-cool-off-period" type="text" name="<?php echo(__CLASS__.self::$coolOff); ?>" value="<?php echo(self::getCoolOffLimit($post->ID)); ?>" /></label><span id="ctd-readable-cool-off-period"></span></div>
+                                    <div><input id="ctd-restrict-by-cookie" name="<?php echo(__CLASS__.self::$restrictByCookie); ?>" value="restrict_by_cookie"<?php checked(self::isToRestrictByCookie($post->ID)); ?> type="checkbox"/><label class="selectit" for="ctd-restrict-by-cookie"><?php _e('Restrict by cookie', __CLASS__); ?></label></div>
+                                    <div><input id="ctd-restrict-by-login" name="<?php echo(__CLASS__.self::$restrictByLogin); ?>" value="restrict_by_login"<?php checked(self::isToRestrictByLogin($post->ID)); ?> type="checkbox"/><label class="selectit" for="ctd-restrict-by-login"><?php _e('Restrict by login', __CLASS__); ?></label></div>
+                                </div>
+
+                            </fieldset>
+                            
                             <fieldset id="ctd-enable-maxclicks-container" class="ctd-enable-container">
-                                <legend><input id="ctd-enable-maxclicks" name="<?php echo(__CLASS__ . '_enable_click_limits'); ?>" value="enable_click_limits"<?php checked('enable_click_limits', $enableClicksLimit[0]); ?> type="checkbox"/><label class="selectit" for="ctd-enable-maxclicks"><?php _e('Limit the number of clicks', __CLASS__); ?></label></legend>
+                                <legend><input id="ctd-enable-maxclicks" name="<?php echo(__CLASS__.self::$enableClickLimits); ?>" value="enable_click_limits"<?php checked(self::hasClicksLimit($post->ID)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-maxclicks"><?php _e('Limit the number of clicks', __CLASS__); ?></label></legend>
                                 <div id="ctd-maxclicks-container" class="start-hidden">
-                                    <label class="selectit"><?php _e('Clicks limit:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the number of clicks allowed before disabling the campaign', __CLASS__) ?>" id="ctd-maximum-clicks-limit" type="text" name="<?php echo(__CLASS__ . '_maxClicks'); ?>" value="<?php echo($maxClicks[0]); ?>" /></label>
+                                    <label class="selectit"><?php _e('Clicks limit:', __CLASS__); ?> <input title="<?php esc_attr_e('Specify the number of clicks allowed before disabling the campaign', __CLASS__) ?>" id="ctd-maximum-clicks-limit" type="text" name="<?php echo(__CLASS__.self::$maxClicks); ?>" value="<?php echo(self::getClicksLimit($post->ID)); ?>" /></label>
                                 </div>
 
                             </fieldset>
 
                             <fieldset id="ctd-enable-startdate-container" class="ctd-enable-container">
                                 <legend>
-                                    <input id="ctd-enable-startdate" name="<?php echo(__CLASS__ . '_enable_startDate'); ?>" value="enable_startDate"<?php checked('enable_startDate', $enableStartDate[0]); ?> type="checkbox"/><label class="selectit" for="ctd-enable-startdate"><?php _e('Set the campaign start date', __CLASS__); ?></label>
+                                    <input id="ctd-enable-startdate" name="<?php echo(__CLASS__ . self::$enableStartDate); ?>" value="enable_startDate"<?php checked(self::hasStartDate($post->ID)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-startdate"><?php _e('Set the campaign start date', __CLASS__); ?></label>
                                 </legend>
                                 <div id="ctd-startdate-container" class="start-hidden">
                                     <label class="selectit"><?php _e('Start date:', __CLASS__); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the start date when the campaign is supposed to start', __CLASS__) ?>" id="ctd-startdate" type="text" /></label>
-                                    <input id="ctd-hidden-startdate" type="hidden" name="<?php echo(__CLASS__ . '_startDate'); ?>" value="<?php echo($startDate[0]); ?>" />
+                                    <input id="ctd-hidden-startdate" type="hidden" name="<?php echo(__CLASS__ . self::$startDate); ?>" value="<?php echo(gmdate('Y-n-j', $startDate)); ?>" />
                                     @<input title="<?php esc_attr_e('Specify the campaign starting hours', __CLASS__) ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-starthours" name="<?php echo(__CLASS__ . '_startHours'); ?>" type="text" value="<?php echo($startHours[0]); ?>" />:<input title="<?php esc_attr_e('Specify the campaign starting minutes', __CLASS__) ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-startminutes" name="<?php echo(__CLASS__ . '_startMinutes'); ?>" type="text" value="<?php echo($startMinutes[0]); ?>" />
                                 </div>
                             </fieldset>
 
                             <fieldset id="ctd-enable-enddate-container" class="ctd-enable-container">
                                 <legend>
-                                    <input id="ctd-enable-enddate" name="<?php echo(__CLASS__ . '_enable_endDate'); ?>" value="enable_endDate"<?php checked('enable_endDate', $enableEndDate[0]); ?> type="checkbox"/><label class="selectit" for="ctd-enable-enddate"><?php _e('Set the campaign end date', __CLASS__); ?></label>
+                                    <input id="ctd-enable-enddate" name="<?php echo(__CLASS__ . self::$enableEndDate); ?>" value="enable_endDate"<?php checked(self::hasEndDate($post->ID)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-enddate"><?php _e('Set the campaign end date', __CLASS__); ?></label>
                                 </legend>
                                 <div id="ctd-enddate-container" class="start-hidden">
-                                    <label class="selectit"><?php _e('End date:', __CLASS__); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the end date when the campaign is supposed to end', __CLASS__) ?>" id="ctd-enddate" type="text" name="<?php echo(__CLASS__ . '_endDate'); ?>" /></label>
-                                    <input id="ctd-hidden-enddate" type="hidden" name="<?php echo(__CLASS__ . '_endDate'); ?>" value="<?php echo($endDate[0]); ?>" />
+                                    <label class="selectit"><?php _e('End date:', __CLASS__); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the end date when the campaign is supposed to end', __CLASS__) ?>" id="ctd-enddate" type="text" name="<?php echo(__CLASS__ . self::$endDate); ?>" /></label>
+                                    <input id="ctd-hidden-enddate" type="hidden" name="<?php echo(__CLASS__ . self::$endDate); ?>" value="<?php echo(gmdate('Y-n-j', $endDate)); ?>" />
                                     @<input title="<?php esc_attr_e('Specify the campaign ending hours', __CLASS__) ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-endhours" name="<?php echo(__CLASS__ . '_endHours'); ?>" type="text" value="<?php echo($endHours[0]); ?>" />:<input title="<?php esc_attr_e('Specify the campaign ending minutes', __CLASS__) ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-endminutes" name="<?php echo(__CLASS__ . '_endMinutes'); ?>" type="text" value="<?php echo($endMinutes[0]); ?>" />
                                 </div>
                             </fieldset>
-
-                            <div>
-                                <?php printf(__('Views: %s', __CLASS__), $views); ?>
-                            </div>
                         </div>
                         
                         <div id="misc-publishing-actions">
 
-                            <div class="misc-pub-section<?php if (!$can_publish) { echo ' misc-pub-section-last'; } ?>"><label for="post_status"><?php _e('Status:') ?></label>
-                                <span id="post-status-display">
-                                    <?php
-                                    // @TODO: implement the custom states for the campaigns
-                                    switch ($post->post_status) {
-                                        case 'private':
-                                            _e('Privately Published');
-                                            break;
-                                        case 'publish':
-                                            _e('Published');
-                                            break;
-                                        case 'future':
-                                            _e('Scheduled');
-                                            break;
-                                        case 'pending':
-                                            _e('Pending Review');
-                                            break;
-                                        case 'draft':
-                                        case 'auto-draft':
-                                            _e('Draft');
-                                            break;
-                                    }
-                                    ?>
-                                </span>
-                                <?php if ('publish' == $post->post_status || 'private' == $post->post_status || $can_publish) { ?>
-                                    <a href="#post_status" <?php if ('private' == $post->post_status) { ?>style="display:none;" <?php } ?>class="edit-post-status hide-if-no-js" tabindex='4'><?php _e('Edit') ?></a>
-
-                                    <div id="post-status-select" class="hide-if-js">
-                                        <input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr(('auto-draft' == $post->post_status ) ? 'draft' : $post->post_status); ?>" />
-                                        <select name='post_status' id='post_status' tabindex='4'>
-                                            <?php if ('publish' == $post->post_status) : ?>
-                                                <option<?php selected($post->post_status, 'publish'); ?> value='publish'><?php _e('Published') ?></option>
-                                            <?php elseif ('private' == $post->post_status) : ?>
-                                                <option<?php selected($post->post_status, 'private'); ?> value='publish'><?php _e('Privately Published') ?></option>
-                                            <?php elseif ('future' == $post->post_status) : ?>
-                                                <option<?php selected($post->post_status, 'future'); ?> value='future'><?php _e('Scheduled') ?></option>
-                                            <?php endif; ?>
-                                            <option<?php selected($post->post_status, 'pending'); ?> value='pending'><?php _e('Pending Review') ?></option>
-                                            <?php if ('auto-draft' == $post->post_status) : ?>
-                                                <option<?php selected($post->post_status, 'auto-draft'); ?> value='draft'><?php _e('Draft') ?></option>
-                                            <?php else : ?>
-                                                <option<?php selected($post->post_status, 'draft'); ?> value='draft'><?php _e('Draft') ?></option>
-                                            <?php endif; ?>
-                                        </select>
-                                        <a href="#post_status" class="save-post-status hide-if-no-js button"><?php _e('OK'); ?></a>
-                                        <a href="#post_status" class="cancel-post-status hide-if-no-js"><?php _e('Cancel'); ?></a>
-                                    </div>
-                                <?php } ?>
+                            <div class="misc-pub-section<?php if (!$can_publish) { echo ' misc-pub-section-last'; } ?>">
+                                <label for="post_status"><?php _e('Status:', __CLASS__) ?></label>
+                                <input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo(esc_attr(('auto-draft' == $post->post_status ) ? self::STATUS_unavailable : $post->post_status)); ?>" />
+                                <select name='post_status' id='post_status' tabindex='4'>
+                                    <option<?php selected($post->post_status, self::STATUS_online); ?> value='<?php echo(self::STATUS_online); ?>'><?php _e('Online', __CLASS__) ?></option>
+                                    <option<?php selected($post->post_status, self::STATUS_finished); ?> value='<?php echo(self::STATUS_finished); ?>'><?php _e('Finished', __CLASS__) ?></option>
+                                    <option<?php selected($post->post_status, self::STATUS_scheduled); ?> value='<?php echo(self::STATUS_scheduled); ?>'><?php _e('Scheduled', __CLASS__) ?></option>
+                                    <?php if ('auto-draft' == $post->post_status) : ?>
+                                        <option<?php selected($post->post_status, 'auto-draft'); ?> value='<?php echo(self::STATUS_unavailable); ?>'><?php _e('Unavailable', __CLASS__) ?></option>
+                                    <?php else : ?>
+                                        <option<?php selected($post->post_status, self::STATUS_unavailable); ?> value='<?php echo(self::STATUS_unavailable); ?>'><?php _e('Unavailable', __CLASS__) ?></option>
+                                    <?php endif; ?>
+                                </select>
                             </div><?php // /misc-pub-section  ?>
                             <?php do_action('post_submitbox_misc_actions'); ?>
                         </div>
@@ -425,39 +424,35 @@ if (!class_exists('ClickToDonate')):
                             <?php
                             if (current_user_can("delete_post", $post->ID)) {
                                 if (!EMPTY_TRASH_DAYS)
-                                    $delete_text = __('Delete Permanently');
+                                    $delete_text = __('Delete Permanently', __CLASS__);
                                 else
-                                    $delete_text = __('Move to Trash');
+                                    $delete_text = __('Move to Trash', __CLASS__);
                                 ?>
-                                <a class="submitdelete deletion" href="<?php echo get_delete_post_link($post->ID); ?>"><?php echo $delete_text; ?></a><?php }
+                                <a class="submitdelete deletion" href="<?php echo get_delete_post_link($post->ID); ?>"><?php echo($delete_text); ?></a><?php }
                 ?>
                         </div>
 
                         <div id="publishing-action">
                             <img src="<?php echo esc_url(admin_url('images/wpspin_light.gif')); ?>" class="ajax-loading" id="ajax-loading" alt="" />
                             <?php
-                            if (!in_array($post->post_status, array('publish', 'future', 'private')) || 0 == $post->ID) {
-                                if ($can_publish) :
-                                    if (!empty($post->post_date_gmt) && time() < strtotime($post->post_date_gmt . ' +0000')) :
-                                        ?>
-                                        <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Schedule') ?>" />
-                                        <?php submit_button(__('Schedule'), 'primary', 'publish', false, array('tabindex' => '5', 'accesskey' => 'p')); ?>
-                                    <?php else : ?>
-                                        <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Publish') ?>" />
-                                        <?php submit_button(__('Publish'), 'primary', 'publish', false, array('tabindex' => '5', 'accesskey' => 'p')); ?>
-                                    <?php endif;
-                                else :
+                                if (in_array($post->post_status, array(self::STATUS_unavailable, 'auto-draft')) || 0 == $post->ID):
+                                    if ($can_publish) :
+                                        if (!empty($startDate) && time() < $startDate) :
+                                            ?>
+                                            <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Schedule', __CLASS__) ?>" />
+                                            <?php submit_button(__('Schedule', __CLASS__), 'primary', 'publish', false, array('tabindex' => '5', 'accesskey' => 'p')); ?>
+                                        <?php else : ?>
+                                            <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Publish', __CLASS__) ?>" />
+                                            <?php submit_button(__('Publish', __CLASS__), 'primary', 'publish', false, array('tabindex' => '5', 'accesskey' => 'p')); ?>
+                                        <?php endif;
+                                    endif;
+                                else:
                                     ?>
-                                    <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Submit for Review') ?>" />
-                        <?php submit_button(__('Submit for Review'), 'primary', 'publish', false, array('tabindex' => '5', 'accesskey' => 'p')); ?>
-                                <?php
+                                    <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Update', __CLASS__) ?>" />
+                                    <input name="save" type="submit" class="button-primary" id="publish" tabindex="5" accesskey="p" value="<?php esc_attr_e('Update', __CLASS__) ?>" />
+                                    <?php 
                                 endif;
-                            } else {
-                                ?>
-                                <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Update') ?>" />
-                                <input name="save" type="submit" class="button-primary" id="publish" tabindex="5" accesskey="p" value="<?php esc_attr_e('Update') ?>" />
-                    <?php }
-                ?>
+                            ?>
                         </div>
                         <div class="clear"></div>
                     </div>
@@ -479,62 +474,279 @@ if (!class_exists('ClickToDonate')):
             endif;
             switch (get_post_type($postId)):
                 case self::POST_TYPE:
-                    // Get the posted data
-                    if (isset($_POST[__CLASS__ . '_enable_click_limits'])):
-                        $enableClickLimits = $_POST[__CLASS__ . '_enable_click_limits'];
-                        $maxClicks = isset($_POST[__CLASS__ . '_maxClicks']) ? $_POST[__CLASS__ . '_maxClicks'] : -1;
+                    // Get the submited data
+                    if (isset($_POST[__CLASS__ . self::$enableCoolOff])):
+                        $enableCoolOff = $_POST[__CLASS__.self::$enableCoolOff];
+                        $coolOff = isset($_POST[__CLASS__.self::$coolOff]) ? $_POST[__CLASS__.self::$coolOff] : -1;
+                        $restrictByCookie = isset($_POST[__CLASS__.self::$restrictByCookie]) ? $_POST[__CLASS__.self::$restrictByCookie] : false;
+                        $restrictByLogin = isset($_POST[__CLASS__.self::$restrictByLogin]) ? $_POST[__CLASS__.self::$restrictByLogin] : false;
+                    else:
+                        $enableCoolOff = false;
+                        $coolOff = -1;
+                        $restrictByCookie = false;
+                        $restrictByLogin = false;
+                    endif;
+                    
+                    if (isset($_POST[__CLASS__ . self::$enableClickLimits])):
+                        $enableClickLimits = $_POST[__CLASS__.self::$enableClickLimits];
+                        $maxClicks = isset($_POST[__CLASS__.self::$maxClicks]) ? $_POST[__CLASS__.self::$maxClicks] : -1;
                     else:
                         $enableClickLimits = false;
                         $maxClicks = -1;
                     endif;
 
-                    if (isset($_POST[__CLASS__ . '_enable_startDate'])):
-                        $enableStartDate = $_POST[__CLASS__ . '_enable_startDate'];
-                        $startDate = isset($_POST[__CLASS__ . '_startDate']) ? $_POST[__CLASS__ . '_startDate'] : '';
-                        
-                        error_log(date("Y-m-d H:i:s",$startDate));
-                        
+                    if (isset($_POST[__CLASS__ . self::$enableStartDate])):
+                        $enableStartDate = $_POST[__CLASS__ . self::$enableStartDate];
+                    
+                        $startDate = isset($_POST[__CLASS__ . self::$startDate]) ? ($_POST[__CLASS__ . self::$startDate]) : '';
+                        list($year, $month, $day) = explode('-', $startDate);
                         $hours = isset($_POST[__CLASS__ . '_startHours']) ? (int)$_POST[__CLASS__ . '_startHours'] : 0;
                         $minutes = isset($_POST[__CLASS__ . '_startMinutes']) ? (int)$_POST[__CLASS__ . '_startMinutes'] : 0;
-                        $startDate = mktime ($hours, $minutes, 0, date('n', $startDate), date('j', $startDate), date('Y', $startDate));
+                        $startDate = gmmktime($hours, $minutes, 0, $month, $day, $year);
                     else:
                         $enableStartDate = false;
                         $startDate = '';
                     endif;
-                    
 
-                    if (isset($_POST[__CLASS__ . '_enable_endDate'])):
-                        $enableEndDate = $_POST[__CLASS__ . '_enable_endDate'];
-                        $endDate = isset($_POST[__CLASS__ . '_endDate']) ? $_POST[__CLASS__ . '_endDate'] : '';
+                    if (isset($_POST[__CLASS__ . self::$enableEndDate])):
+                        $enableEndDate = $_POST[__CLASS__ . self::$enableEndDate];
+                        $endDate = isset($_POST[__CLASS__ . self::$endDate]) ? ($_POST[__CLASS__ . self::$endDate]) : '';
+                        list($year, $month, $day) = explode('-', $endDate);
                         $hours = isset($_POST[__CLASS__ . '_endHours']) ? (int)$_POST[__CLASS__ . '_endHours'] : 0;
                         $minutes = isset($_POST[__CLASS__ . '_endMinutes']) ? (int)$_POST[__CLASS__ . '_endMinutes'] : 0;
-                        $endDate = mktime ($hours, $minutes, 0, date('n', $endDate), date('j', $endDate), date('Y', $endDate));
+                        $endDate = gmmktime($hours, $minutes, 0, $month, $day, $year);
                     else:
                         $enableEndDate = false;
                         $endDate = '';
                     endif;
                     
-                    if(is_numeric($startDate) && is_numeric($endDate) && $startDate<$endDate):
+                    // The start date cannot be greater than end date
+                    if(is_numeric($startDate) && is_numeric($endDate) && $startDate>$endDate):
                         $t = $startDate;
                         $startDate = $endDate;
                         $endDate = $t;
                     endif;
 
-                    // Save the object in the database
-                    update_post_meta($postId, __CLASS__ . '_enable_click_limits', $enableClickLimits);
-                    update_post_meta($postId, __CLASS__ . '_maxClicks', $maxClicks);
-                    update_post_meta($postId, __CLASS__ . '_enable_startDate', $enableStartDate);
-                    update_post_meta($postId, __CLASS__ . '_startDate', $startDate);
-                    update_post_meta($postId, __CLASS__ . '_enable_endDate', $enableEndDate);
-                    update_post_meta($postId, __CLASS__ . '_endDate', $endDate);
-
-                    error_log($_POST[__CLASS__ . '_enable_click_limits']);
+                    // Save the metadata to the database
+                    self::setPostCustomValues(self::$enableCoolOff, $enableCoolOff);
+                    self::setPostCustomValues(self::$coolOff, $coolOff);
+                    self::setPostCustomValues(self::$restrictByCookie, $restrictByCookie);
+                    self::setPostCustomValues(self::$restrictByLogin, $restrictByLogin);
+                    self::setPostCustomValues(self::$enableClickLimits, $enableClickLimits);
+                    self::setPostCustomValues(self::$maxClicks, $maxClicks);
+                    self::setPostCustomValues(self::$enableStartDate, $enableStartDate);
+                    self::setPostCustomValues(self::$startDate, $startDate);
+                    self::setPostCustomValues(self::$enableEndDate, $enableEndDate);
+                    self::setPostCustomValues(self::$endDate, $endDate);
+                    
+                    // Change the post status based on the metadata
+                    self::updatePostStatus($postId);
 
                     break;
             endswitch;
             return $postId;
         }
-
+        
+        /**
+         * If the post status was updated, update it with our rules
+         * 
+         * @param string $newStatus with the new post status
+         * @param string $oldStatus with the old post status
+         * @param object $post with the post object
+         */
+        public function transitionPostStatus($newStatus, $oldStatus, $post){
+            self::updatePostStatus($post->ID);
+        }
+        
+        
+        /**
+         * Based on the status and the configurations of the post, set the post_status accordingly
+         * 
+         * @param int $postId with the post identificator
+         * @return string with the post status
+         */
+        public static function updatePostStatus($postId=0){
+            // Get the ID from the parameter or from the main loop
+	    $postId = absint( $postId );
+	    if (!$postId):
+		$postId = get_the_ID();
+	    endif;
+            
+            // Get the full post object
+            $post = get_post($postId);
+            
+            // Compute the new status
+            $newStatus = false;
+            switch(get_post_status($post)):
+                case 'publish':
+                case self::STATUS_online:
+                case self::STATUS_scheduled:
+                case self::STATUS_finished:
+                    $numberOfClicks = PHP_INT_MAX; // @TODO get the number of clicks already in the system and stored in the database
+                    if(self::hasClicksLimit($postId) && self::getClicksLimit($postId)>=$numberOfClicks || self::hasEndDate($postId) && self::getEndDate($postId)<=time()):
+                        $newStatus = self::STATUS_finished;
+                    elseif(self::hasStartDate() && self::getStartDate($postId)>=time()):
+                        $newStatus = self::STATUS_scheduled;
+                    else:
+                        $newStatus = self::STATUS_online;
+                    endif;
+                break;
+                case 'auto-draft':
+                    $newStatus = self::STATUS_unavailable;
+                break;
+            endswitch;
+            
+            // Persist the new status
+            if($newStatus):
+                $oldStatus = get_post_status($post);
+                $post->post_status = $newStatus;
+                if($oldStatus!=$newStatus):
+                    wp_update_post($post);
+                    wp_transition_post_status($newStatus, $oldStatus, $post);
+                endif;
+            endif;
+            
+            return get_post_status($post);
+        }
+        
+        /**
+         * Set a custom value associated with a post
+         * 
+         * @param string $key with the key name
+         * @param int $postId with the post identifier
+         * @param string value with the value to associate with the key in the post
+         */
+        private static function setPostCustomValues($key, $value='', $postId=0){
+            // Get the ID from the parameter or from the main loop
+	    $postId = absint( $postId );
+	    if (!$postId):
+		$postId = get_the_ID();
+	    endif;
+            update_post_meta($postId, __CLASS__.$key, $value);
+        }
+        
+        /**
+         * Get a custom value associated with a post
+         * 
+         * @param string $key with the key name
+         * @param int $postId with the post identifier
+         * @return string value for the key or boolean false if the key was not found
+         */
+        private static function getPostCustomValues($key, $postId=0){
+            // Get the ID from the parameter or from the main loop
+	    $postId = absint( $postId );
+	    if (!$postId):
+		$postId = get_the_ID();
+	    endif;
+            $value = get_post_custom_values(__CLASS__.$key, $postId);
+            return (!empty($value) && isset($value[0]))?$value[0]:false;
+        }
+        
+        /**
+         * Verify if the campaign has a cooling-off time limit
+         * 
+         * @param int $postId
+         * @return boolean
+         */
+        public static function hasCoolOffLimit($postId=0){
+            return (boolean)self::getPostCustomValues(self::$enableCoolOff, $postId);
+        }
+        
+        /**
+         * Get the cooling-off time between clicks on a specific campaign
+         * 
+         * @param int $postId
+         * @return int with the cooling-off time
+         */
+        public static function getCoolOffLimit($postId=0){
+            $limit = self::getPostCustomValues(self::$coolOff, $postId);
+            return (int)(!self::hasCoolOffLimit($postId) || $limit===false?-1:$limit);
+        }
+        
+        /**
+         * Verify if the campaign is to be restricted by a cookie
+         * 
+         * @param int $postId
+         * @return boolean
+         */
+        public static function isToRestrictByCookie($postId=0){
+            return (boolean)(self::hasCoolOffLimit($postId) && self::getPostCustomValues(self::$restrictByCookie, $postId));
+        }
+        
+        /**
+         * Verify if the campaign is to be restricted by login (the user must be authenticated
+         * 
+         * @param int $postId
+         * @return boolean
+         */
+        public static function isToRestrictByLogin($postId=0){
+            return (boolean)(self::hasCoolOffLimit($postId) && self::getPostCustomValues(self::$restrictByLogin, $postId));
+        }
+        
+        /**
+         * Verify if the post has the click limits enforced
+         * 
+         * @param int $postId
+         * @return boolean
+         */
+        public static function hasClicksLimit($postId=0){
+            return (boolean)self::getPostCustomValues(self::$enableClickLimits, $postId);
+        }
+        
+        /**
+         * Get the maximum number of clicks allowed in a specific campaign
+         * 
+         * @param int $postId
+         * @return int with the maximum number of clicks 
+         */
+        public static function getClicksLimit($postId=0){
+            $limit = self::getPostCustomValues(self::$maxClicks, $postId);
+            return (int)(!self::hasClicksLimit($postId) || $limit===false?-1:$limit);
+        }
+        
+        /**
+         * Verify if the post has a start date setting enabled
+         * 
+         * @param int $postId
+         * @return boolean
+         */
+        public static function hasStartDate($postId=0){
+            return (boolean)self::getPostCustomValues(self::$enableStartDate, $postId);
+        }
+        
+        /**
+         * Get the start date of a specific campaign
+         * 
+         * @param int $postId
+         * @return int with timestamp of the start date
+         */
+        public static function getStartDate($postId=0){
+            $date = self::getPostCustomValues(self::$startDate, $postId);
+            return (int)(!self::hasStartDate($postId) || $date===false?gmmktime():$date);
+        }
+        
+        /**
+         * Verify if the post has a end date setting enabled
+         * 
+         * @param int $postId
+         * @return boolean
+         */
+        public static function hasEndDate($postId=0){
+            return (boolean)self::getPostCustomValues(self::$enableEndDate, $postId);
+        }
+        
+        /**
+         * Get the end date of a specific campaign
+         * 
+         * @param int $postId
+         * @return int with timestamp of the end date
+         */
+        public static function getEndDate($postId=0){
+            $date = self::getPostCustomValues(self::$endDate, $postId);
+            // Default is set to current date plus a day
+            return (int)(!self::hasEndDate($postId) || $date===false?gmmktime()+3600*24:$date);
+        }
+        
         /**
          * Install the database tables
          */
@@ -718,14 +930,19 @@ if (!class_exists('ClickToDonate')):
             // Add thePosts method to filter the_posts
             add_filter('the_posts', array(__CLASS__, 'thePosts'), 10, 2);
 
-            // Add mapMetaCapabilities method to filter map_meta_cap
-            add_filter('map_meta_cap', array(__CLASS__, 'mapMetaCapabilities'), 10, 4);
+            // Add mapMetaCapabilities method to filter map_meta_cap  // Maybe we can use this in the module 2
+            //add_filter('map_meta_cap', array(__CLASS__, 'mapMetaCapabilities'), 10, 4);
 
             // Register the adminEnqueueScripts method to the Wordpress admin_enqueue_scripts action hook
             add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
 
             // Register the adminPrintStyles method to the Wordpress admin_print_styles action hook
             add_action('admin_print_styles', array(__CLASS__, 'adminPrintStyles'));
+
+            // Register the adminPrintStyles method to the Wordpress transition_post_status action hook
+            add_action('transition_post_status', array(__CLASS__, 'transitionPostStatus'), 10, 3);
+            
+            
         }
 
     }

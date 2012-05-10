@@ -70,7 +70,7 @@ $j(function(){
         nextText: ctdAdmin.nextText,
         prevText: ctdAdmin.prevText,
         weekHeader: ctdAdmin.weekHeader,
-        altFormat: "@",
+        altFormat: "yy-m-d",
         autoSize: true,
         changeMonth: true,
         changeYear: true
@@ -90,6 +90,41 @@ $j(function(){
         step: 100,
         largeStep: 1000
     });
+    
+    $j('#ctd-cool-off-period').spinner({
+        min: 0, 
+        increment: 'fast',
+        showOn: 'both',
+        mouseWheel: true,
+        step: 3600,
+        largeStep: 3600*24
+    }).change(function() {
+        var time = $j(this).val();
+        if(!isNaN(time)){
+            var seconds = time % 60
+            time /= 60
+            var minutes = time % 60
+            time /= 60
+            var hours = time % 24
+            time /= 24
+            var days = Math.floor(time);
+            
+            var timeString = "";
+            if(days>0){
+                timeString += days+" days "
+            }
+            if(hours>0){
+                timeString += hours+" hours "
+            }
+            if(minutes>0){
+                timeString += minutes+" minutes "
+            }
+            if(seconds>0){
+                timeString += seconds+" seconds"
+            }
+            $j("#ctd-readable-cool-off-period").html(timeString);
+        }
+    }).trigger('change');
     
     // Attach the spinner to the time fields
     var timeDefaults = {
@@ -138,9 +173,14 @@ $j(function(){
     };
     
     // Show the fieldset when the checkbox is checked
+    $j("#ctd-enable-cool-off").click(function(){
+        showContainer("#ctd-cool-off-container", "#ctd-enable-cool-off-container", $j(this).is(":checked"));
+    });
+    
     $j("#ctd-enable-maxclicks").click(function(){
         showContainer("#ctd-maxclicks-container", "#ctd-enable-maxclicks-container", $j(this).is(":checked"));
     });
+    
     $j("#ctd-enable-startdate").click(function(){
         showContainer("#ctd-startdate-container", "#ctd-enable-startdate-container", $j(this).is(":checked"));
         
@@ -159,8 +199,15 @@ $j(function(){
     });
     
     // Attach the date picker components and set their dates based on the timestamp values
-    var startDate = $j.datepicker.parseDate("@", $j("#ctd-hidden-startdate").val()) || null;
-    var endDate = $j.datepicker.parseDate("@", $j("#ctd-hidden-enddate").val()) || null;
+    var startDate = null;
+    if($j("#ctd-hidden-startdate").val()){
+        startDate = $j.datepicker.parseDate("yy-m-d", $j("#ctd-hidden-startdate").val()) || null;
+    }
+    var endDate = null;
+    if($j("#ctd-hidden-enddate").val()){
+        endDate = $j.datepicker.parseDate("yy-m-d", $j("#ctd-hidden-enddate").val()) || null;
+    }
+    
     $j("#ctd-startdate").datepicker($j.extend(true, {}, calendarOptions, {
         defaultDate: "+1w",
         altField: "#ctd-hidden-startdate",
@@ -184,6 +231,7 @@ $j(function(){
     })).datepicker("setDate", endDate);
     
     // Set the initial visibility of the fieldsets
+    showContainer("#ctd-cool-off-container", "#ctd-enable-cool-off-container", $j("#ctd-enable-cool-off").is(":checked"));
     showContainer("#ctd-maxclicks-container", "#ctd-enable-maxclicks-container", $j("#ctd-enable-maxclicks").is(":checked"));
     showContainer("#ctd-startdate-container", "#ctd-enable-startdate-container", $j("#ctd-enable-startdate").is(":checked"));
     showContainer("#ctd-enddate-container", "#ctd-enable-enddate-container", $j("#ctd-enable-enddate").is(":checked"));
