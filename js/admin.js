@@ -96,35 +96,35 @@ $j(function(){
         increment: 'fast',
         showOn: 'both',
         mouseWheel: true,
-        step: 3600,
-        largeStep: 3600*24
-    }).change(function() {
+        step: 1,
+        largeStep: 3600
+    })/*.change(function() {
         var time = $j(this).val();
         if(!isNaN(time)){
-            var seconds = time % 60
-            time /= 60
-            var minutes = time % 60
-            time /= 60
-            var hours = time % 24
-            time /= 24
+            var seconds = time % 60;
+            time /= 60;
+            var minutes = time % 60;
+            time /= 60;
+            var hours = time % 24;
+            time /= 24;
             var days = Math.floor(time);
             
             var timeString = "";
             if(days>0){
-                timeString += days+" days "
+                timeString += days+" days ";
             }
             if(hours>0){
-                timeString += hours+" hours "
+                timeString += hours+" hours ";
             }
             if(minutes>0){
-                timeString += minutes+" minutes "
+                timeString += minutes+" minutes ";
             }
             if(seconds>0){
-                timeString += seconds+" seconds"
+                timeString += seconds+" seconds";
             }
             $j("#ctd-readable-cool-off-period").html(timeString);
         }
-    }).trigger('change');
+    })*/.trigger('change');
     
     // Attach the spinner to the time fields
     var timeDefaults = {

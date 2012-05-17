@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Click-to-donate\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-10 18:22+0100\n"
+"POT-Creation-Date: 2012-05-17 04:41+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Cláudio Esperança <cesperanc@gmail.com>\n"
 "Language-Team: Cláudio Esperança, Diogo Serra <cesperanc@gmail.com>\n"
@@ -18,104 +18,104 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../click-to-donate.php:75
+#: ../click-to-donate.php:82
 #: ../_tests/click-to-donate_bak.php:43
 msgid "Campaigns"
 msgstr "Campanhas"
 
-#: ../click-to-donate.php:76
+#: ../click-to-donate.php:83
 #: ../_tests/click-to-donate_bak.php:44
 msgid "Campaign"
 msgstr "Campanha"
 
-#: ../click-to-donate.php:77
+#: ../click-to-donate.php:84
 #: ../_tests/click-to-donate_bak.php:45
 msgid "Add new"
 msgstr "Adicionar nova"
 
-#: ../click-to-donate.php:78
+#: ../click-to-donate.php:85
 #: ../_tests/click-to-donate_bak.php:46
 msgid "Add new campaign"
 msgstr "Adicionar nova campanha"
 
-#: ../click-to-donate.php:79
+#: ../click-to-donate.php:86
 #: ../_tests/click-to-donate_bak.php:47
 msgid "Edit campaign"
 msgstr "Editar campanhar"
 
-#: ../click-to-donate.php:80
+#: ../click-to-donate.php:87
 #: ../_tests/click-to-donate_bak.php:48
 msgid "New campaign"
 msgstr "Nova campanha"
 
-#: ../click-to-donate.php:81
+#: ../click-to-donate.php:88
 #: ../_tests/click-to-donate_bak.php:49
 msgid "View campaign"
 msgstr "Ver campanha"
 
-#: ../click-to-donate.php:82
+#: ../click-to-donate.php:89
 #: ../_tests/click-to-donate_bak.php:50
 msgid "Search campaigns"
 msgstr "Pesquisar por campanhas"
 
-#: ../click-to-donate.php:83
+#: ../click-to-donate.php:90
 #: ../_tests/click-to-donate_bak.php:51
 msgid "No campaign found"
 msgstr "Não foram encontradas campanhas"
 
-#: ../click-to-donate.php:84
+#: ../click-to-donate.php:91
 #: ../_tests/click-to-donate_bak.php:52
 msgid "No campaigns were found on the recycle bin"
 msgstr "Não foram encontradas campanhas na reciclagem"
 
-#: ../click-to-donate.php:86
+#: ../click-to-donate.php:93
 #: ../_tests/click-to-donate_bak.php:54
 msgid "Click to donate campaigns"
 msgstr "Clique para doar para as campanhas"
 
-#: ../click-to-donate.php:118
-#: ../click-to-donate.php:404
+#: ../click-to-donate.php:125
+#: ../click-to-donate.php:1034
 msgid "Online"
 msgstr "Online"
 
-#: ../click-to-donate.php:125
+#: ../click-to-donate.php:132
 #, php-format
 msgid "Online <span class=\"count\">(%s)</span>"
 msgid_plural "Online <span class=\"count\">(%s)</span>"
 msgstr[0] "Online <span class=\"count\">(%s)</span>"
 msgstr[1] "Online <span class=\"count\">(%s)</span>"
 
-#: ../click-to-donate.php:131
-#: ../click-to-donate.php:406
+#: ../click-to-donate.php:138
+#: ../click-to-donate.php:1036
 msgid "Scheduled"
 msgstr "Agendado"
 
-#: ../click-to-donate.php:138
+#: ../click-to-donate.php:145
 #, php-format
 msgid "Scheduled <span class=\"count\">(%s)</span>"
 msgid_plural "Scheduled <span class=\"count\">(%s)</span>"
 msgstr[0] "Agendado <span class=\"count\">(%s)</span>"
 msgstr[1] "Agendado <span class=\"count\">(%s)</span>"
 
-#: ../click-to-donate.php:144
-#: ../click-to-donate.php:405
+#: ../click-to-donate.php:151
+#: ../click-to-donate.php:1035
 msgid "Finished"
 msgstr "Concluído"
 
-#: ../click-to-donate.php:151
+#: ../click-to-donate.php:158
 #, php-format
 msgid "Finished <span class=\"count\">(%s)</span>"
 msgid_plural "Finished <span class=\"count\">(%s)</span>"
 msgstr[0] "Concluído <span class=\"count\">(%s)</span>"
 msgstr[1] "Concluído <span class=\"count\">(%s)</span>"
 
-#: ../click-to-donate.php:157
-#: ../click-to-donate.php:408
-#: ../click-to-donate.php:410
+#: ../click-to-donate.php:164
+#: ../click-to-donate.php:1038
+#: ../click-to-donate.php:1040
 msgid "Unavailable"
 msgstr "Não disponível"
 
-#: ../click-to-donate.php:164
+#: ../click-to-donate.php:171
 #, php-format
 msgid "Unavailable <span class=\"count\">(%s)</span>"
 msgid_plural "Unavailable <span class=\"count\">(%s)</span>"
@@ -323,79 +323,95 @@ msgstr "Anterior"
 msgid "Wk"
 msgstr "Sm"
 
-#: ../click-to-donate.php:291
+#: ../click-to-donate.php:290
 msgid "Campaign configuration"
 msgstr "Configuração da campanha"
 
-#: ../click-to-donate.php:302
+#: ../click-to-donate.php:893
 msgid "Save"
 msgstr "Guardar"
 
-#: ../click-to-donate.php:316
+#: ../click-to-donate.php:907
 msgid "Preview Changes"
 msgstr "Prever Alterações"
 
-#: ../click-to-donate.php:322
+#: ../click-to-donate.php:913
 msgid "Preview"
 msgstr "Prever"
 
-#: ../click-to-donate.php:358
+#: ../click-to-donate.php:948
 msgid "Cooling-off period"
 msgstr "Periodo de espera"
 
-#: ../click-to-donate.php:360
+#: ../click-to-donate.php:983
 msgid "Cooling-off period:"
 msgstr "Periodo de espera:"
 
-#: ../click-to-donate.php:361
+#: ../click-to-donate.php:985
+msgid "Second(s)"
+msgstr "Segundo(s)"
+
+#: ../click-to-donate.php:986
+msgid "Minute(s)"
+msgstr "Minuto(s)"
+
+#: ../click-to-donate.php:987
+msgid "Hour(s)"
+msgstr "Hora(s)"
+
+#: ../click-to-donate.php:988
+msgid "Day(s)"
+msgstr "Dia(s)"
+
+#: ../click-to-donate.php:991
 msgid "Restrict by cookie"
 msgstr "Restringir por cookie"
 
-#: ../click-to-donate.php:362
+#: ../click-to-donate.php:992
 msgid "Restrict by login"
 msgstr "Restringir por login"
 
-#: ../click-to-donate.php:368
+#: ../click-to-donate.php:998
 msgid "Limit the number of clicks"
 msgstr "Limite do número de cliques"
 
-#: ../click-to-donate.php:370
+#: ../click-to-donate.php:1000
 msgid "Clicks limit:"
 msgstr "Limite de cliques:"
 
-#: ../click-to-donate.php:377
+#: ../click-to-donate.php:1007
 msgid "Set the campaign start date"
 msgstr "Definir a data de início da campanha"
 
-#: ../click-to-donate.php:380
+#: ../click-to-donate.php:1010
 msgid "Start date:"
 msgstr "Data de início:"
 
-#: ../click-to-donate.php:388
+#: ../click-to-donate.php:1018
 msgid "Set the campaign end date"
 msgstr "Definir a data de fim da campanha"
 
-#: ../click-to-donate.php:391
+#: ../click-to-donate.php:1021
 msgid "End date:"
 msgstr "Data de fim:"
 
-#: ../click-to-donate.php:401
+#: ../click-to-donate.php:1031
 msgid "Status:"
 msgstr "Estado:"
 
-#: ../click-to-donate.php:427
+#: ../click-to-donate.php:1055
 msgid "Delete Permanently"
 msgstr "Eliminar Permanentemente"
 
-#: ../click-to-donate.php:429
+#: ../click-to-donate.php:1057
 msgid "Move to Trash"
 msgstr "Mover para o lixo"
 
-#: ../click-to-donate.php:443
+#: ../click-to-donate.php:1069
 msgid "Schedule"
 msgstr "Agendar"
 
-#: ../click-to-donate.php:446
+#: ../click-to-donate.php:1072
 msgid "Publish"
 msgstr "Publicar"
 
