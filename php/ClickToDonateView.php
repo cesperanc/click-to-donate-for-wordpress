@@ -61,68 +61,70 @@ if (!class_exists('ClickToDonateView')):
          * Register the scripts to be loaded on the backoffice, on our custom post type
          */
         public function adminEnqueueScripts() {
-            $suffix = self::debugSufix();
+            if (is_admin()):
+                $suffix = self::debugSufix();
+            
+                if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
+                    // Register the scripts
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("js/ui-spinner/ui-spinner$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
 
-            if (is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE /* && $current_screen->base=='post' */):
-                // Register the scripts
-                wp_enqueue_script('ui-spinner', plugins_url("js/ui-spinner/ui-spinner$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
-
-                // Admin script
-                wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', 'ui-spinner'), '1.0');
-                // Localize the script
-                wp_localize_script(ClickToDonate::CLASS_NAME.'_admin', 'ctdAdminL10n', array(
-                    'closeText' => __('Done', 'ClickToDonate'),
-                    'currentText' => __('Today', 'ClickToDonate'),
-                    'dateFormat' => __('mm/dd/yy', 'ClickToDonate'),
-                    'dayNamesSunday' => __('Sunday', 'ClickToDonate'),
-                    'dayNamesMonday' => __('Monday', 'ClickToDonate'),
-                    'dayNamesTuesday' => __('Tuesday', 'ClickToDonate'),
-                    'dayNamesWednesday' => __('Wednesday', 'ClickToDonate'),
-                    'dayNamesThursday' => __('Thursday', 'ClickToDonate'),
-                    'dayNamesFriday' => __('Friday', 'ClickToDonate'),
-                    'dayNamesSaturday' => __('Saturday', 'ClickToDonate'),
-                    'dayNamesMinSu' => __('Su', 'ClickToDonate'),
-                    'dayNamesMinMo' => __('Mo', 'ClickToDonate'),
-                    'dayNamesMinTu' => __('Tu', 'ClickToDonate'),
-                    'dayNamesMinWe' => __('We', 'ClickToDonate'),
-                    'dayNamesMinTh' => __('Th', 'ClickToDonate'),
-                    'dayNamesMinFr' => __('Fr', 'ClickToDonate'),
-                    'dayNamesMinSa' => __('Sa', 'ClickToDonate'),
-                    'dayNamesShortSun' => __('Sun', 'ClickToDonate'),
-                    'dayNamesShortMon' => __('Mon', 'ClickToDonate'),
-                    'dayNamesShortTue' => __('Tue', 'ClickToDonate'),
-                    'dayNamesShortWed' => __('Wed', 'ClickToDonate'),
-                    'dayNamesShortThu' => __('Thu', 'ClickToDonate'),
-                    'dayNamesShortFri' => __('Fri', 'ClickToDonate'),
-                    'dayNamesShortSat' => __('Sat', 'ClickToDonate'),
-                    'monthNamesJanuary' => __('January', 'ClickToDonate'),
-                    'monthNamesFebruary' => __('February', 'ClickToDonate'),
-                    'monthNamesMarch' => __('March', 'ClickToDonate'),
-                    'monthNamesApril' => __('April', 'ClickToDonate'),
-                    'monthNamesMay' => __('May', 'ClickToDonate'),
-                    'monthNamesJune' => __('June', 'ClickToDonate'),
-                    'monthNamesJuly' => __('July', 'ClickToDonate'),
-                    'monthNamesAugust' => __('August', 'ClickToDonate'),
-                    'monthNamesSeptember' => __('September', 'ClickToDonate'),
-                    'monthNamesOctober' => __('October', 'ClickToDonate'),
-                    'monthNamesNovember' => __('November', 'ClickToDonate'),
-                    'monthNamesDecember' => __('December', 'ClickToDonate'),
-                    'monthNamesShortJan' => __('Jan', 'ClickToDonate'),
-                    'monthNamesShortFeb' => __('Feb', 'ClickToDonate'),
-                    'monthNamesShortMar' => __('Mar', 'ClickToDonate'),
-                    'monthNamesShortApr' => __('Apr', 'ClickToDonate'),
-                    'monthNamesShortMay' => __('May', 'ClickToDonate'),
-                    'monthNamesShortJun' => __('Jun', 'ClickToDonate'),
-                    'monthNamesShortJul' => __('Jul', 'ClickToDonate'),
-                    'monthNamesShortAug' => __('Aug', 'ClickToDonate'),
-                    'monthNamesShortSep' => __('Sep', 'ClickToDonate'),
-                    'monthNamesShortOct' => __('Oct', 'ClickToDonate'),
-                    'monthNamesShortNov' => __('Nov', 'ClickToDonate'),
-                    'monthNamesShortDec' => __('Dec', 'ClickToDonate'),
-                    'nextText' => __('Next', 'ClickToDonate'),
-                    'prevText' => __('Prev', 'ClickToDonate'),
-                    'weekHeader' => __('Wk', 'ClickToDonate')
-                ));
+                    // Admin script
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', ClickToDonate::CLASS_NAME . '_ui-spinner'), '1.0');
+                    // Localize the script
+                    wp_localize_script(ClickToDonate::CLASS_NAME.'_admin', 'ctdAdminL10n', array(
+                        'closeText' => __('Done', 'ClickToDonate'),
+                        'currentText' => __('Today', 'ClickToDonate'),
+                        'dateFormat' => __('mm/dd/yy', 'ClickToDonate'),
+                        'dayNamesSunday' => __('Sunday', 'ClickToDonate'),
+                        'dayNamesMonday' => __('Monday', 'ClickToDonate'),
+                        'dayNamesTuesday' => __('Tuesday', 'ClickToDonate'),
+                        'dayNamesWednesday' => __('Wednesday', 'ClickToDonate'),
+                        'dayNamesThursday' => __('Thursday', 'ClickToDonate'),
+                        'dayNamesFriday' => __('Friday', 'ClickToDonate'),
+                        'dayNamesSaturday' => __('Saturday', 'ClickToDonate'),
+                        'dayNamesMinSu' => __('Su', 'ClickToDonate'),
+                        'dayNamesMinMo' => __('Mo', 'ClickToDonate'),
+                        'dayNamesMinTu' => __('Tu', 'ClickToDonate'),
+                        'dayNamesMinWe' => __('We', 'ClickToDonate'),
+                        'dayNamesMinTh' => __('Th', 'ClickToDonate'),
+                        'dayNamesMinFr' => __('Fr', 'ClickToDonate'),
+                        'dayNamesMinSa' => __('Sa', 'ClickToDonate'),
+                        'dayNamesShortSun' => __('Sun', 'ClickToDonate'),
+                        'dayNamesShortMon' => __('Mon', 'ClickToDonate'),
+                        'dayNamesShortTue' => __('Tue', 'ClickToDonate'),
+                        'dayNamesShortWed' => __('Wed', 'ClickToDonate'),
+                        'dayNamesShortThu' => __('Thu', 'ClickToDonate'),
+                        'dayNamesShortFri' => __('Fri', 'ClickToDonate'),
+                        'dayNamesShortSat' => __('Sat', 'ClickToDonate'),
+                        'monthNamesJanuary' => __('January', 'ClickToDonate'),
+                        'monthNamesFebruary' => __('February', 'ClickToDonate'),
+                        'monthNamesMarch' => __('March', 'ClickToDonate'),
+                        'monthNamesApril' => __('April', 'ClickToDonate'),
+                        'monthNamesMay' => __('May', 'ClickToDonate'),
+                        'monthNamesJune' => __('June', 'ClickToDonate'),
+                        'monthNamesJuly' => __('July', 'ClickToDonate'),
+                        'monthNamesAugust' => __('August', 'ClickToDonate'),
+                        'monthNamesSeptember' => __('September', 'ClickToDonate'),
+                        'monthNamesOctober' => __('October', 'ClickToDonate'),
+                        'monthNamesNovember' => __('November', 'ClickToDonate'),
+                        'monthNamesDecember' => __('December', 'ClickToDonate'),
+                        'monthNamesShortJan' => __('Jan', 'ClickToDonate'),
+                        'monthNamesShortFeb' => __('Feb', 'ClickToDonate'),
+                        'monthNamesShortMar' => __('Mar', 'ClickToDonate'),
+                        'monthNamesShortApr' => __('Apr', 'ClickToDonate'),
+                        'monthNamesShortMay' => __('May', 'ClickToDonate'),
+                        'monthNamesShortJun' => __('Jun', 'ClickToDonate'),
+                        'monthNamesShortJul' => __('Jul', 'ClickToDonate'),
+                        'monthNamesShortAug' => __('Aug', 'ClickToDonate'),
+                        'monthNamesShortSep' => __('Sep', 'ClickToDonate'),
+                        'monthNamesShortOct' => __('Oct', 'ClickToDonate'),
+                        'monthNamesShortNov' => __('Nov', 'ClickToDonate'),
+                        'monthNamesShortDec' => __('Dec', 'ClickToDonate'),
+                        'nextText' => __('Next', 'ClickToDonate'),
+                        'prevText' => __('Prev', 'ClickToDonate'),
+                        'weekHeader' => __('Wk', 'ClickToDonate')
+                    ));
+                endif;
 
                 // Link list script
                 wp_enqueue_script(ClickToDonate::CLASS_NAME . '_links-list', plugins_url("js/tinymce/links-list$suffix.js", ClickToDonate::FILE), array('jquery', 'wpdialogs'), '1.0');
@@ -142,11 +144,15 @@ if (!class_exists('ClickToDonateView')):
          * Register the styles to be loaded on the backoffice on our custom post type
          */
         public function adminPrintStyles() {
-            if (is_admin() && ($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
+            if (is_admin()):
                 $suffix = self::debugSufix();
-                wp_enqueue_style('jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
-                wp_enqueue_style('ui-spinner', plugins_url("css/ui-spinner/ui-spinner$suffix.css", ClickToDonate::FILE), array(), '1.20');
-                wp_enqueue_style('admin', plugins_url("css/admin$suffix.css", ClickToDonate::FILE), array('ui-spinner', 'jquery-ui-theme'), '1.0');
+                if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("css/ui-spinner/ui-spinner$suffix.css", ClickToDonate::FILE), array(), '1.20');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_admin', plugins_url("css/admin$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
+                endif;
+                
+                wp_enqueue_style('ctd-tinymce', plugins_url("css/tinymce/tinymce$suffix.css", ClickToDonate::FILE), array(), '1.0');
             endif;
         }
 
@@ -648,7 +654,7 @@ if (!class_exists('ClickToDonateView')):
             foreach ($posts as $index => $post):
                 // If is a countable post type, is a single post and we are getting the post from the front office, verify and count the visit
                 if(get_post_type($post) == ClickToDonateController::POST_TYPE && is_single($post) && !is_admin()):
-                    $status = ClickToDonateController::bannerCanBeShown($post);
+                    $status = ClickToDonateController::bannerCanBeShown($post, true);
                     switch($status):
                         // Everything ok, let's try to register the visit
                         case ClickToDonateController::MSG_OK:
@@ -661,6 +667,10 @@ if (!class_exists('ClickToDonateView')):
                         case ClickToDonateController::MSG_UNKNOWN_POST_STATUS:
                         case ClickToDonateController::MSG_UNKNOWN_POST_TYPE:
                                 $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Unable to register the visit. Please try again later.', 'ClickToDonate')."</span>";
+                            break;
+                        // The campaign was finished
+                        case ClickToDonateController::MSG_URL_ERROR:
+                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Sorry, but the URL for this campaign is invalid.', 'ClickToDonate')."</span>";
                             break;
                         // The campaign was finished
                         case ClickToDonateController::MSG_CAMPAIGN_FINISHED:
@@ -712,7 +722,7 @@ if (!class_exists('ClickToDonateView')):
             
             return preg_replace($patterns, $replacements, $content);
         }
-        
+
         
 
         /**

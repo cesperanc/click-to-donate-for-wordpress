@@ -196,7 +196,7 @@ var ClickToDonateLinks;
             attrs = ClickToDonateLinks.getAttrs();
 
             // If there's no href, return.
-            if ( ! attrs.href || attrs.href == 'http://' )
+            if ( ! attrs.href || attrs.href == 'http://' || attrs.href == '#' )
                 return;
 
             // Build HTML
@@ -305,7 +305,7 @@ var ClickToDonateLinks;
         updateFields : function( e, li, originalEvent ) {
             inputs.url.val( li.children('.item-link').val() );
             inputs.title.val( li.hasClass('no-title') ? '' : li.children('.item-title').text() );
-            inputs.name.html("<a href='"+li.children('.item-link').val()+"' target='_blank'>"+inputs.title.val()+"</a>");
+            inputs.name.html("<a href='"+li.children('.item-permalink').val()+"' target='_blank'>"+inputs.title.val()+"</a>");
             $('#ctd-campaign-name-field-wrapper').show();
             if ( originalEvent && originalEvent.type == "click" )
                 inputs.url.focus();

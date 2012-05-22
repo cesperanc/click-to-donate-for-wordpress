@@ -34,6 +34,7 @@ if (!class_exists('ClickToDonateController')):
         const MSG_CAMPAIGN_UNAVAILABLE = -6;
         const MSG_CAMPAIGN_SCHEDULED = -7;
         const MSG_CAMPAIGN_FINISHED = -8;
+        const MSG_URL_ERROR = -9;
         
         // Class variables
         private static $enableCoolOff = '_enable_cool_off';
@@ -47,6 +48,7 @@ if (!class_exists('ClickToDonateController')):
         private static $enableEndDate = '_enable_endDate';
         private static $endDate = '_endDate';
         private static $cookieName = 'CTD-banner';
+        private static $viewBannerOnce = 'ctd_view_banner';
         
         public static function init(){
             
@@ -64,6 +66,9 @@ if (!class_exists('ClickToDonateController')):
 
             // Register the transitionPostStatus method to the Wordpress transition_post_status action hook
             add_action('transition_post_status', array(__CLASS__, 'transitionPostStatus'), 10, 3);
+            
+            // Add the post_link filter to filter the post URL
+            add_filter('post_type_link', array(__CLASS__, 'postTypeLink'), 10, 4);
         }
         
         /**
@@ -279,34 +284,35 @@ if (!class_exists('ClickToDonateController')):
          */
         public static function updatePostStatus($post = 0) {
             $post = &get_post($post);
+            if(get_post_type($post)==self::POST_TYPE):
+                // Compute the new status
+                $newStatus = false;
+                switch (get_post_status($post)):
+                    case 'publish':
+                    case self::STATUS_online:
+                    case self::STATUS_scheduled:
+                        $numberOfClicks = self::countBannerVisits($post);
+                        if (self::hasClicksLimit($post) && self::getClicksLimit($post) <= $numberOfClicks || self::hasEndDate($post) && self::getEndDate($post) <= current_time('timestamp', true)):
+                            $newStatus = self::STATUS_finished;
+                        elseif (self::hasStartDate($post) && self::getStartDate($post) >= current_time('timestamp', true)):
+                            $newStatus = self::STATUS_scheduled;
+                        else:
+                            $newStatus = self::STATUS_online;
+                        endif;
+                        break;
+                endswitch;
 
-            // Compute the new status
-            $newStatus = false;
-            switch (get_post_status($post)):
-                case 'publish':
-                case self::STATUS_online:
-                case self::STATUS_scheduled:
-                    $numberOfClicks = self::countBannerVisits($post);
-                    if (self::hasClicksLimit($post) && self::getClicksLimit($post) <= $numberOfClicks || self::hasEndDate($post) && self::getEndDate($post) <= current_time('timestamp', true)):
-                        $newStatus = self::STATUS_finished;
-                    elseif (self::hasStartDate($post) && self::getStartDate($post) >= current_time('timestamp', true)):
-                        $newStatus = self::STATUS_scheduled;
-                    else:
-                        $newStatus = self::STATUS_online;
+                // Persist the new status
+                if ($newStatus):
+                    $oldStatus = get_post_status($post);
+                    $post->post_status = $newStatus;
+                    if ($oldStatus != $newStatus):
+                        wp_update_post($post);
+                        wp_transition_post_status($newStatus, $oldStatus, $post);
                     endif;
-                    break;
-            endswitch;
-
-            // Persist the new status
-            if ($newStatus):
-                $oldStatus = get_post_status($post);
-                $post->post_status = $newStatus;
-                if ($oldStatus != $newStatus):
-                    wp_update_post($post);
-                    wp_transition_post_status($newStatus, $oldStatus, $post);
                 endif;
             endif;
-
+            
             return get_post_status($post);
         }
 
@@ -315,11 +321,17 @@ if (!class_exists('ClickToDonateController')):
          * @param int|object $post
          * @return true if the banner can be shown, false otherwise 
          */
-        public static function bannerCanBeShown($post = 0) {
+        public static function bannerCanBeShown($post = 0, $checkUrl=false) {
             $post = get_post($post);
-            self::updatePostStatus($post);
 
             if(get_post_type($post) == self::POST_TYPE):
+                self::updatePostStatus($post);
+            
+                if($checkUrl && !self::verifyPostLink()):
+                    return self::MSG_URL_ERROR;
+                endif;
+                
+                
                 // If the post is online
                 switch (get_post_status($post)):
                     case 'publish':
@@ -349,6 +361,42 @@ if (!class_exists('ClickToDonateController')):
                 return self::MSG_UNKNOWN_POST_TYPE;
             endif;
             return self::MSG_UNKNOWN_ERROR;
+        }
+        
+        /**
+         * Filter the permalink URL adding the nonce field to allow the post view
+         * 
+         * @param string $post_link
+         * @param int|object $post
+         * @param boolean $leavename
+         * @param string $sample
+         * @return string with the filtered URL 
+         */
+        public function postTypeLink($post_link, $post, $leavename = false, $sample = false){
+            return (ClickToDonateController::bannerCanBeShown($post)==ClickToDonateController::MSG_OK)?self::createPostLink($post_link, self::$viewBannerOnce):$post_link;
+        }
+        
+        /**
+         * Retrieve URL with nonce added to URL query.
+         *
+         * @param string $actionurl URL to add nonce action
+         * @param string $action Optional. Nonce action name
+         * @return string URL with nonce action added.
+         * @see wp_nonce_url
+         */
+        public static function createPostLink( $actionurl, $action = -1 ) {
+            $actionurl = str_replace( '&amp;', '&', $actionurl );
+            return esc_html( add_query_arg( 'ctd-nonce', wp_create_nonce( $action ), $actionurl ) );
+        }
+        
+        /**
+         * Verify the nonce parameter of an URL
+         * 
+         * @return boolean true if the nonce field checks out, false otherwise
+         */
+        public static function verifyPostLink(){
+            $query_arg = 'ctd-nonce';
+            return isset($_REQUEST[$query_arg]) ? wp_verify_nonce($_REQUEST[$query_arg], self::$viewBannerOnce) : false;
         }
 
         /**
