@@ -35,8 +35,10 @@ if (!class_exists('ClickToDonateController')):
         const MSG_CAMPAIGN_SCHEDULED = -7;
         const MSG_CAMPAIGN_FINISHED = -8;
         const MSG_URL_ERROR = -9;
+        const MSG_AUTHENTICATION_ERROR = -10;
         
         // Class variables
+        private static $requireLogin = '_require_login';
         private static $enableCoolOff = '_enable_cool_off';
         private static $coolOff = '_cool_off_time';
         private static $restrictByCookie = '_restrict_by_cookie';
@@ -98,7 +100,7 @@ if (!class_exists('ClickToDonateController')):
                 'exclude_from_search' => true,
                 'show_ui' => true,
                 'show_in_menu' => true,
-                'show_in_nav_menus' => true,
+                'show_in_nav_menus' => false,
                 'supports' => array('title', 'editor', 'thumbnail', 'revisions'),
                 'rewrite' => array(
                     'slug' => self::URL_QUERY_PARAM,
@@ -318,10 +320,13 @@ if (!class_exists('ClickToDonateController')):
 
         /**
          * Verify if a banner can be shown
+         * 
          * @param int|object $post
+         * @param boolean $checkUrl to also verify the URL
+         * @param boolean $checkAuthentication to also check the authentication requirement
          * @return true if the banner can be shown, false otherwise 
          */
-        public static function bannerCanBeShown($post = 0, $checkUrl=false) {
+        public static function bannerCanBeShown($post = 0, $checkUrl=false, $checkAuthentication=true) {
             $post = get_post($post);
 
             if(get_post_type($post) == self::POST_TYPE):
@@ -336,6 +341,11 @@ if (!class_exists('ClickToDonateController')):
                 switch (get_post_status($post)):
                     case 'publish':
                     case self::STATUS_online:
+                        // Impose the authentication restritions
+                        if($checkAuthentication && self::isLoginRequired($post) && !is_user_logged_in()):
+                            return self::MSG_AUTHENTICATION_ERROR;
+                        endif;
+                        
                         // Impose the cookie restritions
                         if (self::isToRestrictByCookie($post) && isset($_COOKIE[self::$cookieName . self::getPostID($post)]) && is_numeric($_COOKIE[self::$cookieName . self::getPostID($post)]) && $_COOKIE[self::$cookieName . self::getPostID($post)] > current_time('timestamp', true)):
                             return self::MSG_RESTRITED_BY_COOKIE;
@@ -345,8 +355,6 @@ if (!class_exists('ClickToDonateController')):
                         if (self::isToRestrictByLogin($post) && (self::getLastBannerVisitByAuthenticatedUser($post) + self::getCoolOffLimit($post) > current_time('timestamp', true))):
                             return self::MSG_RESTRITED_BY_LOGIN;
                         endif;
-
-                        // @TODO: implementar redirect quando é para restringir por login e o utilizador não está autenticado
                         
                         return self::MSG_OK;
                     case self::STATUS_scheduled:
@@ -373,20 +381,19 @@ if (!class_exists('ClickToDonateController')):
          * @return string with the filtered URL 
          */
         public function postTypeLink($post_link, $post, $leavename = false, $sample = false){
-            return (ClickToDonateController::bannerCanBeShown($post)==ClickToDonateController::MSG_OK)?self::createPostLink($post_link, self::$viewBannerOnce):$post_link;
+            return (ClickToDonateController::bannerCanBeShown($post, false, false)==ClickToDonateController::MSG_OK)?self::createPostLink($post_link):$post_link;
         }
         
         /**
          * Retrieve URL with nonce added to URL query.
          *
          * @param string $actionurl URL to add nonce action
-         * @param string $action Optional. Nonce action name
          * @return string URL with nonce action added.
          * @see wp_nonce_url
          */
-        public static function createPostLink( $actionurl, $action = -1 ) {
+        public static function createPostLink($actionurl) {
             $actionurl = str_replace( '&amp;', '&', $actionurl );
-            return esc_html( add_query_arg( 'ctd-nonce', wp_create_nonce( $action ), $actionurl ) );
+            return esc_html( add_query_arg( 'ctd-nonce', wp_create_nonce( self::$viewBannerOnce ), $actionurl ) );
         }
         
         /**
@@ -431,6 +438,26 @@ if (!class_exists('ClickToDonateController')):
         private static function getPostCustomValues($key, $post = 0) {
             $value = get_post_custom_values(ClickToDonate::CLASS_NAME . $key, self::getPostID($post));
             return (!empty($value) && isset($value[0])) ? $value[0] : false;
+        }
+
+        /**
+         * Verify if the campaign requires user authentication
+         * 
+         * @param int|object $post
+         * @return boolean
+         */
+        public static function isLoginRequired($post = 0) {
+            return (boolean) self::getPostCustomValues(self::$requireLogin, $post);
+        }
+
+        /**
+         * Enable or disable the login requirement
+         * 
+         * @param int|object $post with the post
+         * @param boolean $enable 
+         */
+        public static function requireLogin($post = 0, $require=false) {
+            self::setPostCustomValues(self::$requireLogin, $require, $post);
         }
 
         /**

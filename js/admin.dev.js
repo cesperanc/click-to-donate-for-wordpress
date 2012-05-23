@@ -90,11 +90,6 @@ $j(function(){
     startDate = null,
     endDate = null;
     
-    $j('#ctd-campaign-admin').css({
-        'padding': '6px 10px 8px',
-        'margin-top' : '6px'
-    });
-    
     // Attach the spinner to the clicks limit field
     $j('#ctd-maximum-clicks-limit').spinner({
         min: 0, 
@@ -124,36 +119,28 @@ $j(function(){
     
     $j('#ctd-startminutes, #ctd-endminutes').spinner($j.extend(true, {}, timeDefaults, {
         'max': 59
-    })).css({
-        'margin-right': 0,
-        'text-align': 'right'
-    });
+    }));
     
     // Hide the hidden elements
     $j(".start-hidden").hide();
     
-    // Set the CSS for the fieldset
-    $j(".ctd-enable-container").css({
-        'margin': '0 2px',
-        'padding': '5px',
-        'border': '0px none',
-        'border-radius': '5px'
-    });
-    
     // Container function to show and style the fieldsets accordingly
     function showContainer(innerContainer, outerContainer, show){
         if(show){
+            $j(outerContainer).addClass("ctd-visible");
             $j(innerContainer).show();
-            $j(outerContainer).css({'margin': '0 2px 10px', 'border': '1px solid #ECECEC'});
         }else{
             $j(innerContainer).hide();
-            $j(outerContainer).css({'margin': '0 2px', 'border': '0px none'});
+            $j(outerContainer).removeClass("ctd-visible");
         }
     };
     
     // Show the fieldset when the checkbox is checked
     $j("#ctd-enable-cool-off").click(function(){
-        showContainer("#ctd-cool-off-container", "#ctd-enable-cool-off-container", $j(this).is(":checked"));
+        var checked = $j(this).is(":checked");
+        showContainer("#ctd-cool-off-container", "#ctd-enable-cool-off-container", checked);
+        $j('#ctd-restrict-by-cookie').attr('checked', checked);
+        $j('#ctd-restrict-by-login').attr('checked', checked);
     });
     
     $j("#ctd-enable-maxclicks").click(function(){

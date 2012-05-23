@@ -2,3 +2,35 @@
 .wp-admin > .ui-helper-clearfix{
     display: none;
 }
+
+.start-hidden{
+    display: hidden;
+}
+
+#ctd-startminutes,
+#ctd-endminutes{
+    margin-right: 0;
+    text-align: right;
+}
+
+.ctd-enable-container{
+    margin: 0 2px;
+    border: 1px none transparent;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.ctd-enable-container.ctd-visible{
+    margin: 0 2px 10px;
+    border: 1px solid #ECECEC;
+}
+
+.ctd-enable-container legend{
+    margin: 0;
+    padding: 0;
+}
+
+#ctd-campaign-admin{
+    padding: 6px 10px 8px;
+    margin-top : 6px;
+}

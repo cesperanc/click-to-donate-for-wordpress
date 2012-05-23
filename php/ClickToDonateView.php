@@ -7,6 +7,7 @@ if (!class_exists('ClickToDonateView')):
     class ClickToDonateView {
         
         // Properties names
+        private static $requireLogin = '_require_login';
         private static $enableCoolOff = '_enable_cool_off';
         private static $coolOff = '_cool_off_time';
         private static $coolOffUnit = '_cool_off_time_unit';
@@ -55,6 +56,7 @@ if (!class_exists('ClickToDonateView')):
 
             // Register the savePost method to the Wordpress save_post action hook
             add_action('save_post', array(__CLASS__, 'savePost'));
+            
         }
         
         /**
@@ -393,6 +395,9 @@ if (!class_exists('ClickToDonateView')):
                     endif;
                     ?>
                     <div id="ctd-campaign-admin" class="hide-if-no-js misc-pub-section">
+                        <div class="ctd-enable-container">
+                            <input id="ctd-require-login" name="<?php echo(__CLASS__ . self::$requireLogin); ?>" value="require_login"<?php checked(ClickToDonateController::isLoginRequired($post)); ?> type="checkbox"/><label class="selectit" for="ctd-require-login"><?php _e('Require visitor authentication', 'ClickToDonate'); ?></label>
+                        </div>
                         <fieldset id="ctd-enable-cool-off-container" class="ctd-enable-container">
                             <legend><input id="ctd-enable-cool-off" name="<?php echo(__CLASS__ . self::$enableCoolOff); ?>" value="enable_cool_off"<?php checked(ClickToDonateController::hasCoolOffLimit($post)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-cool-off"><?php _e('Cooling-off period', 'ClickToDonate'); ?></label></legend>
                             <div id="ctd-cool-off-container" class="start-hidden">
@@ -558,6 +563,13 @@ if (!class_exists('ClickToDonateView')):
             switch (get_post_type($postId)):
                 case ClickToDonateController::POST_TYPE:
                     // Get the submited data
+                    
+                    if (isset($_POST[__CLASS__.self::$requireLogin])):
+                        $requireLogin = true;
+                    else:
+                        $requireLogin = false;
+                    endif;
+                    
                     if (isset($_POST[__CLASS__ . self::$enableCoolOff])):
                         $enableCoolOff = true;
                         $coolOff = isset($_POST[__CLASS__ . self::$coolOff]) ? $_POST[__CLASS__ . self::$coolOff] : -1;
@@ -621,6 +633,7 @@ if (!class_exists('ClickToDonateView')):
                     endif;
 
                     // Save the metadata to the database
+                    ClickToDonateController::requireLogin($postId, $requireLogin);
                     ClickToDonateController::enableCoolOffLimit($postId, $enableCoolOff);
                     ClickToDonateController::setCoolOffLimit($postId, $coolOff);
                     ClickToDonateController::enableCookieRestrition($postId, $restrictByCookie);
@@ -656,21 +669,13 @@ if (!class_exists('ClickToDonateView')):
                 if(get_post_type($post) == ClickToDonateController::POST_TYPE && is_single($post) && !is_admin()):
                     $status = ClickToDonateController::bannerCanBeShown($post, true);
                     switch($status):
-                        // Everything ok, let's try to register the visit
-                        case ClickToDonateController::MSG_OK:
-                            if (ClickToDonateController::registerVisit($post)):
-                                $posts[$index]->post_content.="<span class=\"ctd-visit-registered\"><hr/>".__('<br/>Visit registered.', 'ClickToDonate')."</span>";
-                                break;
-                            endif;
-                        // Houston, we have problems
-                        case ClickToDonateController::MSG_UNKNOWN_ERROR:
-                        case ClickToDonateController::MSG_UNKNOWN_POST_STATUS:
-                        case ClickToDonateController::MSG_UNKNOWN_POST_TYPE:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Unable to register the visit. Please try again later.', 'ClickToDonate')."</span>";
-                            break;
                         // The campaign was finished
                         case ClickToDonateController::MSG_URL_ERROR:
                                 $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Sorry, but the URL for this campaign is invalid.', 'ClickToDonate')."</span>";
+                            break;
+                        // The campaign was finished
+                        case ClickToDonateController::MSG_AUTHENTICATION_ERROR:
+                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".sprintf(__('You must %s in the site to validate your visit.', 'ClickToDonate'), '<a href="'.wp_login_url(home_url()).'" title="'.__('Follow the link to login in the site', 'ClickToDonate').'">'.__('login', 'ClickToDonate').'</a>')."</span>";
                             break;
                         // The campaign was finished
                         case ClickToDonateController::MSG_CAMPAIGN_FINISHED:
@@ -686,6 +691,19 @@ if (!class_exists('ClickToDonateView')):
                         case ClickToDonateController::MSG_RESTRITED_BY_COOKIE:
                         case ClickToDonateController::MSG_RESTRITED_BY_LOGIN:
                                 $posts[$index]->post_content="<span class=\"ctd-visit-error\">".sprintf(__('Thanks for visiting, but this campaign has already been visited by you recently. Please try again in %s.', 'ClickToDonate'), self::stringfyTime(ClickToDonateController::getCoolOffLimitRemainingForAuthenticatedUser($post)))."</span>";
+                            break;
+                        // Everything ok, let's try to register the visit
+                        case ClickToDonateController::MSG_OK:
+                            if (ClickToDonateController::registerVisit($post)):
+                                $posts[$index]->post_content.="<span class=\"ctd-visit-registered\"><hr/>".__('<br/>Visit registered.', 'ClickToDonate')."</span>";
+                                break;
+                            endif;
+                        // Houston, we have problems
+                        case ClickToDonateController::MSG_UNKNOWN_ERROR:
+                        case ClickToDonateController::MSG_UNKNOWN_POST_STATUS:
+                        case ClickToDonateController::MSG_UNKNOWN_POST_TYPE:
+                        default:
+                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Unable to register the visit. Please try again later.', 'ClickToDonate')."</span>";
                             break;
                     endswitch;
                 endif;
@@ -710,20 +728,29 @@ if (!class_exists('ClickToDonateView')):
                     // $match[2] - id of the campaign
                     // $match[3] - content of the link tag
                     $postId = $match[2];
-                    if(ClickToDonateController::bannerCanBeShown($postId)!=ClickToDonateController::MSG_OK):
-                        $patterns[$postId]='/<a\s*[^>]*href\s*=\s*([\"\']??)\#ctd\-'.preg_quote($postId).'\\1[^>]*>(.*)<\/a>/siU';
-                        $replacements[$postId]= '';
-                    else:
-                        $patterns[$postId]='/<a\s*([^>]*)href\s*=\s*([\"\']??)\#ctd\-'.preg_quote($postId).'\\2([^>]*)>(.*)<\/a>/siU';
-                        $replacements[$postId]= '<a $1href="'.get_permalink($postId).'"$3>$4</a>';
-                    endif;
+                    $status = ClickToDonateController::bannerCanBeShown($postId, false, true);
+                    switch ($status):
+                        case ClickToDonateController::MSG_OK:
+                            $patterns[$postId]='/<a\s*([^>]*)href\s*=\s*([\"\']??)\#ctd\-'.preg_quote($postId).'\\2([^>]*)>(.*)<\/a>/siU';
+                            $replacements[$postId]= '<a $1href="'.get_permalink($postId).'"$3>$4</a>';
+
+                            break;
+                        
+                        case ClickToDonateController::MSG_AUTHENTICATION_ERROR:
+                            $patterns[$postId]='/<a\s*([^>]*)href\s*=\s*([\"\']??)\#ctd\-'.preg_quote($postId).'\\2([^>]*)>(.*)<\/a>/siU';
+                            $replacements[$postId]= '<a $1href="'.wp_login_url(get_permalink()).'"$3>$4</a>';
+                            
+                            break;
+
+                        default:
+                            $patterns[$postId]='/<a\s*[^>]*href\s*=\s*([\"\']??)\#ctd\-'.preg_quote($postId).'\\1[^>]*>(.*)<\/a>/siU';
+                            $replacements[$postId]= '';
+                    endswitch;
                 endforeach;
             endif;
             
             return preg_replace($patterns, $replacements, $content);
         }
-
-        
 
         /**
          * @return the prefix to append to the scripts and CSS files when the debug mode is enabled
