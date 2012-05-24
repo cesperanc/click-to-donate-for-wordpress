@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ClickToDonate\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-23 02:15+0100\n"
+"POT-Creation-Date: 2012-05-24 04:44+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Cláudio Esperança <cesperanc@gmail.com>\n"
 "Language-Team: Cláudio Esperança, Diogo Serra <cesperanc@gmail.com>\n"
@@ -531,6 +531,26 @@ msgid "Unavailable <span class=\"count\">(%s)</span>"
 msgid_plural "Unavailable <span class=\"count\">(%s)</span>"
 msgstr[0] "Não disponível <span class=\"count\">(%s)</span>"
 msgstr[1] "Não disponível <span class=\"count\">(%s)</span>"
+
+#: ../php/ClickToDonateGraphView.php:64
+msgid "Campaign views"
+msgstr "Visualizações da Campanha"
+
+#: ../php/ClickToDonateGraphView.php:81
+msgid "Loading..."
+msgstr "A carregar..."
+
+#: ../php/ClickToDonateGraphView.php:96
+msgid "Day"
+msgstr "Dia"
+
+#: ../php/ClickToDonateGraphView.php:97
+msgid "Total visits"
+msgstr "Número total de visitas"
+
+#: ../php/ClickToDonateGraphView.php:111
+msgid "Days"
+msgstr "Dias"
 
 #~ msgid "Preview Changes"
 #~ msgstr "Prever Alterações"
