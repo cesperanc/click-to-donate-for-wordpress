@@ -149,11 +149,14 @@ if (!class_exists('ClickToDonateKernel')):
             //spl_autoload_extensions(spl_autoload_extensions().',.load.php');
             spl_autoload_register(array(__CLASS__, 'autoload'));
             
-            // Define the module file directory
-            self::addLibraryPaths(dirname(__FILE__).'/php/');
+            // Library directory
+            $dir = dirname(__FILE__).'/php/';
             
-            ClickToDonateController::init();
-            ClickToDonateView::init();
+            // Define the module file directory
+            self::addLibraryPaths($dir);
+            
+            // Autoload the all the PHP files in the library directory
+            self::autoLoadFrom($dir);
         }
     }
 

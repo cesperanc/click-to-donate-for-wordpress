@@ -14,7 +14,6 @@ if (!class_exists('ClickToDonateModel')):
         // Table variables name
         private static $tableClicks = 'clicks';
         private static $tableClicksID = 'ID';
-        private static $tableClicksCampaignID = 'campaignID';
         private static $tableClicksBannerID = 'bannerID';
         private static $tableClicksUserID = 'userID';
         private static $tableClicksTimestamp = 'timestamp';
@@ -108,21 +107,18 @@ if (!class_exists('ClickToDonateModel')):
                 $queries[] = "
                         CREATE TABLE IF NOT EXISTS `{$self::$tableClicks}` (
                             `{$self::$tableClicksID}` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Key for the click',
-                            `{$self::$tableClicksCampaignID}` bigint(20) unsigned DEFAULT NULL COMMENT 'Foreign key of the campaign',
                             `{$self::$tableClicksBannerID}` bigint(20) unsigned DEFAULT NULL COMMENT 'Foreign key of the banner',
                             `{$self::$tableClicksUserID}` bigint(20) unsigned DEFAULT NULL COMMENT 'Foreign key of the user',
                             `{$self::$tableClicksTimestamp}` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Time stamp of the click',
                             PRIMARY KEY (`{$self::$tableClicksID}`),
                             KEY `{$self::$tableClicksBannerID}` (`{$self::$tableClicksBannerID}`),
-                            KEY `{$self::$tableClicksUserID}` (`{$self::$tableClicksUserID}`),
-                            KEY `{$self::$tableClicksCampaignID}` (`{$self::$tableClicksCampaignID}`)
+                            KEY `{$self::$tableClicksUserID}` (`{$self::$tableClicksUserID}`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table to store the site clicks on campaigns and/or banners' AUTO_INCREMENT=1 ;
                     ";
                 /* // Wordpress doesn't enforce the InnoDB MySQL engine to use on their tables, so we cannot enable the foreign key constrainsts until the Wordpress requires the MySQL 5.5 as the minimum requirement
                   $queries[] = "
                   ALTER TABLE `{$self::$tableClicks}`
                   ADD CONSTRAINT `clicks_ibfk_3` FOREIGN KEY (`{$self::$tableClicksUserID}`) REFERENCES `{$prefix}users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
-                  ADD CONSTRAINT `clicks_ibfk_1` FOREIGN KEY (`{$self::$tableClicksCampaignID}`) REFERENCES `{$prefix}posts` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
                   ADD CONSTRAINT `clicks_ibfk_2` FOREIGN KEY (`{$self::$tableClicksBannerID}`) REFERENCES `{$prefix}posts` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
                   ;
                   ";
@@ -161,27 +157,30 @@ if (!class_exists('ClickToDonateModel')):
         /**
          * Register a visit in the system
          * 
-         * @param int|object $post
+         * @param int $post
          * @return boolean true if the visit was successfuly registered, false otherwise
          */
         public static function registerVisit($post) {
             $wpdb = self::getWpDB();
+            
+            if (is_int($post) && absint($post) && $post>0):
 
-            $data = array(
-                self::$tableClicksBannerID => ClickToDonateController::getPostID($post)/* ,
-                self::$tableClicksTimestamp => current_time('mysql', true) */
-            );
-            $dataTypes = array(
-                '%d'/* ,
-                '%s' */
-            );
-            if ($userId = get_current_user_id()):
-                $data[self::$tableClicksUserID] = $userId;
-                $dataTypes[] = '%d';
-            endif;
+                $data = array(
+                    self::$tableClicksBannerID => $post/* ,
+                    self::$tableClicksTimestamp => current_time('mysql', true) */
+                );
+                $dataTypes = array(
+                    '%d'/* ,
+                    '%s' */
+                );
+                if ($userId = get_current_user_id()):
+                    $data[self::$tableClicksUserID] = $userId;
+                    $dataTypes[] = '%d';
+                endif;
 
-            if ($wpdb->insert(self::$tableClicks, $data, $dataTypes)):
-                return true;
+                if ($wpdb->insert(self::$tableClicks, $data, $dataTypes)):
+                    return true;
+                endif;
             endif;
             return false;
         }
@@ -190,52 +189,87 @@ if (!class_exists('ClickToDonateModel')):
         /**
          * Count the visits on a banner
          * 
-         * @param int|object $post
+         * @param int $post
          * @param int $user to filter the visits by a specific user
          * @return int with the number of visits
          */
-        public static function countBannerVisits($post, $user = 0) {
+        public static function countBannerVisits($post=0, $user = 0) {
             $wpdb = self::getWpDB();
-            $post = ClickToDonateController::getPostID($post);
             $extra = '';
-            $params = array($post);
+            $params = array();
+            if (is_int($post) && absint($post) && $post>0):
+                $extra .= ' AND `' . self::$tableClicksBannerID . '`=%d';
+                $params[] = $post;
+            endif;
             if (is_int($user) && absint($user)):
-                $extra = ' AND `' . self::$tableClicksUserID . '`=%d';
+                $extra .= ' AND `' . self::$tableClicksUserID . '`=%d';
                 $params[] = $user;
             endif;
             if ($row = $wpdb->get_row($wpdb->prepare('
 			    SELECT
 				COUNT(*) AS `total`
-			    FROM `' . self::$tableClicks . '` WHERE `' . self::$tableClicksBannerID . '`=%d ' . $extra . ';
+			    FROM `' . self::$tableClicks . '` WHERE 1 ' . $extra . ';
 			', $params), ARRAY_A)):
                 return (int) $row['total'];
             endif;
             return 0;
         }
         
-        
         /**
          * Get the timestamp of the last visit to the banner
-         * @param int|object $post
+         * @param int $post
          * @param int $user
          * @return int 
          */
-        public static function getLastBannerVisit($post, $user = 0) {
+        public static function getLastBannerVisit($post=0, $user = 0) {
             $wpdb = self::getWpDB();
-            $post = ClickToDonateController::getPostID($post);
             $extra = '';
-            $params = array($post);
+            $params = array();
+            if (is_int($post) && absint($post) && $post>0):
+                $extra .= ' AND `' . self::$tableClicksBannerID . '`=%d';
+                $params[] = $post;
+            endif;
             if (is_int($user) && absint($user)):
-                $extra = ' AND `' . self::$tableClicksUserID . '`=%d';
+                $extra .= ' AND `' . self::$tableClicksUserID . '`=%d';
                 $params[] = $user;
             endif;
             if ($row = $wpdb->get_row($wpdb->prepare('
                     SELECT MAX(UNIX_TIMESTAMP(`' . self::$tableClicksTimestamp . '`)) AS `last`
-                    FROM `' . self::$tableClicks . '` WHERE `' . self::$tableClicksBannerID . '`=%d ' . $extra . ';
+                    FROM `' . self::$tableClicks . '` WHERE 1 ' . $extra . ';
                 ', $params), ARRAY_A)):
                 return (int) $row['last'];
             endif;
             return 0;
+        }
+        
+        /**
+         * Count the visits on a banner
+         * 
+         * @param int $post
+         * @param int $user to filter the visits by a specific user
+         * @return int with the number of visits
+         */
+        public static function getBannerVisitsPerDay($post=0, $user = 0) {
+            $wpdb = self::getWpDB();
+            $extra = '';
+            $params = array();
+            if (is_int($post) && absint($post) && $post>0):
+                $extra = ' AND `' . self::$tableClicksBannerID . '`=%d';
+                $params[] .= $post;
+            endif;
+            if (is_int($user) && absint($user) && $user>0):
+                $extra = ' AND `' . self::$tableClicksUserID . '`=%d';
+                $params[] .= $user;
+            endif;
+            if (($rows = $wpdb->get_results($wpdb->prepare('
+                            SELECT DATE(`'.self::$tableClicksTimestamp.'`) AS `day`, COUNT('.self::$tableClicksID.') AS `total`  
+                            FROM `' . self::$tableClicks . '`  
+                            WHERE 1 '.$extra.'
+                            GROUP BY DATE(`'.self::$tableClicksTimestamp.'`);
+			', $params), ARRAY_A)) && !empty($rows)):
+                return $rows;
+            endif;
+            return array();
         }
     }
 endif;

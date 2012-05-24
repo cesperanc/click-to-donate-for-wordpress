@@ -478,7 +478,7 @@ msgstr "Adicionar nova campanha"
 
 #: ../php/ClickToDonateController.php:89
 msgid "Edit campaign"
-msgstr "Editar campanhar"
+msgstr "Editar campanha"
 
 #: ../php/ClickToDonateController.php:90
 msgid "New campaign"

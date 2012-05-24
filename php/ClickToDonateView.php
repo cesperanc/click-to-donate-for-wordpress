@@ -798,3 +798,4 @@ if (!class_exists('ClickToDonateView')):
         }
     }
 endif;
+ClickToDonateView::init();

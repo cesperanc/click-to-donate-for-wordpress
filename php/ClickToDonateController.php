@@ -710,7 +710,7 @@ if (!class_exists('ClickToDonateController')):
          */
         public static function registerVisit($post) {
             if(self::bannerCanBeShown($post)==self::MSG_OK):
-                if(ClickToDonateModel::registerVisit($post)):
+                if(ClickToDonateModel::registerVisit(self::getPostID($post))):
                     $currentTime = current_time('timestamp', true);
                     if (self::isToRestrictByCookie($post)):
                         return setcookie(self::$cookieName.self::getPostID($post), $currentTime + self::getCoolOffLimit($post), $currentTime + 86400 + self::getCoolOffLimit($post), SITECOOKIEPATH, '', is_ssl(), true);
@@ -730,7 +730,7 @@ if (!class_exists('ClickToDonateController')):
          * @return int with the number of visits
          */
         public static function countBannerVisits($post, $user = 0) {
-            return ClickToDonateModel::countBannerVisits($post, $user);
+            return ClickToDonateModel::countBannerVisits(self::getPostID($post), $user);
         }
         
         /**
@@ -745,7 +745,6 @@ if (!class_exists('ClickToDonateController')):
             return 0;
         }
         
-        
         /**
          * Get the timestamp of the last visit to the banner
          * @param int|object $post
@@ -753,7 +752,7 @@ if (!class_exists('ClickToDonateController')):
          * @return int 
          */
         public static function getLastBannerVisit($post, $user = 0) {
-            return ClickToDonateModel::getLastBannerVisit($post, $user);
+            return ClickToDonateModel::getLastBannerVisit(self::getPostID($post), $user);
         }
 
         /**
@@ -767,5 +766,30 @@ if (!class_exists('ClickToDonateController')):
             endif;
             return 0;
         }
+        
+        /**
+         * Get the timestamp of the last visit to the banner
+         * @param int|object $post
+         * @param int $user
+         * @return int 
+         */
+        public static function getBannerVisitsPerDay($post=0, $user = 0) {
+            return ClickToDonateModel::getBannerVisitsPerDay(self::getPostID($post), $user);
+        }
+
+        /**
+         * Get the timestamp of the last visit of the authenticated user to the banner
+         * @param int|object $post
+         * @return int 
+         */
+        public static function getBannerVisitsPerDayByAuthenticatedUser($post=0) {
+            if ($userId = get_current_user_id()):
+                return self::getBannerVisitsPerDay($post, $userId);
+            endif;
+            return 0;
+        }
+        
+        
     }
 endif;
+ClickToDonateController::init();
