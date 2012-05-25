@@ -773,8 +773,8 @@ if (!class_exists('ClickToDonateController')):
          * @param int $user
          * @return int 
          */
-        public static function getBannerVisitsPerDay($post=0, $user = 0) {
-            return ClickToDonateModel::getBannerVisitsPerDay(self::getPostID($post), $user);
+        public static function getBannerVisitsPerDay($post=0, $user = 0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
+            return ClickToDonateModel::getBannerVisitsPerDay(self::getPostID($post), $user, $startDate, $endDate, $dateGranularity);
         }
 
         /**

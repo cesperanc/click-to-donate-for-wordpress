@@ -16,7 +16,7 @@ if (!class_exists('ClickToDonateGraphView')):
                 add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
 
                 // Register the adminPrintStyles method to the Wordpress admin_print_styles action hook
-                //add_action('admin_print_styles', array(__CLASS__, 'adminPrintStyles'));
+                add_action('admin_print_styles', array(__CLASS__, 'adminPrintStyles'));
                 
                 add_action('wp_ajax_' . 'ctd_get_visits', array(__CLASS__, 'getBannerVisits'));
             endif;
@@ -33,9 +33,17 @@ if (!class_exists('ClickToDonateGraphView')):
                     // Register the scripts
                     wp_enqueue_script('google-jsapi', 'https://www.google.com/jsapi');
                     
-                    wp_enqueue_script('jquery');
                     // Admin script
-                    //wp_enqueue_script(ClickToDonate::CLASS_NAME.'_post_graph', plugins_url("js/ctd-graph$suffix.js", ClickToDonate::FILE), array('jquery', 'google-jsapi'), '1.0');
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_post_graph', plugins_url("js/ctd-graph$suffix.js", ClickToDonate::FILE), array('jquery', 'google-jsapi', 'jquery-ui-datepicker'), '1.0');
+                    wp_localize_script(ClickToDonate::CLASS_NAME . '_post_graph', 'ctdGraphL10n', array(
+                        'language' => esc_js(esc_js(get_bloginfo('language'))),
+                        'loading' => esc_js(__( 'Loading...', 'ClickToDonate' )),
+                        'day' => esc_js(__( 'Day', 'ClickToDonate' )),
+                        'days' => esc_js(__( 'Days', 'ClickToDonate' )),
+                        'totalVisits' => esc_js(__('Total visits', 'ClickToDonate')),
+                        'privateMethodDoesNotExist' => __('Private method {0} does not exist', 'ClickToDonate'),
+                        'methodDoesNotExist' => __('Method {0} does not exist', 'ClickToDonate')
+                    ));
                 endif;
             endif;
         }
@@ -48,11 +56,7 @@ if (!class_exists('ClickToDonateGraphView')):
                 $suffix = ClickToDonateView::debugSufix();
                 if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
-                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("css/ui-spinner/ui-spinner$suffix.css", ClickToDonate::FILE), array(), '1.20');
-                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_admin', plugins_url("css/admin$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
                 endif;
-                
-                wp_enqueue_style('ctd-tinymce', plugins_url("css/tinymce/tinymce$suffix.css", ClickToDonate::FILE), array(), '1.0');
             endif;
         }
 
@@ -70,55 +74,41 @@ if (!class_exists('ClickToDonateGraphView')):
          */
         public static function writeMetaBox($post) {
             ?>
-                <div style="overflow: hidden;">
-                    <div id="ctd-chart-container" style='height: 300px;'></div>
+                <div style="margin: 10px 0 20px;">
+                    <label class="selectit"><?php _e('Period start date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period start date', 'ClickToDonate') ?>" id="ctd-graph-startdate" type="text" /></label>
+                    <input id="ctd-hidden-graph-startdate" type="hidden" value="<?php echo(((current_time('timestamp')-3600*24*7)*1000)); ?>" />
+                    <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graph-enddate" type="text" /></label>
+                    <label class="selectit"><?php _e('Period granularity:', 'ClickToDonate'); ?> <input id="ctd-hidden-graph-enddate" type="hidden" value="<?php echo((current_time('timestamp')*1000)); ?>" /></label>
+                    
+                    <select id="ctd-graph-date-granularity">
+                        <option selected="selected" value='<?php echo(esc_attr(ClickToDonateModel::DATE_GRANULARITY_DAYS)); ?>'><?php _e('Days', 'ClickToDonate') ?></option>
+                        <option value='<?php echo(esc_attr(ClickToDonateModel::DATE_GRANULARITY_MONTHS)); ?>'><?php _e('Months', 'ClickToDonate') ?></option>
+                        <option value='<?php echo(esc_attr(ClickToDonateModel::DATE_GRANULARITY_YEARS)); ?>'><?php _e('Years', 'ClickToDonate') ?></option>
+                    </select>
+                    
+                    <a class="button" id="ctd-load-graph"><?php _e('Load', 'ClickToDonate'); ?></a>
                 </div>
+                <div id="ctd-chart-container" style='width: 100%; height: 300px;'></div>
                 <script>
-                    google.load("visualization", "1", {packages:["corechart"], 'language': '<?php echo(get_bloginfo('language')); ?>'});
-                    var $j = jQuery.noConflict();
-                    $j(document).ready(function(){               
-                        // Get TIER1Tickets                 
-                        $j("#ctd-chart-container").addClass("loading").html('<?php echo(esc_js( __( 'Loading...', 'ClickToDonate' ) )); ?>');
-
-                        $j.post( 
-                            ajaxurl, {
+                    google.load("visualization", "1", {
+                        packages:["corechart"], 
+                        'language': ctdGraphL10n.language
+                    });
+                    
+                    $j('#ctd-load-graph').click(function(){
+                        var $j = jQuery.noConflict();
+                        $j('#ctd-chart-container').ctdGraph(
+                            'loadData',{
                                 'action' : 'ctd_get_visits',
                                 'postId' : '<?php echo(esc_js(ClickToDonateController::getPostID($post))); ?>',
-                                '_ajax_ctd_get_visits_nonce' : '<?php echo(esc_js(wp_create_nonce('ctd-get-visits'))); ?>'
-                            }, function(data) {
-                                google.setOnLoadCallback(drawChart(data));
-                            }, "json" 
+                                '_ajax_ctd_get_visits_nonce' : '<?php echo(esc_attr(wp_create_nonce('ctd-get-visits'))); ?>',
+                                'startDate': ($j("#ctd-hidden-graph-startdate").val()/1000),
+                                'endDate': ($j("#ctd-hidden-graph-enddate").val()/1000),
+                                'dateGranularity': ($j("#ctd-graph-date-granularity").val())
+                            }
                         );
-                    }); 
-                    //google.setOnLoadCallback(drawChart);
-                    function drawChart(rows) {
-                        var data = new google.visualization.DataTable();
-                        data.addColumn('string', '<?php echo(esc_js( __( 'Day', 'ClickToDonate' ) )); ?>');
-                        data.addColumn('number', '<?php echo(esc_js( __( 'Total visits', 'ClickToDonate' ) )); ?>');
-//                        for (var row in rows){
-//                            rows[row][0] = new Date(rows[row][0]);
-//                        }
-                        data.addRows(rows);
-                        /*var data = google.visualization.arrayToDataTable(data/*[
-                        ['Year', 'Sales', 'Expenses'],
-                        ['2004',  1000,      400],
-                        ['2005',  1170,      460],
-                        ['2006',  660,       1120],
-                        ['2007',  1030,      540]
-                        ]*///);
-
-                        var options = {
-                            hAxis: {title: '<?php echo(esc_js( __( 'Days', 'ClickToDonate' ) )); ?>', titleTextStyle: {color: 'red'}}/*,
-                            isStacked: true*/
-                        };
-
-                        var chart = new google.visualization.ColumnChart(document.getElementById('ctd-chart-container'));
-                        chart.draw(data, options);
-                        
-                        $j("#ctd-chart-container").removeClass("loading")
-                    }
-                    //https://developers.google.com/chart/interactive/docs/gallery/controls#using_controls_and_dashboards
-                    //https://developers.google.com/chart/interactive/docs/customizing_axes?hl=pt-PT#Help
+                        return false;
+                    });
                 </script>
             <?php
         }
@@ -133,7 +123,14 @@ if (!class_exists('ClickToDonateGraphView')):
             
             $postId = !empty($_POST['postId']) ? absint($_POST['postId']) : 0;
             
-            $results = ClickToDonateController::getBannerVisitsPerDay($postId);
+            $startDate = !empty($_POST['startDate']) ? absint($_POST['startDate']) : 0;
+            $endDate = !empty($_POST['endDate']) ? absint($_POST['endDate']) : 0;
+            $dateGranularity = (!empty($_POST['dateGranularity']) && in_array($_POST['dateGranularity'], array(
+                ClickToDonateModel::DATE_GRANULARITY_DAYS, 
+                ClickToDonateModel::DATE_GRANULARITY_MONTHS, 
+                ClickToDonateModel::DATE_GRANULARITY_YEARS))) ? $_POST['dateGranularity'] : ClickToDonateModel::DATE_GRANULARITY_DAYS;
+            
+            $results = ClickToDonateController::getBannerVisitsPerDay($postId, 0, $startDate, $endDate, $dateGranularity);
 
             if (!isset($results))
                 die('0');

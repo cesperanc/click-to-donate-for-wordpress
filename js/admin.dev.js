@@ -166,10 +166,10 @@ $j(function(){
     
     // Attach the date picker components and set their dates based on the timestamp values
     if($j("#ctd-hidden-startdate").val()){
-        startDate = $j.datepicker.parseDate("yy-m-d", $j("#ctd-hidden-startdate").val()) || null;
+        startDate = $j.datepicker.parseDate(calendarOptions.altFormat, $j("#ctd-hidden-startdate").val()) || null;
     }
     if($j("#ctd-hidden-enddate").val()){
-        endDate = $j.datepicker.parseDate("yy-m-d", $j("#ctd-hidden-enddate").val()) || null;
+        endDate = $j.datepicker.parseDate(calendarOptions.altFormat, $j("#ctd-hidden-enddate").val()) || null;
     }
     
     $j("#ctd-startdate").datepicker($j.extend(true, {}, calendarOptions, {

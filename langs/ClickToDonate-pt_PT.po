@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ClickToDonate\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-24 04:44+0100\n"
+"POT-Creation-Date: 2012-05-25 04:45+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Cláudio Esperança <cesperanc@gmail.com>\n"
 "Language-Team: Cláudio Esperança, Diogo Serra <cesperanc@gmail.com>\n"
@@ -532,25 +532,58 @@ msgid_plural "Unavailable <span class=\"count\">(%s)</span>"
 msgstr[0] "Não disponível <span class=\"count\">(%s)</span>"
 msgstr[1] "Não disponível <span class=\"count\">(%s)</span>"
 
-#: ../php/ClickToDonateGraphView.php:64
-msgid "Campaign views"
-msgstr "Visualizações da Campanha"
-
-#: ../php/ClickToDonateGraphView.php:81
+#: ../php/ClickToDonateGraphView.php:40
 msgid "Loading..."
 msgstr "A carregar..."
 
-#: ../php/ClickToDonateGraphView.php:96
+#: ../php/ClickToDonateGraphView.php:41
 msgid "Day"
 msgstr "Dia"
 
-#: ../php/ClickToDonateGraphView.php:97
+#: ../php/ClickToDonateGraphView.php:42
+#: ../php/ClickToDonateGraphView.php:84
+msgid "Days"
+msgstr "Dias"
+
+#: ../php/ClickToDonateGraphView.php:43
 msgid "Total visits"
 msgstr "Número total de visitas"
 
-#: ../php/ClickToDonateGraphView.php:111
-msgid "Days"
-msgstr "Dias"
+#: ../php/ClickToDonateGraphView.php:44
+msgid "Private method {0} does not exist"
+msgstr "O método privado {0} não existe"
+
+#: ../php/ClickToDonateGraphView.php:45
+msgid "Method {0} does not exist"
+msgstr "O método {0} não existe"
+
+#: ../php/ClickToDonateGraphView.php:68
+msgid "Campaign views"
+msgstr "Visualizações da Campanha"
+
+#: ../php/ClickToDonateGraphView.php:78
+msgid "Period start date:"
+msgstr "Data de início do período:"
+
+#: ../php/ClickToDonateGraphView.php:80
+msgid "Period end date:"
+msgstr "Data de fim do período:"
+
+#: ../php/ClickToDonateGraphView.php:81
+msgid "Period granularity:"
+msgstr "Granularidade do período:"
+
+#: ../php/ClickToDonateGraphView.php:85
+msgid "Months"
+msgstr "Meses"
+
+#: ../php/ClickToDonateGraphView.php:86
+msgid "Years"
+msgstr "Anos"
+
+#: ../php/ClickToDonateGraphView.php:89
+msgid "Load"
+msgstr "Carregar"
 
 #~ msgid "Preview Changes"
 #~ msgstr "Prever Alterações"

@@ -10,6 +10,9 @@ if (!class_exists('ClickToDonateModel')):
          * The database variable name to store the plugin database version
          */
         const DB_VERSION_FIELD_NAME = 'ClickToDonateDbVersion';
+        const DATE_GRANULARITY_DAYS = 'DATE';
+        const DATE_GRANULARITY_MONTHS = 'MONTH';
+        const DATE_GRANULARITY_YEARS = 'YEAR';
         
         // Table variables name
         private static $tableClicks = 'clicks';
@@ -249,23 +252,49 @@ if (!class_exists('ClickToDonateModel')):
          * @param int $user to filter the visits by a specific user
          * @return int with the number of visits
          */
-        public static function getBannerVisitsPerDay($post=0, $user = 0) {
+        public static function getBannerVisitsPerDay($post=0, $user = 0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
             $wpdb = self::getWpDB();
             $extra = '';
             $params = array();
             if (is_int($post) && absint($post) && $post>0):
-                $extra = ' AND `' . self::$tableClicksBannerID . '`=%d';
+                $extra .= ' AND `' . self::$tableClicksBannerID . '`=%d';
                 $params[] .= $post;
             endif;
             if (is_int($user) && absint($user) && $user>0):
-                $extra = ' AND `' . self::$tableClicksUserID . '`=%d';
+                $extra .= ' AND `' . self::$tableClicksUserID . '`=%d';
                 $params[] .= $user;
             endif;
+            if (is_int($startDate) && absint($startDate) && $startDate>0):
+                $extra .= ' AND `'.self::$tableClicksTimestamp.'`>=FROM_UNIXTIME(%d)';
+                $params[] .= $startDate;
+            endif;
+            if (is_int($endDate) && absint($endDate) && $endDate>0):
+                $extra .= ' AND `'.self::$tableClicksTimestamp.'`<=FROM_UNIXTIME(%d)';
+                $params[] .= $endDate;
+            endif;
+            
+            
+            switch($dateGranularity):
+                case ClickToDonateModel::DATE_GRANULARITY_YEARS:
+                    $selectGranularity = 'YEAR(`'.self::$tableClicksTimestamp.'`) AS `year`, ';
+                    $groupByGranularity = 'GROUP BY YEAR(`'.self::$tableClicksTimestamp.'`)';
+                    break;
+                
+                case ClickToDonateModel::DATE_GRANULARITY_MONTHS:
+                    $selectGranularity = 'CONCAT(YEAR(`'.self::$tableClicksTimestamp.'`), \'-\', MONTH(`'.self::$tableClicksTimestamp.'`)) AS `month`, ';
+                    $groupByGranularity = 'GROUP BY YEAR(`'.self::$tableClicksTimestamp.'`), MONTH(`'.self::$tableClicksTimestamp.'`)';
+                    break;
+                case ClickToDonateModel::DATE_GRANULARITY_DAYS:
+                default:
+                    $selectGranularity = 'DATE(`'.self::$tableClicksTimestamp.'`) AS `day`, ';
+                    $groupByGranularity = 'GROUP BY DATE(`'.self::$tableClicksTimestamp.'`)';
+            endswitch;
+            
             if (($rows = $wpdb->get_results($wpdb->prepare('
-                            SELECT DATE(`'.self::$tableClicksTimestamp.'`) AS `day`, COUNT('.self::$tableClicksID.') AS `total`  
+                            SELECT '.$selectGranularity.' COUNT('.self::$tableClicksID.') AS `total`  
                             FROM `' . self::$tableClicks . '`  
                             WHERE 1 '.$extra.'
-                            GROUP BY DATE(`'.self::$tableClicksTimestamp.'`);
+                            '.$groupByGranularity.';
 			', $params), ARRAY_A)) && !empty($rows)):
                 return $rows;
             endif;
