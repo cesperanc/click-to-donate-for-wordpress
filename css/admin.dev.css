@@ -1,8 +1,3 @@
-/* patch to hide the datepicker */
-.wp-admin > .ui-helper-clearfix{
-    display: none;
-}
-
 .start-hidden{
     display: hidden;
 }

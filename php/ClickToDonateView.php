@@ -69,9 +69,11 @@ if (!class_exists('ClickToDonateView')):
                 if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
                     // Register the scripts
                     wp_enqueue_script(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("js/ui-spinner/ui-spinner$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
-
+                
+                
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_common', plugins_url("js/common$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-datepicker'), '1.0');
                     // Admin script
-                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', ClickToDonate::CLASS_NAME . '_ui-spinner'), '1.0');
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME.'_common'), '1.0');
                     // Localize the script
                     wp_localize_script(ClickToDonate::CLASS_NAME.'_admin', 'ctdAdminL10n', array(
                         'closeText' => __('Done', 'ClickToDonate'),
@@ -151,7 +153,8 @@ if (!class_exists('ClickToDonateView')):
                 if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("css/ui-spinner/ui-spinner$suffix.css", ClickToDonate::FILE), array(), '1.20');
-                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_admin', plugins_url("css/admin$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_common', plugins_url("css/common$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_admin', plugins_url("css/admin$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME . '_jquery-ui-theme', ClickToDonate::CLASS_NAME . '_common'), '1.0');
                 endif;
                 
                 wp_enqueue_style('ctd-tinymce', plugins_url("css/tinymce/tinymce$suffix.css", ClickToDonate::FILE), array(), '1.0');

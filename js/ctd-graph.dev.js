@@ -26,25 +26,14 @@ var $j = jQuery.noConflict();
         
         drawGraph : function(rows){
             var containerElement = this;
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', ctdGraphL10n.day);
-            data.addColumn('number', ctdGraphL10n.totalVisits);
-            data.addRows(rows);
-            /*var data = google.visualization.arrayToDataTable(data/*[
-            ['Year', 'Sales', 'Expenses'],
-            ['2004',  1000,      400],
-            ['2005',  1170,      460],
-            ['2006',  660,       1120],
-            ['2007',  1030,      540]
-            ]*///);
-
+            var data = google.visualization.arrayToDataTable(rows);
             var options = {
                 backgroundColor: 'transparent',
                 animation:{
                     duration: 1000,
                     easing: 'out'
-                }/*,
-                isStacked: true*/
+                },
+                isStacked: true
             };
 
             var chart = new google.visualization.ColumnChart($(this).get(0));
@@ -110,67 +99,67 @@ var $j = jQuery.noConflict();
 // View code
 $j(function(){
     var calendarOptions = {
-        closeText: ctdAdminL10n.closeText,
-        currentText: ctdAdminL10n.currentText,
-        dateFormat: ctdAdminL10n.dateFormat,
+        closeText: ctdGraphL10n.closeText,
+        currentText: ctdGraphL10n.currentText,
+        dateFormat: ctdGraphL10n.dateFormat,
         dayNames: [
-            ctdAdminL10n.dayNamesSunday,
-            ctdAdminL10n.dayNamesMonday,
-            ctdAdminL10n.dayNamesTuesday,
-            ctdAdminL10n.dayNamesWednesday,
-            ctdAdminL10n.dayNamesThursday,
-            ctdAdminL10n.dayNamesFriday,
-            ctdAdminL10n.dayNamesSaturday
+            ctdGraphL10n.dayNamesSunday,
+            ctdGraphL10n.dayNamesMonday,
+            ctdGraphL10n.dayNamesTuesday,
+            ctdGraphL10n.dayNamesWednesday,
+            ctdGraphL10n.dayNamesThursday,
+            ctdGraphL10n.dayNamesFriday,
+            ctdGraphL10n.dayNamesSaturday
         ],
         dayNamesMin: [
-            ctdAdminL10n.dayNamesMinSu,
-            ctdAdminL10n.dayNamesMinMo,
-            ctdAdminL10n.dayNamesMinTu,
-            ctdAdminL10n.dayNamesMinWe,
-            ctdAdminL10n.dayNamesMinTh,
-            ctdAdminL10n.dayNamesMinFr,
-            ctdAdminL10n.dayNamesMinSa
+            ctdGraphL10n.dayNamesMinSu,
+            ctdGraphL10n.dayNamesMinMo,
+            ctdGraphL10n.dayNamesMinTu,
+            ctdGraphL10n.dayNamesMinWe,
+            ctdGraphL10n.dayNamesMinTh,
+            ctdGraphL10n.dayNamesMinFr,
+            ctdGraphL10n.dayNamesMinSa
         ],
         dayNamesShort: [
-            ctdAdminL10n.dayNamesShortSun,
-            ctdAdminL10n.dayNamesShortMon,
-            ctdAdminL10n.dayNamesShortTue,
-            ctdAdminL10n.dayNamesShortWed,
-            ctdAdminL10n.dayNamesShortThu,
-            ctdAdminL10n.dayNamesShortFri,
-            ctdAdminL10n.dayNamesShortSat
+            ctdGraphL10n.dayNamesShortSun,
+            ctdGraphL10n.dayNamesShortMon,
+            ctdGraphL10n.dayNamesShortTue,
+            ctdGraphL10n.dayNamesShortWed,
+            ctdGraphL10n.dayNamesShortThu,
+            ctdGraphL10n.dayNamesShortFri,
+            ctdGraphL10n.dayNamesShortSat
         ],
         monthNames: [
-            ctdAdminL10n.monthNamesJanuary,
-            ctdAdminL10n.monthNamesFebruary,
-            ctdAdminL10n.monthNamesMarch,
-            ctdAdminL10n.monthNamesApril,
-            ctdAdminL10n.monthNamesMay,
-            ctdAdminL10n.monthNamesJune,
-            ctdAdminL10n.monthNamesJuly,
-            ctdAdminL10n.monthNamesAugust,
-            ctdAdminL10n.monthNamesSeptember,
-            ctdAdminL10n.monthNamesOctober,
-            ctdAdminL10n.monthNamesNovember,
-            ctdAdminL10n.monthNamesDecember
+            ctdGraphL10n.monthNamesJanuary,
+            ctdGraphL10n.monthNamesFebruary,
+            ctdGraphL10n.monthNamesMarch,
+            ctdGraphL10n.monthNamesApril,
+            ctdGraphL10n.monthNamesMay,
+            ctdGraphL10n.monthNamesJune,
+            ctdGraphL10n.monthNamesJuly,
+            ctdGraphL10n.monthNamesAugust,
+            ctdGraphL10n.monthNamesSeptember,
+            ctdGraphL10n.monthNamesOctober,
+            ctdGraphL10n.monthNamesNovember,
+            ctdGraphL10n.monthNamesDecember
         ],
         monthNamesShort: [
-            ctdAdminL10n.monthNamesShortJan,
-            ctdAdminL10n.monthNamesShortFeb,
-            ctdAdminL10n.monthNamesShortMar,
-            ctdAdminL10n.monthNamesShortApr,
-            ctdAdminL10n.monthNamesShortMay,
-            ctdAdminL10n.monthNamesShortJun,
-            ctdAdminL10n.monthNamesShortJul,
-            ctdAdminL10n.monthNamesShortAug,
-            ctdAdminL10n.monthNamesShortSep,
-            ctdAdminL10n.monthNamesShortOct,
-            ctdAdminL10n.monthNamesShortNov,
-            ctdAdminL10n.monthNamesShortDec
+            ctdGraphL10n.monthNamesShortJan,
+            ctdGraphL10n.monthNamesShortFeb,
+            ctdGraphL10n.monthNamesShortMar,
+            ctdGraphL10n.monthNamesShortApr,
+            ctdGraphL10n.monthNamesShortMay,
+            ctdGraphL10n.monthNamesShortJun,
+            ctdGraphL10n.monthNamesShortJul,
+            ctdGraphL10n.monthNamesShortAug,
+            ctdGraphL10n.monthNamesShortSep,
+            ctdGraphL10n.monthNamesShortOct,
+            ctdGraphL10n.monthNamesShortNov,
+            ctdGraphL10n.monthNamesShortDec
         ],
-        nextText: ctdAdminL10n.nextText,
-        prevText: ctdAdminL10n.prevText,
-        weekHeader: ctdAdminL10n.weekHeader,
+        nextText: ctdGraphL10n.nextText,
+        prevText: ctdGraphL10n.prevText,
+        weekHeader: ctdGraphL10n.weekHeader,
         altFormat: "@",
         autoSize: true,
         changeMonth: true,

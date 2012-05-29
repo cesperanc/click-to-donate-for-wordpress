@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ClickToDonate\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-25 04:45+0100\n"
+"POT-Creation-Date: 2012-05-29 05:17+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Cláudio Esperança <cesperanc@gmail.com>\n"
 "Language-Team: Cláudio Esperança, Diogo Serra <cesperanc@gmail.com>\n"
@@ -30,432 +30,499 @@ msgstr "Clique para associar a uma campanha Click to donate"
 msgid "Insert"
 msgstr "Inserir"
 
-#: ../php/ClickToDonateView.php:77
-#: ../php/ClickToDonateView.php:134
+#: ../php/ClickToDonateModel.php:264
+msgid "year"
+msgstr "ano"
+
+#: ../php/ClickToDonateModel.php:271
+msgid "month"
+msgstr "mês"
+
+#: ../php/ClickToDonateModel.php:278
+msgid "day"
+msgstr "dia"
+
+#: ../php/ClickToDonateModel.php:299
+msgid "clicks"
+msgstr "cliques"
+
+#: ../php/ClickToDonateView.php:79
+#: ../php/ClickToDonateView.php:136
+#: ../php/ClickToDonateGraphView.php:51
 msgid "Done"
 msgstr "Feito"
 
-#: ../php/ClickToDonateView.php:78
+#: ../php/ClickToDonateView.php:80
+#: ../php/ClickToDonateGraphView.php:52
 msgid "Today"
 msgstr "Hoje"
 
-#: ../php/ClickToDonateView.php:79
+#: ../php/ClickToDonateView.php:81
+#: ../php/ClickToDonateGraphView.php:53
 msgid "mm/dd/yy"
 msgstr "dd/mm/yy"
 
-#: ../php/ClickToDonateView.php:80
+#: ../php/ClickToDonateView.php:82
+#: ../php/ClickToDonateGraphView.php:54
 msgid "Sunday"
 msgstr "Domingo"
 
-#: ../php/ClickToDonateView.php:81
+#: ../php/ClickToDonateView.php:83
+#: ../php/ClickToDonateGraphView.php:55
 msgid "Monday"
 msgstr "Segunda-feira"
 
-#: ../php/ClickToDonateView.php:82
+#: ../php/ClickToDonateView.php:84
+#: ../php/ClickToDonateGraphView.php:56
 msgid "Tuesday"
 msgstr "Terça-feira"
 
-#: ../php/ClickToDonateView.php:83
+#: ../php/ClickToDonateView.php:85
+#: ../php/ClickToDonateGraphView.php:57
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
-#: ../php/ClickToDonateView.php:84
+#: ../php/ClickToDonateView.php:86
+#: ../php/ClickToDonateGraphView.php:58
 msgid "Thursday"
 msgstr "Quinta-feira"
 
-#: ../php/ClickToDonateView.php:85
+#: ../php/ClickToDonateView.php:87
+#: ../php/ClickToDonateGraphView.php:59
 msgid "Friday"
 msgstr "Sexta"
 
-#: ../php/ClickToDonateView.php:86
+#: ../php/ClickToDonateView.php:88
+#: ../php/ClickToDonateGraphView.php:60
 msgid "Saturday"
 msgstr "Sábado"
 
-#: ../php/ClickToDonateView.php:87
+#: ../php/ClickToDonateView.php:89
+#: ../php/ClickToDonateGraphView.php:61
 msgid "Su"
 msgstr "Do"
 
-#: ../php/ClickToDonateView.php:88
+#: ../php/ClickToDonateView.php:90
+#: ../php/ClickToDonateGraphView.php:62
 msgid "Mo"
 msgstr "Se"
 
-#: ../php/ClickToDonateView.php:89
+#: ../php/ClickToDonateView.php:91
+#: ../php/ClickToDonateGraphView.php:63
 msgid "Tu"
 msgstr "Te"
 
-#: ../php/ClickToDonateView.php:90
+#: ../php/ClickToDonateView.php:92
+#: ../php/ClickToDonateGraphView.php:64
 msgid "We"
 msgstr "Qu"
 
-#: ../php/ClickToDonateView.php:91
+#: ../php/ClickToDonateView.php:93
+#: ../php/ClickToDonateGraphView.php:65
 msgid "Th"
 msgstr "Qu"
 
-#: ../php/ClickToDonateView.php:92
+#: ../php/ClickToDonateView.php:94
+#: ../php/ClickToDonateGraphView.php:66
 msgid "Fr"
 msgstr "Se"
 
-#: ../php/ClickToDonateView.php:93
+#: ../php/ClickToDonateView.php:95
+#: ../php/ClickToDonateGraphView.php:67
 msgid "Sa"
 msgstr "Sa"
 
-#: ../php/ClickToDonateView.php:94
+#: ../php/ClickToDonateView.php:96
+#: ../php/ClickToDonateGraphView.php:68
 msgid "Sun"
 msgstr "Dom"
 
-#: ../php/ClickToDonateView.php:95
+#: ../php/ClickToDonateView.php:97
+#: ../php/ClickToDonateGraphView.php:69
 msgid "Mon"
 msgstr "Seg"
 
-#: ../php/ClickToDonateView.php:96
+#: ../php/ClickToDonateView.php:98
+#: ../php/ClickToDonateGraphView.php:70
 msgid "Tue"
 msgstr "Ter"
 
-#: ../php/ClickToDonateView.php:97
+#: ../php/ClickToDonateView.php:99
+#: ../php/ClickToDonateGraphView.php:71
 msgid "Wed"
 msgstr "Qua"
 
-#: ../php/ClickToDonateView.php:98
+#: ../php/ClickToDonateView.php:100
+#: ../php/ClickToDonateGraphView.php:72
 msgid "Thu"
 msgstr "Qui"
 
-#: ../php/ClickToDonateView.php:99
+#: ../php/ClickToDonateView.php:101
+#: ../php/ClickToDonateGraphView.php:73
 msgid "Fri"
 msgstr "Sex"
 
-#: ../php/ClickToDonateView.php:100
+#: ../php/ClickToDonateView.php:102
+#: ../php/ClickToDonateGraphView.php:74
 msgid "Sat"
 msgstr "Sáb"
 
-#: ../php/ClickToDonateView.php:101
+#: ../php/ClickToDonateView.php:103
+#: ../php/ClickToDonateGraphView.php:75
 msgid "January"
 msgstr "Janeiro"
 
-#: ../php/ClickToDonateView.php:102
+#: ../php/ClickToDonateView.php:104
+#: ../php/ClickToDonateGraphView.php:76
 msgid "February"
 msgstr "Fevereiro"
 
-#: ../php/ClickToDonateView.php:103
+#: ../php/ClickToDonateView.php:105
+#: ../php/ClickToDonateGraphView.php:77
 msgid "March"
 msgstr "Março"
 
-#: ../php/ClickToDonateView.php:104
+#: ../php/ClickToDonateView.php:106
+#: ../php/ClickToDonateGraphView.php:78
 msgid "April"
 msgstr "Abril"
 
-#: ../php/ClickToDonateView.php:105
-#: ../php/ClickToDonateView.php:117
+#: ../php/ClickToDonateView.php:107
+#: ../php/ClickToDonateView.php:119
+#: ../php/ClickToDonateGraphView.php:79
+#: ../php/ClickToDonateGraphView.php:91
 msgid "May"
 msgstr "Maio"
 
-#: ../php/ClickToDonateView.php:106
+#: ../php/ClickToDonateView.php:108
+#: ../php/ClickToDonateGraphView.php:80
 msgid "June"
 msgstr "Junho"
 
-#: ../php/ClickToDonateView.php:107
+#: ../php/ClickToDonateView.php:109
+#: ../php/ClickToDonateGraphView.php:81
 msgid "July"
 msgstr "Julho"
 
-#: ../php/ClickToDonateView.php:108
+#: ../php/ClickToDonateView.php:110
+#: ../php/ClickToDonateGraphView.php:82
 msgid "August"
 msgstr "Agosto"
 
-#: ../php/ClickToDonateView.php:109
+#: ../php/ClickToDonateView.php:111
+#: ../php/ClickToDonateGraphView.php:83
 msgid "September"
 msgstr "Setembro"
 
-#: ../php/ClickToDonateView.php:110
+#: ../php/ClickToDonateView.php:112
+#: ../php/ClickToDonateGraphView.php:84
 msgid "October"
 msgstr "Outubro"
 
-#: ../php/ClickToDonateView.php:111
+#: ../php/ClickToDonateView.php:113
+#: ../php/ClickToDonateGraphView.php:85
 msgid "November"
 msgstr "Novembro"
 
-#: ../php/ClickToDonateView.php:112
+#: ../php/ClickToDonateView.php:114
+#: ../php/ClickToDonateGraphView.php:86
 msgid "December"
 msgstr "Dezembro"
 
-#: ../php/ClickToDonateView.php:113
+#: ../php/ClickToDonateView.php:115
+#: ../php/ClickToDonateGraphView.php:87
 msgid "Jan"
 msgstr "Jan"
 
-#: ../php/ClickToDonateView.php:114
+#: ../php/ClickToDonateView.php:116
+#: ../php/ClickToDonateGraphView.php:88
 msgid "Feb"
 msgstr "Fev"
 
-#: ../php/ClickToDonateView.php:115
+#: ../php/ClickToDonateView.php:117
+#: ../php/ClickToDonateGraphView.php:89
 msgid "Mar"
 msgstr "Mar"
 
-#: ../php/ClickToDonateView.php:116
+#: ../php/ClickToDonateView.php:118
+#: ../php/ClickToDonateGraphView.php:90
 msgid "Apr"
 msgstr "Abr"
 
-#: ../php/ClickToDonateView.php:118
+#: ../php/ClickToDonateView.php:120
+#: ../php/ClickToDonateGraphView.php:92
 msgid "Jun"
 msgstr "Jun"
 
-#: ../php/ClickToDonateView.php:119
+#: ../php/ClickToDonateView.php:121
+#: ../php/ClickToDonateGraphView.php:93
 msgid "Jul"
 msgstr "Jul"
 
-#: ../php/ClickToDonateView.php:120
+#: ../php/ClickToDonateView.php:122
+#: ../php/ClickToDonateGraphView.php:94
 msgid "Aug"
 msgstr "Ago"
 
-#: ../php/ClickToDonateView.php:121
+#: ../php/ClickToDonateView.php:123
+#: ../php/ClickToDonateGraphView.php:95
 msgid "Sep"
 msgstr "Set"
 
-#: ../php/ClickToDonateView.php:122
+#: ../php/ClickToDonateView.php:124
+#: ../php/ClickToDonateGraphView.php:96
 msgid "Oct"
 msgstr "Out"
 
-#: ../php/ClickToDonateView.php:123
+#: ../php/ClickToDonateView.php:125
+#: ../php/ClickToDonateGraphView.php:97
 msgid "Nov"
 msgstr "Nov"
 
-#: ../php/ClickToDonateView.php:124
+#: ../php/ClickToDonateView.php:126
+#: ../php/ClickToDonateGraphView.php:98
 msgid "Dec"
 msgstr "Dez"
 
-#: ../php/ClickToDonateView.php:125
+#: ../php/ClickToDonateView.php:127
+#: ../php/ClickToDonateGraphView.php:99
 msgid "Next"
 msgstr "Seguinte"
 
-#: ../php/ClickToDonateView.php:126
+#: ../php/ClickToDonateView.php:128
+#: ../php/ClickToDonateGraphView.php:100
 msgid "Prev"
 msgstr "Anterior"
 
-#: ../php/ClickToDonateView.php:127
+#: ../php/ClickToDonateView.php:129
+#: ../php/ClickToDonateGraphView.php:101
 msgid "Wk"
 msgstr "Sm"
 
-#: ../php/ClickToDonateView.php:135
+#: ../php/ClickToDonateView.php:137
 msgid "Insert/edit link"
 msgstr "Inserir/editar ligação"
 
-#: ../php/ClickToDonateView.php:136
+#: ../php/ClickToDonateView.php:138
 msgid "Update"
 msgstr "Atualizar"
 
-#: ../php/ClickToDonateView.php:137
+#: ../php/ClickToDonateView.php:139
 msgid "Add Link"
 msgstr "Adicionar Ligação"
 
-#: ../php/ClickToDonateView.php:138
+#: ../php/ClickToDonateView.php:140
 msgid "(no title)"
 msgstr "(sem título)"
 
-#: ../php/ClickToDonateView.php:139
+#: ../php/ClickToDonateView.php:141
 msgid "No matches found."
 msgstr "Não foram encontradas resultados."
 
-#: ../php/ClickToDonateView.php:140
+#: ../php/ClickToDonateView.php:142
 msgid "Loading campaign {0} title..."
 msgstr "A carregar o título da campanha {0}"
 
-#: ../php/ClickToDonateView.php:237
+#: ../php/ClickToDonateView.php:240
 msgid "Campaign:"
 msgstr "Campanha:"
 
-#: ../php/ClickToDonateView.php:240
+#: ../php/ClickToDonateView.php:243
 msgid "Title"
 msgstr "Título"
 
-#: ../php/ClickToDonateView.php:243
+#: ../php/ClickToDonateView.php:246
 msgid "Open link in a new window/tab"
 msgstr "Abrir em uma nova janela ou separador"
 
-#: ../php/ClickToDonateView.php:247
+#: ../php/ClickToDonateView.php:250
 msgid "Link to existing content"
 msgstr "Ligação para conteúdo existente"
 
-#: ../php/ClickToDonateView.php:251
+#: ../php/ClickToDonateView.php:254
 msgid "Filter"
 msgstr "Filtrar"
 
-#: ../php/ClickToDonateView.php:263
+#: ../php/ClickToDonateView.php:266
 msgid "No search term specified. Showing recent items."
 msgstr "Não foi especificado um termo de pesquisa. A mostrar os itens recentes."
 
-#: ../php/ClickToDonateView.php:273
+#: ../php/ClickToDonateView.php:276
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: ../php/ClickToDonateView.php:327
+#: ../php/ClickToDonateView.php:330
 msgid "Campaign configuration"
 msgstr "Configuração da campanha"
 
-#: ../php/ClickToDonateView.php:344
+#: ../php/ClickToDonateView.php:347
 msgid "Save"
 msgstr "Guardar"
 
-#: ../php/ClickToDonateView.php:358
-#: ../php/ClickToDonateView.php:364
+#: ../php/ClickToDonateView.php:361
+#: ../php/ClickToDonateView.php:367
 msgid "Preview"
 msgstr "Prever"
 
-#: ../php/ClickToDonateView.php:399
+#: ../php/ClickToDonateView.php:402
 msgid "Require visitor authentication"
 msgstr "Forçar autenticação dos visitantes"
 
-#: ../php/ClickToDonateView.php:402
+#: ../php/ClickToDonateView.php:405
 msgid "Cooling-off period"
 msgstr "Periodo de espera"
 
-#: ../php/ClickToDonateView.php:437
+#: ../php/ClickToDonateView.php:440
 msgid "Cooling-off period:"
 msgstr "Periodo de espera:"
 
-#: ../php/ClickToDonateView.php:441
+#: ../php/ClickToDonateView.php:444
 msgid "Second(s)"
 msgstr "Segundo(s)"
 
-#: ../php/ClickToDonateView.php:442
+#: ../php/ClickToDonateView.php:445
 msgid "Minute(s)"
 msgstr "Minuto(s)"
 
-#: ../php/ClickToDonateView.php:443
+#: ../php/ClickToDonateView.php:446
 msgid "Hour(s)"
 msgstr "Hora(s)"
 
-#: ../php/ClickToDonateView.php:444
+#: ../php/ClickToDonateView.php:447
 msgid "Day(s)"
 msgstr "Dia(s)"
 
-#: ../php/ClickToDonateView.php:448
+#: ../php/ClickToDonateView.php:451
 msgid "Restrict by cookie"
 msgstr "Restringir por cookie"
 
-#: ../php/ClickToDonateView.php:449
+#: ../php/ClickToDonateView.php:452
 msgid "Restrict by login"
 msgstr "Restringir por login"
 
-#: ../php/ClickToDonateView.php:455
+#: ../php/ClickToDonateView.php:458
 msgid "Limit the number of clicks"
 msgstr "Limite do número de cliques"
 
-#: ../php/ClickToDonateView.php:457
+#: ../php/ClickToDonateView.php:460
 msgid "Clicks limit:"
 msgstr "Limite de cliques:"
 
-#: ../php/ClickToDonateView.php:464
+#: ../php/ClickToDonateView.php:467
 msgid "Set the campaign start date"
 msgstr "Definir a data de início da campanha"
 
-#: ../php/ClickToDonateView.php:467
+#: ../php/ClickToDonateView.php:470
 msgid "Start date:"
 msgstr "Data de início:"
 
-#: ../php/ClickToDonateView.php:475
+#: ../php/ClickToDonateView.php:478
 msgid "Set the campaign end date"
 msgstr "Definir a data de fim da campanha"
 
-#: ../php/ClickToDonateView.php:478
+#: ../php/ClickToDonateView.php:481
 msgid "End date:"
 msgstr "Data de fim:"
 
-#: ../php/ClickToDonateView.php:492
+#: ../php/ClickToDonateView.php:495
 msgid "Status:"
 msgstr "Estado:"
 
-#: ../php/ClickToDonateView.php:495
+#: ../php/ClickToDonateView.php:498
 #: ../php/ClickToDonateController.php:114
 msgid "Online"
 msgstr "Online"
 
-#: ../php/ClickToDonateView.php:496
+#: ../php/ClickToDonateView.php:499
 #: ../php/ClickToDonateController.php:140
 msgid "Finished"
 msgstr "Concluído"
 
-#: ../php/ClickToDonateView.php:497
+#: ../php/ClickToDonateView.php:500
 #: ../php/ClickToDonateController.php:127
 msgid "Scheduled"
 msgstr "Agendado"
 
-#: ../php/ClickToDonateView.php:499
-#: ../php/ClickToDonateView.php:501
+#: ../php/ClickToDonateView.php:502
+#: ../php/ClickToDonateView.php:504
 #: ../php/ClickToDonateController.php:153
 msgid "Unavailable"
 msgstr "Não disponível"
 
-#: ../php/ClickToDonateView.php:516
+#: ../php/ClickToDonateView.php:519
 msgid "Delete Permanently"
 msgstr "Eliminar Permanentemente"
 
-#: ../php/ClickToDonateView.php:518
+#: ../php/ClickToDonateView.php:521
 msgid "Move to Trash"
 msgstr "Mover para o lixo"
 
-#: ../php/ClickToDonateView.php:530
+#: ../php/ClickToDonateView.php:533
 msgid "Schedule"
 msgstr "Agendar"
 
-#: ../php/ClickToDonateView.php:533
+#: ../php/ClickToDonateView.php:536
 msgid "Publish"
 msgstr "Publicar"
 
-#: ../php/ClickToDonateView.php:674
+#: ../php/ClickToDonateView.php:677
 msgid "Sorry, but the URL for this campaign is invalid."
 msgstr "Pedimos desculpa, mas a URL para esta campanha é inválida."
 
-#: ../php/ClickToDonateView.php:678
+#: ../php/ClickToDonateView.php:681
 #, php-format
 msgid "You must %s in the site to validate your visit."
 msgstr "Deve %s no site para validar a sua visita."
 
-#: ../php/ClickToDonateView.php:678
+#: ../php/ClickToDonateView.php:681
 msgid "Follow the link to login in the site"
 msgstr "Siga a hiperligação para se autenticar no site"
 
-#: ../php/ClickToDonateView.php:678
+#: ../php/ClickToDonateView.php:681
 msgid "login"
 msgstr "autenticar-se"
 
-#: ../php/ClickToDonateView.php:682
+#: ../php/ClickToDonateView.php:685
 msgid "Thanks for visiting, but this campaign has been completed."
 msgstr "Obrigado pela visita, mas esta campainha já terminou."
 
-#: ../php/ClickToDonateView.php:686
+#: ../php/ClickToDonateView.php:689
 msgid "Thanks for visiting, but this campaign has not started."
 msgstr "Obrigado pela visita, mas esta campanha ainda não começou."
 
-#: ../php/ClickToDonateView.php:689
+#: ../php/ClickToDonateView.php:692
 msgid "Thanks for visiting, but this campaign is not available."
 msgstr "Obrigado pela visita, mas esta campanha não está disponível."
 
-#: ../php/ClickToDonateView.php:693
+#: ../php/ClickToDonateView.php:696
 #, php-format
 msgid "Thanks for visiting, but this campaign has already been visited by you recently. Please try again in %s."
 msgstr "Obrigado pela visita, mas esta campanha já foi visitada por si recentemente. Por favor, tente novamente em %s."
 
-#: ../php/ClickToDonateView.php:698
+#: ../php/ClickToDonateView.php:701
 msgid "<br/>Visit registered."
 msgstr "<br/>Visita registada."
 
-#: ../php/ClickToDonateView.php:706
+#: ../php/ClickToDonateView.php:709
 msgid "Unable to register the visit. Please try again later."
 msgstr "Não foi possível registar a visita. Por favor, tente novamente mais tarde."
 
-#: ../php/ClickToDonateView.php:777
+#: ../php/ClickToDonateView.php:780
 #, php-format
 msgid "%s days"
 msgstr "%s dia(s)"
 
-#: ../php/ClickToDonateView.php:780
+#: ../php/ClickToDonateView.php:783
 #, php-format
 msgid "%s hours"
 msgstr "%s hora(s)"
 
-#: ../php/ClickToDonateView.php:783
+#: ../php/ClickToDonateView.php:786
 #, php-format
 msgid "%s minutes"
 msgstr "%s minuto(s)"
 
-#: ../php/ClickToDonateView.php:786
+#: ../php/ClickToDonateView.php:789
 #, php-format
 msgid "%s seconds"
 msgstr "%s segundo(s)"
@@ -532,56 +599,60 @@ msgid_plural "Unavailable <span class=\"count\">(%s)</span>"
 msgstr[0] "Não disponível <span class=\"count\">(%s)</span>"
 msgstr[1] "Não disponível <span class=\"count\">(%s)</span>"
 
-#: ../php/ClickToDonateGraphView.php:40
+#: ../php/ClickToDonateGraphView.php:45
 msgid "Loading..."
 msgstr "A carregar..."
 
-#: ../php/ClickToDonateGraphView.php:41
+#: ../php/ClickToDonateGraphView.php:46
 msgid "Day"
 msgstr "Dia"
 
-#: ../php/ClickToDonateGraphView.php:42
-#: ../php/ClickToDonateGraphView.php:84
+#: ../php/ClickToDonateGraphView.php:47
+#: ../php/ClickToDonateGraphView.php:153
 msgid "Days"
 msgstr "Dias"
 
-#: ../php/ClickToDonateGraphView.php:43
+#: ../php/ClickToDonateGraphView.php:48
 msgid "Total visits"
 msgstr "Número total de visitas"
 
-#: ../php/ClickToDonateGraphView.php:44
+#: ../php/ClickToDonateGraphView.php:49
 msgid "Private method {0} does not exist"
 msgstr "O método privado {0} não existe"
 
-#: ../php/ClickToDonateGraphView.php:45
+#: ../php/ClickToDonateGraphView.php:50
 msgid "Method {0} does not exist"
 msgstr "O método {0} não existe"
 
-#: ../php/ClickToDonateGraphView.php:68
+#: ../php/ClickToDonateGraphView.php:128
+msgid "Campaigns views"
+msgstr "Visualizações de Campanhas"
+
+#: ../php/ClickToDonateGraphView.php:137
 msgid "Campaign views"
 msgstr "Visualizações da Campanha"
 
-#: ../php/ClickToDonateGraphView.php:78
+#: ../php/ClickToDonateGraphView.php:147
 msgid "Period start date:"
 msgstr "Data de início do período:"
 
-#: ../php/ClickToDonateGraphView.php:80
+#: ../php/ClickToDonateGraphView.php:149
 msgid "Period end date:"
 msgstr "Data de fim do período:"
 
-#: ../php/ClickToDonateGraphView.php:81
+#: ../php/ClickToDonateGraphView.php:150
 msgid "Period granularity:"
 msgstr "Granularidade do período:"
 
-#: ../php/ClickToDonateGraphView.php:85
+#: ../php/ClickToDonateGraphView.php:154
 msgid "Months"
 msgstr "Meses"
 
-#: ../php/ClickToDonateGraphView.php:86
+#: ../php/ClickToDonateGraphView.php:155
 msgid "Years"
 msgstr "Anos"
 
-#: ../php/ClickToDonateGraphView.php:89
+#: ../php/ClickToDonateGraphView.php:158
 msgid "Load"
 msgstr "Carregar"
 

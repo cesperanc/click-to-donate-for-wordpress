@@ -6,11 +6,6 @@
 var $j = jQuery.noConflict();
 
 $j(function(){
-    // Wrap the calendar widget with an element with a specific CSS scope to apply the custom style
-    $j(window).load(function() {
-        $j('#ui-datepicker-div').wrap('<span class="ctd-jquery-ui"></span>');
-    });
-    
     // Localize and set the common options for the calendars
     var calendarOptions = {
         closeText: ctdAdminL10n.closeText,
@@ -119,7 +114,7 @@ $j(function(){
     
     $j('#ctd-startminutes, #ctd-endminutes').spinner($j.extend(true, {}, timeDefaults, {
         'max': 59
-    }));
+    })).css({'margin-right': '0'});
     
     // Hide the hidden elements
     $j(".start-hidden").hide();

@@ -11,6 +11,9 @@ if (!class_exists('ClickToDonateGraphView')):
             if (is_admin()):
                 // Register the addMetaBox method to the Wordpress backoffice administration initialization action hook
                 add_action('admin_init', array(__CLASS__, 'addMetaBox'));
+            
+                // Register the wpDashboardSetup method to the wp_dashboard_setup action hook
+                add_action('wp_dashboard_setup', array(__CLASS__, 'wpDashboardSetup'));
 
                 // Register the adminEnqueueScripts method to the Wordpress admin_enqueue_scripts action hook
                 add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
@@ -29,12 +32,14 @@ if (!class_exists('ClickToDonateGraphView')):
             if (is_admin()):
                 $suffix = ClickToDonateView::debugSufix();
             
-                if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
+                $current_screen = get_current_screen();
+                if(is_blog_admin() && current_user_can('publish_posts') && ($current_screen->id=='dashboard' || $current_screen->post_type == ClickToDonateController::POST_TYPE)):
                     // Register the scripts
                     wp_enqueue_script('google-jsapi', 'https://www.google.com/jsapi');
                     
                     // Admin script
-                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_post_graph', plugins_url("js/ctd-graph$suffix.js", ClickToDonate::FILE), array('jquery', 'google-jsapi', 'jquery-ui-datepicker'), '1.0');
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_common', plugins_url("js/common$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-datepicker'), '1.0');
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_post_graph', plugins_url("js/ctd-graph$suffix.js", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME.'_common', 'jquery', 'google-jsapi', 'jquery-ui-datepicker'), '1.0');
                     wp_localize_script(ClickToDonate::CLASS_NAME . '_post_graph', 'ctdGraphL10n', array(
                         'language' => esc_js(esc_js(get_bloginfo('language'))),
                         'loading' => esc_js(__( 'Loading...', 'ClickToDonate' )),
@@ -42,7 +47,58 @@ if (!class_exists('ClickToDonateGraphView')):
                         'days' => esc_js(__( 'Days', 'ClickToDonate' )),
                         'totalVisits' => esc_js(__('Total visits', 'ClickToDonate')),
                         'privateMethodDoesNotExist' => __('Private method {0} does not exist', 'ClickToDonate'),
-                        'methodDoesNotExist' => __('Method {0} does not exist', 'ClickToDonate')
+                        'methodDoesNotExist' => __('Method {0} does not exist', 'ClickToDonate'),
+                        'closeText' => __('Done', 'ClickToDonate'),
+                        'currentText' => __('Today', 'ClickToDonate'),
+                        'dateFormat' => __('mm/dd/yy', 'ClickToDonate'),
+                        'dayNamesSunday' => __('Sunday', 'ClickToDonate'),
+                        'dayNamesMonday' => __('Monday', 'ClickToDonate'),
+                        'dayNamesTuesday' => __('Tuesday', 'ClickToDonate'),
+                        'dayNamesWednesday' => __('Wednesday', 'ClickToDonate'),
+                        'dayNamesThursday' => __('Thursday', 'ClickToDonate'),
+                        'dayNamesFriday' => __('Friday', 'ClickToDonate'),
+                        'dayNamesSaturday' => __('Saturday', 'ClickToDonate'),
+                        'dayNamesMinSu' => __('Su', 'ClickToDonate'),
+                        'dayNamesMinMo' => __('Mo', 'ClickToDonate'),
+                        'dayNamesMinTu' => __('Tu', 'ClickToDonate'),
+                        'dayNamesMinWe' => __('We', 'ClickToDonate'),
+                        'dayNamesMinTh' => __('Th', 'ClickToDonate'),
+                        'dayNamesMinFr' => __('Fr', 'ClickToDonate'),
+                        'dayNamesMinSa' => __('Sa', 'ClickToDonate'),
+                        'dayNamesShortSun' => __('Sun', 'ClickToDonate'),
+                        'dayNamesShortMon' => __('Mon', 'ClickToDonate'),
+                        'dayNamesShortTue' => __('Tue', 'ClickToDonate'),
+                        'dayNamesShortWed' => __('Wed', 'ClickToDonate'),
+                        'dayNamesShortThu' => __('Thu', 'ClickToDonate'),
+                        'dayNamesShortFri' => __('Fri', 'ClickToDonate'),
+                        'dayNamesShortSat' => __('Sat', 'ClickToDonate'),
+                        'monthNamesJanuary' => __('January', 'ClickToDonate'),
+                        'monthNamesFebruary' => __('February', 'ClickToDonate'),
+                        'monthNamesMarch' => __('March', 'ClickToDonate'),
+                        'monthNamesApril' => __('April', 'ClickToDonate'),
+                        'monthNamesMay' => __('May', 'ClickToDonate'),
+                        'monthNamesJune' => __('June', 'ClickToDonate'),
+                        'monthNamesJuly' => __('July', 'ClickToDonate'),
+                        'monthNamesAugust' => __('August', 'ClickToDonate'),
+                        'monthNamesSeptember' => __('September', 'ClickToDonate'),
+                        'monthNamesOctober' => __('October', 'ClickToDonate'),
+                        'monthNamesNovember' => __('November', 'ClickToDonate'),
+                        'monthNamesDecember' => __('December', 'ClickToDonate'),
+                        'monthNamesShortJan' => __('Jan', 'ClickToDonate'),
+                        'monthNamesShortFeb' => __('Feb', 'ClickToDonate'),
+                        'monthNamesShortMar' => __('Mar', 'ClickToDonate'),
+                        'monthNamesShortApr' => __('Apr', 'ClickToDonate'),
+                        'monthNamesShortMay' => __('May', 'ClickToDonate'),
+                        'monthNamesShortJun' => __('Jun', 'ClickToDonate'),
+                        'monthNamesShortJul' => __('Jul', 'ClickToDonate'),
+                        'monthNamesShortAug' => __('Aug', 'ClickToDonate'),
+                        'monthNamesShortSep' => __('Sep', 'ClickToDonate'),
+                        'monthNamesShortOct' => __('Oct', 'ClickToDonate'),
+                        'monthNamesShortNov' => __('Nov', 'ClickToDonate'),
+                        'monthNamesShortDec' => __('Dec', 'ClickToDonate'),
+                        'nextText' => __('Next', 'ClickToDonate'),
+                        'prevText' => __('Prev', 'ClickToDonate'),
+                        'weekHeader' => __('Wk', 'ClickToDonate')
                     ));
                 endif;
             endif;
@@ -54,9 +110,22 @@ if (!class_exists('ClickToDonateGraphView')):
         public function adminPrintStyles() {
             if (is_admin()):
                 $suffix = ClickToDonateView::debugSufix();
-                if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
+            
+                $current_screen = get_current_screen();
+                if(is_blog_admin() && current_user_can('publish_posts') && ($current_screen->id=='dashboard' || $current_screen->post_type == ClickToDonateController::POST_TYPE)):
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_common', plugins_url("css/common$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
                 endif;
+            endif;
+        }
+
+        /**
+         * Add a metabox to dashboard
+         */
+        public function wpDashboardSetup() {
+            // Add our metabox with the graphics to the dashboard
+            if(is_blog_admin() && current_user_can('publish_posts')):
+                wp_add_dashboard_widget(__CLASS__, __('Campaigns views', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'));
             endif;
         }
 
@@ -64,7 +133,7 @@ if (!class_exists('ClickToDonateGraphView')):
          * Add a metabox to the campaign post type
          */
         public function addMetaBox() {
-            // Replace the submit core metabox by ours
+            // Add our metabox with the graphics to our custom post type
             add_meta_box(__CLASS__, __('Campaign views', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'), ClickToDonateController::POST_TYPE);
         }
 
@@ -100,11 +169,11 @@ if (!class_exists('ClickToDonateGraphView')):
                         $j('#ctd-chart-container').ctdGraph(
                             'loadData',{
                                 'action' : 'ctd_get_visits',
-                                'postId' : '<?php echo(esc_js(ClickToDonateController::getPostID($post))); ?>',
                                 '_ajax_ctd_get_visits_nonce' : '<?php echo(esc_attr(wp_create_nonce('ctd-get-visits'))); ?>',
                                 'startDate': ($j("#ctd-hidden-graph-startdate").val()/1000),
                                 'endDate': ($j("#ctd-hidden-graph-enddate").val()/1000),
                                 'dateGranularity': ($j("#ctd-graph-date-granularity").val())
+                                <?php if(isset($post)): echo(", 'postId' : '".esc_js(ClickToDonateController::getPostID($post))."'"); endif; ?>
                             }
                         );
                         return false;
@@ -137,6 +206,13 @@ if (!class_exists('ClickToDonateGraphView')):
             
             $resultsArray = array();
             foreach ($results as $result):
+                if(empty($resultsArray)):
+                    $keys = array();
+                    foreach ($result as $key=>$value):
+                        $keys[] = $key;
+                    endforeach;
+                    $resultsArray[] = $keys;
+                endif;
                 $values = array();
                 foreach ($result as $key=>$value):
                     $values[] = empty($values)?"{$value}":(int)$value;

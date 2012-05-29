@@ -255,11 +255,34 @@ if (!class_exists('ClickToDonateModel')):
         public static function getBannerVisitsPerDay($post=0, $user = 0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
             $wpdb = self::getWpDB();
             $extra = '';
+            
+            $select=array();
+            $groupBy=array();
+            $orderBy=array();
+            switch($dateGranularity):
+                case ClickToDonateModel::DATE_GRANULARITY_YEARS:
+                    $dateField=esc_sql(__('year', 'ClickToDonate'));
+                    $select[] = 'YEAR(`'.self::$tableClicksTimestamp.'`) AS `'.$dateField.'`';
+                    $groupBy[] = 'YEAR(`'.self::$tableClicksTimestamp.'`)';
+                    $orderBy[]="`{$dateField}` ASC";
+                    break;
+                
+                case ClickToDonateModel::DATE_GRANULARITY_MONTHS:
+                    $dateField=esc_sql(__('month', 'ClickToDonate'));
+                    $select[] = 'CONCAT(YEAR(`'.self::$tableClicksTimestamp.'`), \'-\', MONTH(`'.self::$tableClicksTimestamp.'`)) AS `'.$dateField.'`';
+                    $groupBy[] = 'YEAR(`'.self::$tableClicksTimestamp.'`), MONTH(`'.self::$tableClicksTimestamp.'`)';
+                    $orderBy[]="`{$dateField}` ASC";
+                    break;
+                case ClickToDonateModel::DATE_GRANULARITY_DAYS:
+                default:
+                    $dateField=esc_sql(__('day', 'ClickToDonate'));
+                    $select[] = 'DATE(`'.self::$tableClicksTimestamp.'`) AS `'.$dateField.'`';
+                    $groupBy[] = 'DATE(`'.self::$tableClicksTimestamp.'`)';
+                    $orderBy[]="`{$dateField}` ASC";
+            endswitch;
+            
+            
             $params = array();
-            if (is_int($post) && absint($post) && $post>0):
-                $extra .= ' AND `' . self::$tableClicksBannerID . '`=%d';
-                $params[] .= $post;
-            endif;
             if (is_int($user) && absint($user) && $user>0):
                 $extra .= ' AND `' . self::$tableClicksUserID . '`=%d';
                 $params[] .= $user;
@@ -273,29 +296,45 @@ if (!class_exists('ClickToDonateModel')):
                 $params[] .= $endDate;
             endif;
             
+            $totalField=__('clicks', 'ClickToDonate');
+            $multipleBanners = array();
+            if (is_int($post) && absint($post) && $post>0):
+                $extra .= ' AND `' . self::$tableClicksBannerID . '`=%d';
+                $params[] .= $post;
             
-            switch($dateGranularity):
-                case ClickToDonateModel::DATE_GRANULARITY_YEARS:
-                    $selectGranularity = 'YEAR(`'.self::$tableClicksTimestamp.'`) AS `year`, ';
-                    $groupByGranularity = 'GROUP BY YEAR(`'.self::$tableClicksTimestamp.'`)';
-                    break;
+                $select[] = 'COUNT('.self::$tableClicksID.') AS `'.esc_sql($totalField).'`';
+            else:
+                $select[] = '`' . self::$tableClicksBannerID . '` AS `bannerID`';
+                $select[] = 'COUNT('.self::$tableClicksBannerID.') AS `'.esc_sql($totalField).'`';
+                $groupBy[] = '`bannerID`';
+                $multipleBanners = $wpdb->get_results($wpdb->prepare(
+                    'SELECT DISTINCT(`' . self::$tableClicksBannerID . '`) AS `bannerID` '.
+                    'FROM `' . self::$tableClicks . '` '.
+                    'WHERE 1 '.$extra.';', $params), ARRAY_A);
+            endif;
+            
+            if (($rows = $wpdb->get_results($wpdb->prepare(
+                    'SELECT '.implode(', ', $select).' '.
+                    'FROM `' . self::$tableClicks . '` '.
+                    'WHERE 1 '.$extra.' '.
+                    (!empty($groupBy)?' GROUP BY '.implode(', ', $groupBy):'').
+                    (!empty($orderBy)?' ORDER BY '.implode(', ', $orderBy):'').
+                ';', $params), ARRAY_A)) && !empty($rows)):
                 
-                case ClickToDonateModel::DATE_GRANULARITY_MONTHS:
-                    $selectGranularity = 'CONCAT(YEAR(`'.self::$tableClicksTimestamp.'`), \'-\', MONTH(`'.self::$tableClicksTimestamp.'`)) AS `month`, ';
-                    $groupByGranularity = 'GROUP BY YEAR(`'.self::$tableClicksTimestamp.'`), MONTH(`'.self::$tableClicksTimestamp.'`)';
-                    break;
-                case ClickToDonateModel::DATE_GRANULARITY_DAYS:
-                default:
-                    $selectGranularity = 'DATE(`'.self::$tableClicksTimestamp.'`) AS `day`, ';
-                    $groupByGranularity = 'GROUP BY DATE(`'.self::$tableClicksTimestamp.'`)';
-            endswitch;
-            
-            if (($rows = $wpdb->get_results($wpdb->prepare('
-                            SELECT '.$selectGranularity.' COUNT('.self::$tableClicksID.') AS `total`  
-                            FROM `' . self::$tableClicks . '`  
-                            WHERE 1 '.$extra.'
-                            '.$groupByGranularity.';
-			', $params), ARRAY_A)) && !empty($rows)):
+                if(!empty($multipleBanners)):
+                    $tRows = array();
+                    $bannerColumns = array();
+                    foreach ($multipleBanners as $banner):
+                        $bannerColumns[get_the_title($banner['bannerID'])." ({$banner['bannerID']})"]=0;
+                    endforeach;
+                    foreach ($rows as $row):
+                        if(!is_array($tRows[$row[$dateField]])):
+                            $tRows[$row[$dateField]]=array_merge(array($dateField=>$row[$dateField]), $bannerColumns);
+                        endif;
+                        $tRows[$row[$dateField]][get_the_title($row['bannerID'])." ({$row['bannerID']})"]=$row[$totalField];
+                    endforeach;
+                    $rows = $tRows;
+                endif;
                 return $rows;
             endif;
             return array();
