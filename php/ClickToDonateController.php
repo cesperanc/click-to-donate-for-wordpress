@@ -101,7 +101,8 @@ if (!class_exists('ClickToDonateController')):
                 'show_ui' => true,
                 'show_in_menu' => true,
                 'show_in_nav_menus' => false,
-                'supports' => array('title', 'editor', 'thumbnail', 'revisions'),
+		'capability_type' => 'page',
+                'supports' => array('title', 'editor', 'revisions', 'thumbnail'),
                 'rewrite' => array(
                     'slug' => self::URL_QUERY_PARAM,
                     'with_front' => 'false'
@@ -768,28 +769,59 @@ if (!class_exists('ClickToDonateController')):
         }
         
         /**
-         * Get the timestamp of the last visit to the banner
+         * Get the banner(s) visits
          * @param int|object $post
          * @param int $user
-         * @return int 
+         * @param int $startDate
+         * @param int $endDate
+         * @param string $dateGranularity
+         * @return ClickToDonateVisitsData with the visits data 
          */
-        public static function getBannerVisitsPerDay($post=0, $user = 0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
-            return ClickToDonateModel::getBannerVisitsPerDay(self::getPostID($post), $user, $startDate, $endDate, $dateGranularity);
+        public static function getBannerVisits($post=0, $user = 0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
+            return ClickToDonateModel::getBannerVisits(self::getPostID($post), $user, $startDate, $endDate, $dateGranularity);
         }
 
         /**
-         * Get the timestamp of the last visit of the authenticated user to the banner
+         * Get the banner(s) visits for the authenticated user
          * @param int|object $post
-         * @return int 
+         * @param int $startDate
+         * @param int $endDate
+         * @param string $dateGranularity
+         * @return ClickToDonateVisitsData with the visits data 
          */
-        public static function getBannerVisitsPerDayByAuthenticatedUser($post=0) {
+        public static function getBannerVisitsByAuthenticatedUser($post=0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
             if ($userId = get_current_user_id()):
-                return self::getBannerVisitsPerDay($post, $userId);
+                return self::getBannerVisits($post, $userId, $startDate, $endDate, $dateGranularity);
             endif;
             return 0;
         }
         
-        
+        /**
+         * Get the banner(s) visits rankings
+         * 
+         * @param int|object $post
+         * @param int $user
+         * @param int $startDate
+         * @param int $endDate
+         * @return ClickToDonateVisitsData with the visits data 
+         */
+        public static function getBannerParticipantsClicks($post=0, $user = 0, $startDate=0, $endDate=0) {
+            return ClickToDonateModel::getBannerParticipantsClicks(self::getPostID($post), $user, $startDate, $endDate);
+        }
+
+        /**
+         * Get the banner(s) visits for the authenticated user
+         * @param int|object $post
+         * @param int $startDate
+         * @param int $endDate
+         * @return ClickToDonateVisitsData with the visits data 
+         */
+        public static function getBannerAuthenticatedUserClicks($post=0, $startDate=0, $endDate=0) {
+            if ($userId = get_current_user_id()):
+                return self::getBannerParticipantsClicks($post, $userId, $startDate, $endDate);
+            endif;
+            return 0;
+        }
     }
 endif;
 ClickToDonateController::init();

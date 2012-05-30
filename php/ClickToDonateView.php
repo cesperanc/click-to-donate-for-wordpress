@@ -23,7 +23,7 @@ if (!class_exists('ClickToDonateView')):
         private static $startDate = '_startDate';
         private static $enableEndDate = '_enable_endDate';
         private static $endDate = '_endDate';
-        private static $internalDebugEnabled = true;
+        private static $internalDebugEnabled = false;
         
         public static function init(){
             
@@ -141,6 +141,14 @@ if (!class_exists('ClickToDonateView')):
                     'noMatchesFound' => __('No matches found.', 'ClickToDonate'),
                     'loadingCampaign' => __('Loading campaign {0} title...', 'ClickToDonate')
                 ));
+                
+                
+                    
+                $current_screen->add_help_tab( array(
+                    'id'       => __CLASS__.'submitbox'
+                    ,'title'    => __( 'Campaign configuration', 'ClickToDonate' )
+                    ,'callback' => array(__CLASS__, 'contextualHelpForConfigurationOptions')
+                ) );
             endif;
         }
         
@@ -159,6 +167,20 @@ if (!class_exists('ClickToDonateView')):
                 
                 wp_enqueue_style('ctd-tinymce', plugins_url("css/tinymce/tinymce$suffix.css", ClickToDonate::FILE), array(), '1.0');
             endif;
+        }
+        
+        public function contextualHelpForConfigurationOptions($screen, $tab) {
+            ?>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc auctor congue venenatis. Phasellus vitae lacus nulla, et molestie mi. Donec in nulla in sem pulvinar volutpat. Nam et neque at diam posuere laoreet. Mauris sapien quam, blandit nec fermentum eget, aliquet vitae dui. Aenean sit amet nulla urna, in aliquam turpis. Sed lobortis risus et est semper in aliquet libero pellentesque. Phasellus fermentum aliquam justo vel gravida. Curabitur non imperdiet purus. Nunc sodales massa eget metus bibendum mattis. Phasellus sit amet metus velit. Morbi eu urna nibh, sit amet dignissim urna. Proin ac sem leo, ac volutpat arcu. Quisque ut diam lorem. Vestibulum et arcu vitae ante ultrices posuere nec quis ligula. Morbi hendrerit placerat enim dapibus aliquet.
+
+Pellentesque placerat mauris tempus erat venenatis luctus. Etiam id tortor tortor. Sed in diam lorem. Nam venenatis sem vitae tortor sollicitudin pulvinar. Aenean aliquet nulla quis metus volutpat viverra. Aliquam neque odio, varius vel varius nec, ullamcorper vitae nunc. Morbi mollis pretium auctor. In aliquam, orci et hendrerit fringilla, turpis orci posuere dui, at scelerisque velit quam et eros. Proin mauris enim, tristique aliquam sagittis et, suscipit id magna. Sed sit amet tortor risus, vel vehicula sapien. Quisque adipiscing, ipsum ut dignissim euismod, urna nisl euismod dolor, nec interdum mauris nibh a odio. Nunc eleifend suscipit elit quis ornare. Curabitur lacinia elit non lectus lacinia vel imperdiet massa dignissim.
+
+Duis vel felis sapien. Nam semper est sed leo aliquam mollis. Etiam id iaculis orci. Aliquam mauris lacus, mollis lacinia dapibus ac, rutrum eu quam. Aliquam sollicitudin laoreet malesuada. Vivamus ut nulla sed mi vestibulum adipiscing nec nec nulla. Donec euismod risus quis nibh vestibulum a dictum felis semper. Vivamus sed dui mauris. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+
+Phasellus blandit lacinia sapien eu rutrum. Donec a tortor vel mauris tempor semper. Ut feugiat ultrices accumsan. Nulla facilisi. Donec imperdiet tincidunt odio, non ornare lectus dictum vitae. Quisque in leo vitae augue suscipit consequat eget eget odio. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin vulputate volutpat hendrerit. Nunc vehicula massa sit amet felis posuere ac vulputate ligula laoreet.
+
+Morbi eu sapien ut lacus congue placerat non pretium mi. Maecenas magna nisi, aliquam et placerat sed, mollis non risus. Nam laoreet sodales enim porttitor cursus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In pharetra neque lacus, vitae pharetra metus. Nunc viverra dolor vitae velit tristique id dictum ligula condimentum. Vivamus a tortor eu enim rhoncus accumsan. Duis a orci vel leo consequat rhoncus. Ut interdum scelerisque tellus nec aliquet. Quisque sit amet dictum mauris. Donec at lacus nisl, id posuere felis. Vestibulum eget semper libero.
+            <?php
         }
 
         /**

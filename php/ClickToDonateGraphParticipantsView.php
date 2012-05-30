@@ -3,8 +3,8 @@
  * Provides the view functionality for the plugin 
  */
 
-if (!class_exists('ClickToDonateGraphView')):
-    class ClickToDonateGraphView {
+if (!class_exists('ClickToDonateGraphParticipantsView')):
+    class ClickToDonateGraphParticipantsView {
         
         public static function init(){
             
@@ -21,7 +21,7 @@ if (!class_exists('ClickToDonateGraphView')):
                 // Register the adminPrintStyles method to the Wordpress admin_print_styles action hook
                 add_action('admin_print_styles', array(__CLASS__, 'adminPrintStyles'));
                 
-                add_action('wp_ajax_' . 'ctd_get_visits', array(__CLASS__, 'getBannerVisits'));
+                add_action('wp_ajax_' . 'ctd_get_rankings', array(__CLASS__, 'getRankings'));
             endif;
         }
         
@@ -33,14 +33,14 @@ if (!class_exists('ClickToDonateGraphView')):
                 $suffix = ClickToDonateView::debugSufix();
             
                 $current_screen = get_current_screen();
-                if(is_blog_admin() && current_user_can('publish_posts') && ($current_screen->id=='dashboard' || $current_screen->post_type == ClickToDonateController::POST_TYPE)):
+                if(current_user_can('read') && ($current_screen->id=='dashboard' || $current_screen->post_type == ClickToDonateController::POST_TYPE)):
                     // Register the scripts
                     wp_enqueue_script('google-jsapi', 'https://www.google.com/jsapi');
                     
                     // Admin script
-                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_common', plugins_url("js/common$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-datepicker'), '1.0');
-                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_post_graph', plugins_url("js/ctd-graph$suffix.js", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME.'_common', 'jquery', 'google-jsapi', 'jquery-ui-datepicker'), '1.0');
-                    wp_localize_script(ClickToDonate::CLASS_NAME . '_post_graph', 'ctdGraphL10n', array(
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_common', plugins_url("js/common{$suffix}.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-datepicker'), '1.0');
+                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_graph_visitors', plugins_url("js/ctd-graph-participants{$suffix}.js", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME.'_common', 'jquery', 'google-jsapi', 'jquery-ui-datepicker'), '1.0');
+                    wp_localize_script(ClickToDonate::CLASS_NAME . '_graph_visitors', 'ctdGraphParticipantsL10n', array(
                         'language' => esc_js(esc_js(get_bloginfo('language'))),
                         'loading' => esc_js(__( 'Loading...', 'ClickToDonate' )),
                         'day' => esc_js(__( 'Day', 'ClickToDonate' )),
@@ -112,7 +112,7 @@ if (!class_exists('ClickToDonateGraphView')):
                 $suffix = ClickToDonateView::debugSufix();
             
                 $current_screen = get_current_screen();
-                if(is_blog_admin() && current_user_can('publish_posts') && ($current_screen->id=='dashboard' || $current_screen->post_type == ClickToDonateController::POST_TYPE)):
+                if(current_user_can('read') && ($current_screen->id=='dashboard' || $current_screen->post_type == ClickToDonateController::POST_TYPE)):
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_common', plugins_url("css/common$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
                 endif;
@@ -124,8 +124,8 @@ if (!class_exists('ClickToDonateGraphView')):
          */
         public function wpDashboardSetup() {
             // Add our metabox with the graphics to the dashboard
-            if(is_blog_admin() && current_user_can('publish_posts')):
-                wp_add_dashboard_widget(__CLASS__, __('Campaigns views', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'));
+            if(current_user_can('read')):
+                wp_add_dashboard_widget(__CLASS__, __('Campaigns rankings', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'));
             endif;
         }
 
@@ -134,7 +134,9 @@ if (!class_exists('ClickToDonateGraphView')):
          */
         public function addMetaBox() {
             // Add our metabox with the graphics to our custom post type
-            add_meta_box(__CLASS__, __('Campaign views', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'), ClickToDonateController::POST_TYPE);
+            if(current_user_can('list_users')):
+                add_meta_box(__CLASS__, __('Campaign rankings', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'), ClickToDonateController::POST_TYPE);
+            endif;
         }
 
         /**
@@ -142,89 +144,90 @@ if (!class_exists('ClickToDonateGraphView')):
          * @param Object $post 
          */
         public static function writeMetaBox($post) {
-            ?>
-                <div style="margin: 10px 0 20px;">
-                    <label class="selectit"><?php _e('Period start date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period start date', 'ClickToDonate') ?>" id="ctd-graph-startdate" type="text" /></label>
-                    <input id="ctd-hidden-graph-startdate" type="hidden" value="<?php echo(((current_time('timestamp')-3600*24*7)*1000)); ?>" />
-                    <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graph-enddate" type="text" /></label>
-                    <label class="selectit"><?php _e('Period granularity:', 'ClickToDonate'); ?> <input id="ctd-hidden-graph-enddate" type="hidden" value="<?php echo((current_time('timestamp')*1000)); ?>" /></label>
-                    
-                    <select id="ctd-graph-date-granularity">
-                        <option selected="selected" value='<?php echo(esc_attr(ClickToDonateModel::DATE_GRANULARITY_DAYS)); ?>'><?php _e('Days', 'ClickToDonate') ?></option>
-                        <option value='<?php echo(esc_attr(ClickToDonateModel::DATE_GRANULARITY_MONTHS)); ?>'><?php _e('Months', 'ClickToDonate') ?></option>
-                        <option value='<?php echo(esc_attr(ClickToDonateModel::DATE_GRANULARITY_YEARS)); ?>'><?php _e('Years', 'ClickToDonate') ?></option>
-                    </select>
-                    
-                    <a class="button" id="ctd-load-graph"><?php _e('Load', 'ClickToDonate'); ?></a>
-                </div>
-                <div id="ctd-chart-container" style='width: 100%; height: 300px;'></div>
-                <script>
-                    google.load("visualization", "1", {
-                        packages:["corechart"], 
-                        'language': ctdGraphL10n.language
-                    });
-                    
-                    $j('#ctd-load-graph').click(function(){
-                        var $j = jQuery.noConflict();
-                        $j('#ctd-chart-container').ctdGraph(
-                            'loadData',{
-                                'action' : 'ctd_get_visits',
-                                '_ajax_ctd_get_visits_nonce' : '<?php echo(esc_attr(wp_create_nonce('ctd-get-visits'))); ?>',
-                                'startDate': ($j("#ctd-hidden-graph-startdate").val()/1000),
-                                'endDate': ($j("#ctd-hidden-graph-enddate").val()/1000),
-                                'dateGranularity': ($j("#ctd-graph-date-granularity").val())
-                                <?php if(isset($post)): echo(", 'postId' : '".esc_js(ClickToDonateController::getPostID($post))."'"); endif; ?>
-                            }
-                        );
-                        return false;
-                    });
-                </script>
-            <?php
+            
+            if(current_user_can('read')):
+                ?>
+                    <div style="margin: 10px 0 20px;">
+                        <label class="selectit"><?php _e('Period start date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period start date', 'ClickToDonate') ?>" id="ctd-graphparticipants-startdate" type="text" /></label>
+                        <input id="ctd-hidden-graphparticipants-startdate" type="hidden" value="<?php echo(((current_time('timestamp')-3600*24*7)*1000)); ?>" />
+                        <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graphparticipants-enddate" type="text" /></label>
+                        <input id="ctd-hidden-graphparticipants-enddate" type="hidden" value="<?php echo((current_time('timestamp')*1000)); ?>" />
+
+                        <a class="button" id="ctd-load-graphparticipants"><?php _e('Load', 'ClickToDonate'); ?></a>
+                    </div>
+                    <div id="ctd-graphparticipants-container" style='width: 100%; height: 300px;'></div>
+                    <script>
+                        google.load("visualization", "1", {
+                            packages:["corechart"], 
+                            'language': ctdGraphParticipantsL10n.language
+                        });
+
+                        $j('#ctd-load-graphparticipants').click(function(){
+                            var $j = jQuery.noConflict();
+                            $j('#ctd-graphparticipants-container').ctdGraphVisitors(
+                                'loadData',{
+                                    'action' : 'ctd_get_rankings',
+                                    '_ajax_ctd_get_rankings_nonce' : '<?php echo(esc_attr(wp_create_nonce('ctd-get-rankings'))); ?>',
+                                    'startDate': ($j("#ctd-hidden-graphparticipants-startdate").val()/1000),
+                                    'endDate': ($j("#ctd-hidden-graphparticipants-enddate").val()/1000)
+                                    <?php if(isset($post)): echo(", 'postId' : '".esc_js(ClickToDonateController::getPostID($post))."'"); endif; ?>
+                                }
+                            );
+                            return false;
+                        });
+                    </script>
+                <?php
+            endif;
         }
-        
-        
         
         /**
          * Send the campaigns list as a response of an ajax request 
          */
-        public function getBannerVisits() {
-            check_ajax_referer('ctd-get-visits', '_ajax_ctd_get_visits_nonce');
+        public function getRankings() {
             
-            $postId = !empty($_POST['postId']) ? absint($_POST['postId']) : 0;
-            
-            $startDate = !empty($_POST['startDate']) ? absint($_POST['startDate']) : 0;
-            $endDate = !empty($_POST['endDate']) ? absint($_POST['endDate']) : 0;
-            $dateGranularity = (!empty($_POST['dateGranularity']) && in_array($_POST['dateGranularity'], array(
-                ClickToDonateModel::DATE_GRANULARITY_DAYS, 
-                ClickToDonateModel::DATE_GRANULARITY_MONTHS, 
-                ClickToDonateModel::DATE_GRANULARITY_YEARS))) ? $_POST['dateGranularity'] : ClickToDonateModel::DATE_GRANULARITY_DAYS;
-            
-            $results = ClickToDonateController::getBannerVisitsPerDay($postId, 0, $startDate, $endDate, $dateGranularity);
+            if(current_user_can('read')):
+                check_ajax_referer('ctd-get-rankings', '_ajax_ctd_get_rankings_nonce');
 
-            if (!isset($results))
-                die('0');
-            
-            $resultsArray = array();
-            foreach ($results as $result):
-                if(empty($resultsArray)):
-                    $keys = array();
+                $postId = !empty($_POST['postId']) ? absint($_POST['postId']) : 0;
+
+                $startDate = !empty($_POST['startDate']) ? absint($_POST['startDate']) : 0;
+                $endDate = !empty($_POST['endDate']) ? absint($_POST['endDate']) : 0;
+
+                $results = ClickToDonateController::getBannerParticipantsClicks($postId, 0, $startDate, $endDate);
+
+                if (!isset($results))
+                    die('0');
+
+                $resultsArray = array();
+                $resultsArray[] = array(__('User (and position)', 'ClickToDonate'), __('Total clicks', 'ClickToDonate'));
+                $position = 1;
+                $canListUsers = current_user_can('list_users');
+                $currentUserId = get_current_user_id();
+                foreach ($results as $result):
+                    $values = array();
                     foreach ($result as $key=>$value):
-                        $keys[] = $key;
+                        if(empty($values)):
+                            if(!$canListUsers && $value!=$currentUserId):
+                                $position++;
+                                break;
+                            endif;
+                            $user = get_userdata($value);
+                            $values[] = sprintf('%d - %s', $position++, $user->display_name);
+                        else:
+                            $values[] = (int)$value;
+                        endif;
                     endforeach;
-                    $resultsArray[] = $keys;
-                endif;
-                $values = array();
-                foreach ($result as $key=>$value):
-                    $values[] = empty($values)?"{$value}":(int)$value;
+                    if(!empty($values)):
+                        $resultsArray[] = $values;
+                    endif;
                 endforeach;
-                $resultsArray[] = $values;
-            endforeach;
 
-            echo json_encode($resultsArray);
-            echo "\n";
+                echo json_encode($resultsArray);
+                echo "\n";
 
-            exit;
+                exit;
+            endif;
         }
     }
 endif;
-ClickToDonateGraphView::init();
+ClickToDonateGraphParticipantsView::init();

@@ -3,6 +3,20 @@
  * Provides the model functionality for the plugin 
  */
 
+if (!class_exists('ClickToDonateVisitsData')):
+    /**
+     * Class to represent the data from the visits
+     */
+    class ClickToDonateVisitsData {
+        public $dateGranularity = ClickToDonateModel::DATE_GRANULARITY_DAYS;
+        public $userId = false;
+        public $startDate = 0;
+        public $endDate = 0;
+        public $postIds = array();
+        public $data = array();
+    }
+endif;
+
 if (!class_exists('ClickToDonateModel')):
     class ClickToDonateModel {
         
@@ -246,95 +260,174 @@ if (!class_exists('ClickToDonateModel')):
         }
         
         /**
-         * Count the visits on a banner
+         * Count the visits on a banner based on the given parameters
          * 
          * @param int $post
          * @param int $user to filter the visits by a specific user
-         * @return int with the number of visits
+         * @return ClickToDonateVisitsData with the visits data
          */
-        public static function getBannerVisitsPerDay($post=0, $user = 0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
+        public static function getBannerVisits($post=0, $user = 0, $startDate=0, $endDate=0, $dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS) {
             $wpdb = self::getWpDB();
-            $extra = '';
             
+            $visitsData = new ClickToDonateVisitsData();
             $select=array();
+            $where=array();
             $groupBy=array();
             $orderBy=array();
+            $dateField=esc_sql('date');
+            
+            // Based on the required date granularity, configure the query accordingly
             switch($dateGranularity):
                 case ClickToDonateModel::DATE_GRANULARITY_YEARS:
-                    $dateField=esc_sql(__('year', 'ClickToDonate'));
+                    $visitsData->dateGranularity=$dateGranularity;
+                    
                     $select[] = 'YEAR(`'.self::$tableClicksTimestamp.'`) AS `'.$dateField.'`';
                     $groupBy[] = 'YEAR(`'.self::$tableClicksTimestamp.'`)';
                     $orderBy[]="`{$dateField}` ASC";
                     break;
                 
                 case ClickToDonateModel::DATE_GRANULARITY_MONTHS:
-                    $dateField=esc_sql(__('month', 'ClickToDonate'));
+                    $visitsData->dateGranularity=$dateGranularity;
+                    
                     $select[] = 'CONCAT(YEAR(`'.self::$tableClicksTimestamp.'`), \'-\', MONTH(`'.self::$tableClicksTimestamp.'`)) AS `'.$dateField.'`';
                     $groupBy[] = 'YEAR(`'.self::$tableClicksTimestamp.'`), MONTH(`'.self::$tableClicksTimestamp.'`)';
                     $orderBy[]="`{$dateField}` ASC";
                     break;
                 case ClickToDonateModel::DATE_GRANULARITY_DAYS:
                 default:
-                    $dateField=esc_sql(__('day', 'ClickToDonate'));
+                    $visitsData->dateGranularity=ClickToDonateModel::DATE_GRANULARITY_DAYS;
+                    
                     $select[] = 'DATE(`'.self::$tableClicksTimestamp.'`) AS `'.$dateField.'`';
                     $groupBy[] = 'DATE(`'.self::$tableClicksTimestamp.'`)';
                     $orderBy[]="`{$dateField}` ASC";
             endswitch;
             
-            
             $params = array();
+            
+            // A specific user was request?
             if (is_int($user) && absint($user) && $user>0):
-                $extra .= ' AND `' . self::$tableClicksUserID . '`=%d';
-                $params[] .= $user;
-            endif;
-            if (is_int($startDate) && absint($startDate) && $startDate>0):
-                $extra .= ' AND `'.self::$tableClicksTimestamp.'`>=FROM_UNIXTIME(%d)';
-                $params[] .= $startDate;
-            endif;
-            if (is_int($endDate) && absint($endDate) && $endDate>0):
-                $extra .= ' AND `'.self::$tableClicksTimestamp.'`<=FROM_UNIXTIME(%d)';
-                $params[] .= $endDate;
+                $visitsData->userId = (int) $user;
+                $where[] = '`' . self::$tableClicksUserID . '`=%d';
+                $params[] = $user;
             endif;
             
-            $totalField=__('clicks', 'ClickToDonate');
-            $multipleBanners = array();
+            // Have we a start timestamp?
+            if (is_int($startDate) && absint($startDate) && $startDate>0):
+                $visitsData->startDate = (int) $startDate;
+                $where[] = '`'.self::$tableClicksTimestamp.'`>=FROM_UNIXTIME(%d)';
+                $params[] = $startDate;
+            endif;
+            
+            // And a end timestamp?
+            if (is_int($endDate) && absint($endDate) && $endDate>0):
+                $visitsData->endDate = (int) $endDate;
+                $where[] = '`'.self::$tableClicksTimestamp.'`<=FROM_UNIXTIME(%d)';
+                $params[] = $endDate;
+            endif;
+            
+            $totalField=esc_sql('total');
+            
+            // If a specific post was requested
             if (is_int($post) && absint($post) && $post>0):
-                $extra .= ' AND `' . self::$tableClicksBannerID . '`=%d';
+                $visitsData->postIds[] = (int) $post;
+                $where[] = '`' . self::$tableClicksBannerID . '`=%d';
                 $params[] .= $post;
             
                 $select[] = 'COUNT('.self::$tableClicksID.') AS `'.esc_sql($totalField).'`';
             else:
+            // Or the query is for all the banners
                 $select[] = '`' . self::$tableClicksBannerID . '` AS `bannerID`';
                 $select[] = 'COUNT('.self::$tableClicksBannerID.') AS `'.esc_sql($totalField).'`';
                 $groupBy[] = '`bannerID`';
-                $multipleBanners = $wpdb->get_results($wpdb->prepare(
+                $visitsData->postIds = $wpdb->get_results($wpdb->prepare(
                     'SELECT DISTINCT(`' . self::$tableClicksBannerID . '`) AS `bannerID` '.
                     'FROM `' . self::$tableClicks . '` '.
-                    'WHERE 1 '.$extra.';', $params), ARRAY_A);
+                    (!empty($where)?' WHERE '.implode(' AND ', $where):'').
+                    ';', $params), ARRAY_A);
             endif;
             
+            // Load the data
             if (($rows = $wpdb->get_results($wpdb->prepare(
                     'SELECT '.implode(', ', $select).' '.
                     'FROM `' . self::$tableClicks . '` '.
-                    'WHERE 1 '.$extra.' '.
+                    (!empty($where)?' WHERE '.implode(' AND ', $where):'').
                     (!empty($groupBy)?' GROUP BY '.implode(', ', $groupBy):'').
                     (!empty($orderBy)?' ORDER BY '.implode(', ', $orderBy):'').
                 ';', $params), ARRAY_A)) && !empty($rows)):
                 
-                if(!empty($multipleBanners)):
+                // If we have more than one banner, rearrange the data to a more suitable form
+                if(!empty($visitsData->postIds)):
                     $tRows = array();
                     $bannerColumns = array();
-                    foreach ($multipleBanners as $banner):
-                        $bannerColumns[get_the_title($banner['bannerID'])." ({$banner['bannerID']})"]=0;
+                    
+                    foreach ($visitsData->postIds as $banner):
+                        $bannerColumns[$banner['bannerID']]=0;
                     endforeach;
+                    
                     foreach ($rows as $row):
                         if(!is_array($tRows[$row[$dateField]])):
-                            $tRows[$row[$dateField]]=array_merge(array($dateField=>$row[$dateField]), $bannerColumns);
+                            $tRows[$row[$dateField]]=array($dateField=>$row[$dateField])+$bannerColumns;
                         endif;
-                        $tRows[$row[$dateField]][get_the_title($row['bannerID'])." ({$row['bannerID']})"]=$row[$totalField];
+                        
+                        $tRows[$row[$dateField]][$row['bannerID']]=$row[$totalField];
                     endforeach;
                     $rows = $tRows;
                 endif;
+                
+                $visitsData->data = $rows;
+                return $visitsData;
+            endif;
+            return $visitsData;
+        }
+        
+        /**
+         * Count the visits on a banner
+         * 
+         * @param int $post
+         * @param int $user to filter the visits by a specific user
+         * @return int with the number of visits
+         */
+        public static function getBannerParticipantsClicks($post=0, $user = 0, $startDate=0, $endDate=0) {
+            $wpdb = self::getWpDB();
+            
+            $totalField=esc_sql('total');
+            $where=array();
+            $select=array('`' . self::$tableClicksUserID . '` AS `userID`', 'COUNT('.self::$tableClicksUserID.') AS `'.$totalField.'`');
+            $groupBy=array('`' . self::$tableClicksUserID . '`');
+            $orderBy=array("`{$totalField}` DESC");
+            
+            $params = array();
+            if (is_int($user) && absint($user) && $user>0):
+                $where[] = '`' . self::$tableClicksUserID . '`=%d';
+                $params[] = $user;
+            endif;
+            if (is_int($startDate) && absint($startDate) && $startDate>0):
+                $where[] = '`'.self::$tableClicksTimestamp.'`>=FROM_UNIXTIME(%d)';
+                $params[] = $startDate;
+            endif;
+            if (is_int($endDate) && absint($endDate) && $endDate>0):
+                $where[] = '`'.self::$tableClicksTimestamp.'`<=FROM_UNIXTIME(%d)';
+                $params[] = $endDate;
+            endif;
+            
+            if (is_int($post) && absint($post) && $post>0):
+                $where[] = '`' . self::$tableClicksBannerID . '`=%d';
+                $params[] = $post;
+            endif;
+            error_log('SELECT '.implode(', ', $select).' '.
+                    'FROM `' . self::$tableClicks . '` '.
+                    (!empty($where)?' WHERE '.implode(' AND ', $where):'').
+                    (!empty($groupBy)?' GROUP BY '.implode(', ', $groupBy):'').
+                    (!empty($orderBy)?' ORDER BY '.implode(', ', $orderBy):'').
+                ';');
+            if (($rows = $wpdb->get_results($wpdb->prepare(
+                    'SELECT '.implode(', ', $select).' '.
+                    'FROM `' . self::$tableClicks . '` '.
+                    (!empty($where)?' WHERE '.implode(' AND ', $where):'').
+                    (!empty($groupBy)?' GROUP BY '.implode(', ', $groupBy):'').
+                    (!empty($orderBy)?' ORDER BY '.implode(', ', $orderBy):'').
+                ';', $params), ARRAY_A)) && !empty($rows)):
+                
                 return $rows;
             endif;
             return array();
