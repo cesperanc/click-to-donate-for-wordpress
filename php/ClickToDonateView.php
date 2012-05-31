@@ -67,67 +67,98 @@ if (!class_exists('ClickToDonateView')):
                 $suffix = self::debugSufix();
             
                 if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
-                    // Register the scripts
-                    wp_enqueue_script(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("js/ui-spinner/ui-spinner$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
+                    
+                    if($current_screen->base=="post"):
+                        // Register the scripts
+                        wp_enqueue_script(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("js/ui-spinner/ui-spinner$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
+
+
+                        wp_enqueue_script(ClickToDonate::CLASS_NAME.'_common', plugins_url("js/common$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-datepicker'), '1.0');
+                        // Admin script
+                        wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME.'_common'), '1.0');
+                        // Localize the script
+                        wp_localize_script(ClickToDonate::CLASS_NAME.'_admin', 'ctdAdminL10n', array(
+                            'closeText' => __('Done', 'ClickToDonate'),
+                            'currentText' => __('Today', 'ClickToDonate'),
+                            'dateFormat' => __('mm/dd/yy', 'ClickToDonate'),
+                            'dayNamesSunday' => __('Sunday', 'ClickToDonate'),
+                            'dayNamesMonday' => __('Monday', 'ClickToDonate'),
+                            'dayNamesTuesday' => __('Tuesday', 'ClickToDonate'),
+                            'dayNamesWednesday' => __('Wednesday', 'ClickToDonate'),
+                            'dayNamesThursday' => __('Thursday', 'ClickToDonate'),
+                            'dayNamesFriday' => __('Friday', 'ClickToDonate'),
+                            'dayNamesSaturday' => __('Saturday', 'ClickToDonate'),
+                            'dayNamesMinSu' => __('Su', 'ClickToDonate'),
+                            'dayNamesMinMo' => __('Mo', 'ClickToDonate'),
+                            'dayNamesMinTu' => __('Tu', 'ClickToDonate'),
+                            'dayNamesMinWe' => __('We', 'ClickToDonate'),
+                            'dayNamesMinTh' => __('Th', 'ClickToDonate'),
+                            'dayNamesMinFr' => __('Fr', 'ClickToDonate'),
+                            'dayNamesMinSa' => __('Sa', 'ClickToDonate'),
+                            'dayNamesShortSun' => __('Sun', 'ClickToDonate'),
+                            'dayNamesShortMon' => __('Mon', 'ClickToDonate'),
+                            'dayNamesShortTue' => __('Tue', 'ClickToDonate'),
+                            'dayNamesShortWed' => __('Wed', 'ClickToDonate'),
+                            'dayNamesShortThu' => __('Thu', 'ClickToDonate'),
+                            'dayNamesShortFri' => __('Fri', 'ClickToDonate'),
+                            'dayNamesShortSat' => __('Sat', 'ClickToDonate'),
+                            'monthNamesJanuary' => __('January', 'ClickToDonate'),
+                            'monthNamesFebruary' => __('February', 'ClickToDonate'),
+                            'monthNamesMarch' => __('March', 'ClickToDonate'),
+                            'monthNamesApril' => __('April', 'ClickToDonate'),
+                            'monthNamesMay' => __('May', 'ClickToDonate'),
+                            'monthNamesJune' => __('June', 'ClickToDonate'),
+                            'monthNamesJuly' => __('July', 'ClickToDonate'),
+                            'monthNamesAugust' => __('August', 'ClickToDonate'),
+                            'monthNamesSeptember' => __('September', 'ClickToDonate'),
+                            'monthNamesOctober' => __('October', 'ClickToDonate'),
+                            'monthNamesNovember' => __('November', 'ClickToDonate'),
+                            'monthNamesDecember' => __('December', 'ClickToDonate'),
+                            'monthNamesShortJan' => __('Jan', 'ClickToDonate'),
+                            'monthNamesShortFeb' => __('Feb', 'ClickToDonate'),
+                            'monthNamesShortMar' => __('Mar', 'ClickToDonate'),
+                            'monthNamesShortApr' => __('Apr', 'ClickToDonate'),
+                            'monthNamesShortMay' => __('May', 'ClickToDonate'),
+                            'monthNamesShortJun' => __('Jun', 'ClickToDonate'),
+                            'monthNamesShortJul' => __('Jul', 'ClickToDonate'),
+                            'monthNamesShortAug' => __('Aug', 'ClickToDonate'),
+                            'monthNamesShortSep' => __('Sep', 'ClickToDonate'),
+                            'monthNamesShortOct' => __('Oct', 'ClickToDonate'),
+                            'monthNamesShortNov' => __('Nov', 'ClickToDonate'),
+                            'monthNamesShortDec' => __('Dec', 'ClickToDonate'),
+                            'nextText' => __('Next', 'ClickToDonate'),
+                            'prevText' => __('Prev', 'ClickToDonate'),
+                            'weekHeader' => __('Wk', 'ClickToDonate')
+                        ));
+                        
+                        
+                        $current_screen->add_help_tab( array(
+                            'id'       => __CLASS__.'campaigns'
+                            ,'title'    => __( 'Click-to-donate campaigns', 'ClickToDonate' )
+                            ,'callback' => array(__CLASS__, 'contextualHelpForCampaigns')
+                        ) );
+                        
+                        $current_screen->add_help_tab( array(
+                            'id'       => __CLASS__.'submitbox'
+                            ,'title'    => __( 'Campaign configuration', 'ClickToDonate' )
+                            ,'callback' => array(__CLASS__, 'contextualHelpForConfigurationOptions')
+                        ) );
+                        
+                    else:
+                        $current_screen->add_help_tab( array(
+                            'id'       => __CLASS__.'campaigns'
+                            ,'title'    => __( 'Click-to-donate campaigns', 'ClickToDonate' )
+                            ,'callback' => array(__CLASS__, 'contextualHelpForCampaigns')
+                        ) );
+                    endif;
+                endif;
                 
-                
-                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_common', plugins_url("js/common$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-datepicker'), '1.0');
-                    // Admin script
-                    wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME.'_common'), '1.0');
-                    // Localize the script
-                    wp_localize_script(ClickToDonate::CLASS_NAME.'_admin', 'ctdAdminL10n', array(
-                        'closeText' => __('Done', 'ClickToDonate'),
-                        'currentText' => __('Today', 'ClickToDonate'),
-                        'dateFormat' => __('mm/dd/yy', 'ClickToDonate'),
-                        'dayNamesSunday' => __('Sunday', 'ClickToDonate'),
-                        'dayNamesMonday' => __('Monday', 'ClickToDonate'),
-                        'dayNamesTuesday' => __('Tuesday', 'ClickToDonate'),
-                        'dayNamesWednesday' => __('Wednesday', 'ClickToDonate'),
-                        'dayNamesThursday' => __('Thursday', 'ClickToDonate'),
-                        'dayNamesFriday' => __('Friday', 'ClickToDonate'),
-                        'dayNamesSaturday' => __('Saturday', 'ClickToDonate'),
-                        'dayNamesMinSu' => __('Su', 'ClickToDonate'),
-                        'dayNamesMinMo' => __('Mo', 'ClickToDonate'),
-                        'dayNamesMinTu' => __('Tu', 'ClickToDonate'),
-                        'dayNamesMinWe' => __('We', 'ClickToDonate'),
-                        'dayNamesMinTh' => __('Th', 'ClickToDonate'),
-                        'dayNamesMinFr' => __('Fr', 'ClickToDonate'),
-                        'dayNamesMinSa' => __('Sa', 'ClickToDonate'),
-                        'dayNamesShortSun' => __('Sun', 'ClickToDonate'),
-                        'dayNamesShortMon' => __('Mon', 'ClickToDonate'),
-                        'dayNamesShortTue' => __('Tue', 'ClickToDonate'),
-                        'dayNamesShortWed' => __('Wed', 'ClickToDonate'),
-                        'dayNamesShortThu' => __('Thu', 'ClickToDonate'),
-                        'dayNamesShortFri' => __('Fri', 'ClickToDonate'),
-                        'dayNamesShortSat' => __('Sat', 'ClickToDonate'),
-                        'monthNamesJanuary' => __('January', 'ClickToDonate'),
-                        'monthNamesFebruary' => __('February', 'ClickToDonate'),
-                        'monthNamesMarch' => __('March', 'ClickToDonate'),
-                        'monthNamesApril' => __('April', 'ClickToDonate'),
-                        'monthNamesMay' => __('May', 'ClickToDonate'),
-                        'monthNamesJune' => __('June', 'ClickToDonate'),
-                        'monthNamesJuly' => __('July', 'ClickToDonate'),
-                        'monthNamesAugust' => __('August', 'ClickToDonate'),
-                        'monthNamesSeptember' => __('September', 'ClickToDonate'),
-                        'monthNamesOctober' => __('October', 'ClickToDonate'),
-                        'monthNamesNovember' => __('November', 'ClickToDonate'),
-                        'monthNamesDecember' => __('December', 'ClickToDonate'),
-                        'monthNamesShortJan' => __('Jan', 'ClickToDonate'),
-                        'monthNamesShortFeb' => __('Feb', 'ClickToDonate'),
-                        'monthNamesShortMar' => __('Mar', 'ClickToDonate'),
-                        'monthNamesShortApr' => __('Apr', 'ClickToDonate'),
-                        'monthNamesShortMay' => __('May', 'ClickToDonate'),
-                        'monthNamesShortJun' => __('Jun', 'ClickToDonate'),
-                        'monthNamesShortJul' => __('Jul', 'ClickToDonate'),
-                        'monthNamesShortAug' => __('Aug', 'ClickToDonate'),
-                        'monthNamesShortSep' => __('Sep', 'ClickToDonate'),
-                        'monthNamesShortOct' => __('Oct', 'ClickToDonate'),
-                        'monthNamesShortNov' => __('Nov', 'ClickToDonate'),
-                        'monthNamesShortDec' => __('Dec', 'ClickToDonate'),
-                        'nextText' => __('Next', 'ClickToDonate'),
-                        'prevText' => __('Prev', 'ClickToDonate'),
-                        'weekHeader' => __('Wk', 'ClickToDonate')
-                    ));
+                if($current_screen && $current_screen->base=="post"):
+                    $current_screen->add_help_tab( array(
+                        'id'       => __CLASS__.'campaigns_associations'
+                        ,'title'    => __( 'Campaigns association', 'ClickToDonate' )
+                        ,'callback' => array(__CLASS__, 'contextualHelpForCampaignsAssociations')
+                    ) );
                 endif;
 
                 // Link list script
@@ -141,14 +172,6 @@ if (!class_exists('ClickToDonateView')):
                     'noMatchesFound' => __('No matches found.', 'ClickToDonate'),
                     'loadingCampaign' => __('Loading campaign {0} title...', 'ClickToDonate')
                 ));
-                
-                
-                    
-                $current_screen->add_help_tab( array(
-                    'id'       => __CLASS__.'submitbox'
-                    ,'title'    => __( 'Campaign configuration', 'ClickToDonate' )
-                    ,'callback' => array(__CLASS__, 'contextualHelpForConfigurationOptions')
-                ) );
             endif;
         }
         
@@ -169,18 +192,61 @@ if (!class_exists('ClickToDonateView')):
             endif;
         }
         
+        public function contextualHelpForCampaigns($screen, $tab) {
+            _e("
+                <p>Campaigns <strong>Click-to-donate</strong> are a special type of content that allow the accounting of visits by site visitors.</p>
+                <p>These campaigns can be based on advanced rules that allow complete control over what content is displayed to users.</p>", 'ClickToDonate'
+            );
+            _e("
+                <p>Each campaign can have one of four possible states:
+                    <ul>
+                        <li><strong>Online</strong> - for the campaign that are active and can be viewed by visitors</li>
+                        <li><strong>Completed</strong> - for campaigns that are completed</li>
+                        <li><strong>Scheduled</strong> - for campaigns that have not yet started</li>
+                        <li><strong>Unavailable</strong> - for campaigns that are not yet available (eg drafts)</li>
+                    </ul>
+                </p>", 'ClickToDonate'
+            );
+            _e("<p>On this screen you can search, edit, delete and create new campaigns.</p>", 'ClickToDonate');
+        }
+        
+        public function contextualHelpForCampaignsAssociations($screen, $tab) {
+            printf(__('
+                <p>The button %1$s on the WYSIWYG editor can be used to create special links for access to the campaigns.</p>
+                <p>Start by selecting the object (eg text or image) to which you want the link, and click the button %1$s in the editor.</p>
+                <p>In the <strong>Click to Donate Campaign link</strong> select the campaign for which the link should point and click <strong>Add link</strong>.</p>
+                <p>The system will actively monitor the content that links to campaigns, hiding or displaying the content according to the status of the respective campaigns.</p>
+                <p>With this system you can create advanced scenarios with campaigns associated with other campaigns, with the necessary individual restrictions.</p>
+                ', 'ClickToDonate'
+            ), '<span style="display: inline-block; width: 20px; height: 20px; background: url(\''.plugins_url("images/icon.gif", ClickToDonate::FILE).'\') center top no-repeat;">&nbsp;</span>');
+        }
+        
         public function contextualHelpForConfigurationOptions($screen, $tab) {
-            ?>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc auctor congue venenatis. Phasellus vitae lacus nulla, et molestie mi. Donec in nulla in sem pulvinar volutpat. Nam et neque at diam posuere laoreet. Mauris sapien quam, blandit nec fermentum eget, aliquet vitae dui. Aenean sit amet nulla urna, in aliquam turpis. Sed lobortis risus et est semper in aliquet libero pellentesque. Phasellus fermentum aliquam justo vel gravida. Curabitur non imperdiet purus. Nunc sodales massa eget metus bibendum mattis. Phasellus sit amet metus velit. Morbi eu urna nibh, sit amet dignissim urna. Proin ac sem leo, ac volutpat arcu. Quisque ut diam lorem. Vestibulum et arcu vitae ante ultrices posuere nec quis ligula. Morbi hendrerit placerat enim dapibus aliquet.
-
-Pellentesque placerat mauris tempus erat venenatis luctus. Etiam id tortor tortor. Sed in diam lorem. Nam venenatis sem vitae tortor sollicitudin pulvinar. Aenean aliquet nulla quis metus volutpat viverra. Aliquam neque odio, varius vel varius nec, ullamcorper vitae nunc. Morbi mollis pretium auctor. In aliquam, orci et hendrerit fringilla, turpis orci posuere dui, at scelerisque velit quam et eros. Proin mauris enim, tristique aliquam sagittis et, suscipit id magna. Sed sit amet tortor risus, vel vehicula sapien. Quisque adipiscing, ipsum ut dignissim euismod, urna nisl euismod dolor, nec interdum mauris nibh a odio. Nunc eleifend suscipit elit quis ornare. Curabitur lacinia elit non lectus lacinia vel imperdiet massa dignissim.
-
-Duis vel felis sapien. Nam semper est sed leo aliquam mollis. Etiam id iaculis orci. Aliquam mauris lacus, mollis lacinia dapibus ac, rutrum eu quam. Aliquam sollicitudin laoreet malesuada. Vivamus ut nulla sed mi vestibulum adipiscing nec nec nulla. Donec euismod risus quis nibh vestibulum a dictum felis semper. Vivamus sed dui mauris. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
-
-Phasellus blandit lacinia sapien eu rutrum. Donec a tortor vel mauris tempor semper. Ut feugiat ultrices accumsan. Nulla facilisi. Donec imperdiet tincidunt odio, non ornare lectus dictum vitae. Quisque in leo vitae augue suscipit consequat eget eget odio. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin vulputate volutpat hendrerit. Nunc vehicula massa sit amet felis posuere ac vulputate ligula laoreet.
-
-Morbi eu sapien ut lacus congue placerat non pretium mi. Maecenas magna nisi, aliquam et placerat sed, mollis non risus. Nam laoreet sodales enim porttitor cursus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In pharetra neque lacus, vitae pharetra metus. Nunc viverra dolor vitae velit tristique id dictum ligula condimentum. Vivamus a tortor eu enim rhoncus accumsan. Duis a orci vel leo consequat rhoncus. Ut interdum scelerisque tellus nec aliquet. Quisque sit amet dictum mauris. Donec at lacus nisl, id posuere felis. Vestibulum eget semper libero.
-            <?php
+            _e("
+                <p>The <strong>Campaign Setup</strong> panel can used to set the properties and constraints associated with a campaign:
+                    <ul>
+                        <li><strong>Require visitor authentication</strong> - specifies that visitors must authenticate on the system so they can visit a given campaign.</li>
+                        <li><strong>Cooling-off period</strong> - specifies the minimum time interval between visits from a visitor to a given campaign, for access and accounting purposes. 
+                        Control of this minimum time can be done using two different mechanisms:
+                            <ul>
+                                <li><strong>Restrict by cookie</strong> - the imposition of the time interval between access is controlled via a cookie (a small file stored on the client browser, but is unreliable for advanced users).</li>
+                                <li><strong>Restrict by login</strong> - the user must be authenticate on the system to visit the campaign, and the control of the time interval is made ​​using authentication, where the visit is associated with the user (more reliable, but requires that the user is logged into the site so that their visit is registered).</li>
+                            </ul>
+                        </li>
+                        <li><strong>Limit the number of clicks</strong> - sets the maximum number of visits until campaign completion (useful for removal of a campaign that reaches the ceiling set by the sponsors).</li>
+                        <li><strong>Campaign start date</strong> - set the date (and time) for the beginning of the campaign, at which time it will be automatically available to visitors.</li>
+                        <li><strong>Campaign end date</strong> - set the date (and time) for the end of the campaign, at which time it will no longer be available to visitors.</li>
+                        <li><strong>Status</strong> - the status of the campaign:
+                            <ul>
+                                <li><strong>Online</strong> - for the campaign that are active and can be viewed by visitors</li>
+                                <li><strong>Completed</strong> - for campaigns that are completed</li>
+                                <li><strong>Scheduled</strong> - for campaigns that have not yet started</li>
+                                <li><strong>Unavailable</strong> - for campaigns that are not yet available (eg drafts)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>", 'ClickToDonate'
+            );
         }
 
         /**
@@ -216,7 +282,7 @@ Morbi eu sapien ut lacus congue placerat non pretium mi. Maecenas magna nisi, al
          */
         public function filterMceExternalLanguages($files) {
             if (self::hasPermission())
-                $files[] = plugin_dir_path(ClickToDonate::FILE) . 'langs/wp-langs.php';
+                $files[] = plugin_dir_path(ClickToDonate::FILE) . 'php/langs/wp-langs.php';
 
             return $files;
         }
@@ -518,7 +584,7 @@ Morbi eu sapien ut lacus congue placerat non pretium mi. Maecenas magna nisi, al
                             <input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo(esc_attr(('auto-draft' == $post->post_status ) ? ClickToDonateController::STATUS_unavailable : $post->post_status)); ?>" />
                             <select name='post_status' id='post_status' tabindex='4'>
                                 <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_online); ?> value='<?php echo(ClickToDonateController::STATUS_online); ?>'><?php _e('Online', 'ClickToDonate') ?></option>
-                                <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_finished); ?> value='<?php echo(ClickToDonateController::STATUS_finished); ?>'><?php _e('Finished', 'ClickToDonate') ?></option>
+                                <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_finished); ?> value='<?php echo(ClickToDonateController::STATUS_finished); ?>'><?php _e('Completed', 'ClickToDonate') ?></option>
                                 <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_scheduled); ?> value='<?php echo(ClickToDonateController::STATUS_scheduled); ?>'><?php _e('Scheduled', 'ClickToDonate') ?></option>
                                 <?php if ('auto-draft' == $post->post_status) : ?>
                                     <option<?php ctd - selected($post->post_status, 'auto-draft'); ?> value='<?php echo(ClickToDonateController::STATUS_unavailable); ?>'><?php _e('Unavailable', 'ClickToDonate') ?></option>
