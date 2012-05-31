@@ -46,7 +46,11 @@ var $j = jQuery.noConflict();
         
         dataLoaded : function(data){
             var containerElement = this;
-            privateMethods.call(containerElement, 'drawGraph', data);
+            if(!$.isEmptyObject(data)){
+                privateMethods.call(containerElement, 'drawGraph', data);
+            }else{
+                $(this).removeClass("loading").html(ctdGraphBannersL10n.withoutdata);
+            }
             
             $(this).trigger('dataLoaded.ctdGraphBanners', data);
             return this;

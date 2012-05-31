@@ -97,23 +97,21 @@ if (!class_exists('ClickToDonateModel')):
                     $charset_collate .= " COLLATE {$wpdb->collate}";
                 endif;
 
-                $self = new self();
-
                 // Prepare the SQL queries for sponsored campaigns
                 $queries = array();
                 $queries[] = "
-                        CREATE TABLE IF NOT EXISTS `{$self::$tableSponsoredCampaigns}` (
-                            `{$self::$tableSponsoredCampaignsCampaignID}` bigint(20) unsigned NOT NULL COMMENT 'Foreign key for the campaign',
-                            `{$self::$tableSponsoredCampaignsUserID}` bigint(20) unsigned NOT NULL COMMENT 'Foreign key for the user',
-                            KEY `{$self::$tableSponsoredCampaignsUserID}` (`{$self::$tableSponsoredCampaignsUserID}`),
-                            KEY `{$self::$tableSponsoredCampaignsCampaignID}` (`{$self::$tableSponsoredCampaignsCampaignID}`)
+                        CREATE TABLE IF NOT EXISTS `".self::$tableSponsoredCampaigns."` (
+                            `".self::$tableSponsoredCampaignsCampaignID."` bigint(20) unsigned NOT NULL COMMENT 'Foreign key for the campaign',
+                            `".self::$tableSponsoredCampaignsUserID."` bigint(20) unsigned NOT NULL COMMENT 'Foreign key for the user',
+                            KEY `".self::$tableSponsoredCampaignsUserID."` (`".self::$tableSponsoredCampaignsUserID."`),
+                            KEY `".self::$tableSponsoredCampaignsCampaignID."` (`".self::$tableSponsoredCampaignsCampaignID."`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Implementation of the campaigns-sponsors relationship';
                     ";
                 /* // Wordpress doesn't enforce the InnoDB MySQL engine to use on their tables, so we cannot enable the foreign key constrainsts until the Wordpress requires the MySQL 5.5 as the minimum requirement
                   $queries[] = "
-                  ALTER TABLE `{$self::$tableSponsoredCampaigns}`
-                  ADD CONSTRAINT `sponsoredCampaign_ibfk_1` FOREIGN KEY (`{$self::$tableSponsoredCampaignsCampaignID}`) REFERENCES `{$prefix}posts` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
-                  ADD CONSTRAINT `sponsoredCampaign_ibfk_2` FOREIGN KEY (`{$self::$tableSponsoredCampaignsUserID}`) REFERENCES `{$prefix}users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
+                  ALTER TABLE `".self::$tableSponsoredCampaigns."`
+                  ADD CONSTRAINT `sponsoredCampaign_ibfk_1` FOREIGN KEY (`".self::$tableSponsoredCampaignsCampaignID."`) REFERENCES `{$prefix}posts` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  ADD CONSTRAINT `sponsoredCampaign_ibfk_2` FOREIGN KEY (`".self::$tableSponsoredCampaignsUserID."`) REFERENCES `{$prefix}users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
                   ;
                   ";
                  */
@@ -122,21 +120,21 @@ if (!class_exists('ClickToDonateModel')):
                 // Prepare the SQL queries for clicks
                 $queries = array();
                 $queries[] = "
-                        CREATE TABLE IF NOT EXISTS `{$self::$tableClicks}` (
-                            `{$self::$tableClicksID}` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Key for the click',
-                            `{$self::$tableClicksBannerID}` bigint(20) unsigned DEFAULT NULL COMMENT 'Foreign key of the banner',
-                            `{$self::$tableClicksUserID}` bigint(20) unsigned DEFAULT NULL COMMENT 'Foreign key of the user',
-                            `{$self::$tableClicksTimestamp}` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Time stamp of the click',
-                            PRIMARY KEY (`{$self::$tableClicksID}`),
-                            KEY `{$self::$tableClicksBannerID}` (`{$self::$tableClicksBannerID}`),
-                            KEY `{$self::$tableClicksUserID}` (`{$self::$tableClicksUserID}`)
+                        CREATE TABLE IF NOT EXISTS `".self::$tableClicks."` (
+                            `".self::$tableClicksID."` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Key for the click',
+                            `".self::$tableClicksBannerID."` bigint(20) unsigned DEFAULT NULL COMMENT 'Foreign key of the banner',
+                            `".self::$tableClicksUserID."` bigint(20) unsigned DEFAULT NULL COMMENT 'Foreign key of the user',
+                            `".self::$tableClicksTimestamp."` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Time stamp of the click',
+                            PRIMARY KEY (`".self::$tableClicksID."`),
+                            KEY `".self::$tableClicksBannerID."` (`".self::$tableClicksBannerID."`),
+                            KEY `".self::$tableClicksUserID."` (`".self::$tableClicksUserID."`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table to store the site clicks on campaigns and/or banners' AUTO_INCREMENT=1 ;
                     ";
                 /* // Wordpress doesn't enforce the InnoDB MySQL engine to use on their tables, so we cannot enable the foreign key constrainsts until the Wordpress requires the MySQL 5.5 as the minimum requirement
                   $queries[] = "
-                  ALTER TABLE `{$self::$tableClicks}`
-                  ADD CONSTRAINT `clicks_ibfk_3` FOREIGN KEY (`{$self::$tableClicksUserID}`) REFERENCES `{$prefix}users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
-                  ADD CONSTRAINT `clicks_ibfk_2` FOREIGN KEY (`{$self::$tableClicksBannerID}`) REFERENCES `{$prefix}posts` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
+                  ALTER TABLE `".self::$tableClicks."`
+                  ADD CONSTRAINT `clicks_ibfk_3` FOREIGN KEY (`".self::$tableClicksUserID."`) REFERENCES `{$prefix}users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  ADD CONSTRAINT `clicks_ibfk_2` FOREIGN KEY (`".self::$tableClicksBannerID."`) REFERENCES `{$prefix}posts` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
                   ;
                   ";
                  */
@@ -159,10 +157,9 @@ if (!class_exists('ClickToDonateModel')):
         public static function uninstall() {
             // Get the WordPress database abstration layer instance
             $wpdb = self::getWpDB();
-            $self = new self();
 
-            $wpdb->query("DROP TABLE IF EXISTS `{$self::$tableClicks}`;");
-            $wpdb->query("DROP TABLE IF EXISTS `{$self::$tableSponsoredCampaigns}`;");
+            $wpdb->query("DROP TABLE IF EXISTS `".self::$tableClicks."`;");
+            $wpdb->query("DROP TABLE IF EXISTS `".self::$tableSponsoredCampaigns."`;");
 
             // Remove the plugin version information
             delete_option(self::DB_VERSION_FIELD_NAME);
@@ -414,12 +411,7 @@ if (!class_exists('ClickToDonateModel')):
                 $where[] = '`' . self::$tableClicksBannerID . '`=%d';
                 $params[] = $post;
             endif;
-            error_log('SELECT '.implode(', ', $select).' '.
-                    'FROM `' . self::$tableClicks . '` '.
-                    (!empty($where)?' WHERE '.implode(' AND ', $where):'').
-                    (!empty($groupBy)?' GROUP BY '.implode(', ', $groupBy):'').
-                    (!empty($orderBy)?' ORDER BY '.implode(', ', $orderBy):'').
-                ';');
+            
             if (($rows = $wpdb->get_results($wpdb->prepare(
                     'SELECT '.implode(', ', $select).' '.
                     'FROM `' . self::$tableClicks . '` '.

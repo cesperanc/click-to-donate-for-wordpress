@@ -43,6 +43,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
                     wp_localize_script(ClickToDonate::CLASS_NAME . '_graph_banners', 'ctdGraphBannersL10n', array(
                         'language' => esc_js(esc_js(get_bloginfo('language'))),
                         'loading' => esc_js(__( 'Loading...', 'ClickToDonate' )),
+                        'withoutdata' => esc_js(__( 'Without data to show', 'ClickToDonate' )),
                         'day' => esc_js(__( 'Day', 'ClickToDonate' )),
                         'days' => esc_js(__( 'Days', 'ClickToDonate' )),
                         'totalVisits' => esc_js(__('Total visits', 'ClickToDonate')),
@@ -208,7 +209,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
 
                 $results = ClickToDonateController::getBannerVisits($postId, 0, $startDate, $endDate, $dateGranularity);
 
-                if (empty($results->data))
+                if (empty($results->data) || empty($results->data))
                     die('0');
 
                 $resultsArray = array();

@@ -2,7 +2,7 @@
 /*
   Plugin Name: Click to donate
   Description: Provides a system for managing "click to donate" campaigns based on user visits and clicks
-  Version: 0.92
+  Version: 0.99
   Author: Cláudio Esperança, Diogo Serra
   Author URI: http://dei.estg.ipleiria.pt/
  */
@@ -38,7 +38,8 @@ if (!class_exists('ClickToDonateKernel')):
                             $oClass = new ReflectionClass($className);
                             // ... and the init method, call it
                             if($oClass->hasMethod('init')):
-                                $className::init();
+                                $reflectionMethod = new ReflectionMethod($className, 'init');
+                                $reflectionMethod->invoke();
                             
                                 // Terminate the class loading
                                 return;
