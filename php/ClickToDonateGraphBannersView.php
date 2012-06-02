@@ -44,6 +44,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
                         'language' => esc_js(esc_js(get_bloginfo('language'))),
                         'loading' => esc_js(__( 'Loading...', 'ClickToDonate' )),
                         'withoutdata' => esc_js(__( 'Without data to show', 'ClickToDonate' )),
+                        'nogoogle' => esc_js(__( 'Sorry, but the Google Chart API was not found. Probably there is no Internet connection available.', 'ClickToDonate' )),
                         'day' => esc_js(__( 'Day', 'ClickToDonate' )),
                         'days' => esc_js(__( 'Days', 'ClickToDonate' )),
                         'totalVisits' => esc_js(__('Total visits', 'ClickToDonate')),
@@ -152,7 +153,6 @@ if (!class_exists('ClickToDonateGraphBannersView')):
                         <input id="ctd-hidden-graphbanners-startdate" type="hidden" value="<?php echo(((current_time('timestamp')-3600*24*7)*1000)); ?>" />
                         <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graphbanners-enddate" type="text" /></label>
                         <input id="ctd-hidden-graphbanners-enddate" type="hidden" value="<?php echo((current_time('timestamp')*1000)); ?>" />
-                        <br/>
                         <label for="ctd-graphbanners-date-granularity" class="selectit"><?php _e('Period granularity:', 'ClickToDonate'); ?></label>
 
                         <select id="ctd-graphbanners-date-granularity">
@@ -163,7 +163,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
 
                         <a class="button" id="ctd-load-graphbanners"><?php _e('Load', 'ClickToDonate'); ?></a>
                     </div>
-                    <div id="ctd-graphbanners-container" style='width: 100%; height: 300px;'></div>
+                    <div id="ctd-graphbanners-container" style='width: 100%;'></div>
                     <script>
                         google.load("visualization", "1", {
                             packages:["corechart"], 

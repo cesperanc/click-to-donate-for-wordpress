@@ -26,18 +26,20 @@ var $j = jQuery.noConflict();
         
         drawGraph : function(rows){
             var containerElement = this;
-            var data = google.visualization.arrayToDataTable(rows);
-            var options = {
-                backgroundColor: 'transparent',
-                animation:{
-                    duration: 1000,
-                    easing: 'out'
-                },
-                legend:'none'
-            };
+            if(google){
+                var data = google.visualization.arrayToDataTable(rows);
+                var options = {
+                    backgroundColor: 'transparent',
+                    legend:'none',
+                    'height': '300'
+                };
 
-            var chart = new google.visualization.BarChart($(this).get(0));
-            chart.draw(data, options);
+                var table = new google.visualization.Table($(this).get(0));
+
+                table.draw(data, options);
+            }else{
+                $(this).removeClass("loading").html(ctdGraphParticipantsL10n.nogoogle);
+            }
 
             $(this).removeClass("loading");
             

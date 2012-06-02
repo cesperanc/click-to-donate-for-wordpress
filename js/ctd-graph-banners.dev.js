@@ -26,20 +26,25 @@ var $j = jQuery.noConflict();
         
         drawGraph : function(rows){
             var containerElement = this;
-            var data = google.visualization.arrayToDataTable(rows);
-            var options = {
-                backgroundColor: 'transparent',
-                animation:{
-                    duration: 1000,
-                    easing: 'out'
-                },
-                isStacked: true
-            };
+            if(google){
+                var data = google.visualization.arrayToDataTable(rows);
+                var options = {
+                    backgroundColor: 'transparent',
+                    animation:{
+                        duration: 1000,
+                        easing: 'out'
+                    },
+                    isStacked: true,
+                    'height': '300'
+                };
 
-            var chart = new google.visualization.ColumnChart($(this).get(0));
-            chart.draw(data, options);
+                var chart = new google.visualization.ColumnChart($(this).get(0));
+                chart.draw(data, options);
 
-            $(this).removeClass("loading");
+                $(this).removeClass("loading");
+            }else{
+                $(this).removeClass("loading").html(ctdGraphParticipantsL10n.nogoogle);
+            }
             
             return containerElement;
         },

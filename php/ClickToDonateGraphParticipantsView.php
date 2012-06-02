@@ -44,6 +44,7 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
                         'language' => esc_js(esc_js(get_bloginfo('language'))),
                         'loading' => esc_js(__( 'Loading...', 'ClickToDonate' )),
                         'withoutdata' => esc_js(__( 'Without data to show', 'ClickToDonate' )),
+                        'nogoogle' => esc_js(__( 'Sorry, but the Google Chart API was not found. Probably there is no Internet connection available.', 'ClickToDonate' )),
                         'day' => esc_js(__( 'Day', 'ClickToDonate' )),
                         'days' => esc_js(__( 'Days', 'ClickToDonate' )),
                         'totalVisits' => esc_js(__('Total visits', 'ClickToDonate')),
@@ -126,7 +127,7 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
         public function wpDashboardSetup() {
             // Add our metabox with the graphics to the dashboard
             if(current_user_can('read')):
-                wp_add_dashboard_widget(__CLASS__, __('Campaigns rankings', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'));
+                wp_add_dashboard_widget(__CLASS__, __('Campaigns user rankings', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'));
             endif;
         }
 
@@ -136,7 +137,7 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
         public function addMetaBox() {
             // Add our metabox with the graphics to our custom post type
             if(current_user_can('list_users')):
-                add_meta_box(__CLASS__, __('Campaign rankings', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'), ClickToDonateController::POST_TYPE);
+                add_meta_box(__CLASS__, __('Campaign user rankings', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'), ClickToDonateController::POST_TYPE);
             endif;
         }
 
@@ -156,10 +157,10 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
 
                         <a class="button" id="ctd-load-graphparticipants"><?php _e('Load', 'ClickToDonate'); ?></a>
                     </div>
-                    <div id="ctd-graphparticipants-container" style='width: 100%; height: 300px;'></div>
+                    <div id="ctd-graphparticipants-container" style='width: 100%;'></div>
                     <script>
-                        google.load("visualization", "1", {
-                            packages:["corechart"], 
+                        google.load("visualization", "1.1", {
+                            packages:["table"], 
                             'language': ctdGraphParticipantsL10n.language
                         });
 
@@ -200,20 +201,28 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
                     die('0');
 
                 $resultsArray = array();
-                $resultsArray[] = array(__('User (and position)', 'ClickToDonate'), __('Total clicks', 'ClickToDonate'));
+                $resultsArray[] = array(__('Position', 'ClickToDonate'), __('User', 'ClickToDonate'), __('Participations', 'ClickToDonate'));
                 $position = 1;
                 $canListUsers = current_user_can('list_users');
                 $currentUserId = get_current_user_id();
+                $currentUserAdded = false;
                 foreach ($results as $result):
                     $values = array();
-                    foreach ($result as $key=>$value):
+                    foreach ($result as $value):
                         if(empty($values)):
-                            if(!$canListUsers && $value!=$currentUserId):
-                                $position++;
+                            if($position++>3 && !$canListUsers && $value!=$currentUserId):
                                 break;
                             endif;
-                            $user = get_userdata($value);
-                            $values[] = sprintf('%d - %s', $position++, $user->display_name);
+                            $values[] = $position-1;
+                            if(!$canListUsers && $value!=$currentUserId):
+                                $values[] = '-';
+                            else:
+                                $user = get_userdata($value);
+                                $values[] = $user->display_name;
+                                if($value==$currentUserId):
+                                    $currentUserAdded=true;
+                                endif;
+                            endif;
                         else:
                             $values[] = (int)$value;
                         endif;
@@ -222,6 +231,11 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
                         $resultsArray[] = $values;
                     endif;
                 endforeach;
+                
+                // Add the current user statistics
+                if(!empty($results) && !$currentUserAdded && $user = get_userdata(get_current_user_id())):
+                    $resultsArray[] = array($position++, $user->display_name, 0);
+                endif;
 
                 echo json_encode($resultsArray);
                 echo "\n";
