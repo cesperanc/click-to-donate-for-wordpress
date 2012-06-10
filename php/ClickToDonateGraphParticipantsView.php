@@ -171,7 +171,7 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
                                     'action' : 'ctd_get_rankings',
                                     '_ajax_ctd_get_rankings_nonce' : '<?php echo(esc_attr(wp_create_nonce('ctd-get-rankings'))); ?>',
                                     'startDate': ($j("#ctd-hidden-graphparticipants-startdate").val()/1000),
-                                    'endDate': ($j("#ctd-hidden-graphparticipants-enddate").val()/1000)
+                                    'endDate': ($j("#ctd-hidden-graphparticipants-enddate").val()/1000+3600*24-1)
                                     <?php if(isset($post)): echo(", 'postId' : '".esc_js(ClickToDonateController::getPostID($post))."'"); endif; ?>
                                 }
                             );

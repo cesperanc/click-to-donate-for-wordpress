@@ -177,7 +177,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
                                     'action' : 'ctd_get_visits',
                                     '_ajax_ctd_get_visits_nonce' : '<?php echo(esc_attr(wp_create_nonce('ctd-get-visits'))); ?>',
                                     'startDate': ($j("#ctd-hidden-graphbanners-startdate").val()/1000),
-                                    'endDate': ($j("#ctd-hidden-graphbanners-enddate").val()/1000),
+                                    'endDate': ($j("#ctd-hidden-graphbanners-enddate").val()/1000+3600*24-1),
                                     'dateGranularity': ($j("#ctd-graphbanners-date-granularity").val())
                                     <?php if(isset($post)): echo(", 'postId' : '".esc_js(ClickToDonateController::getPostID($post))."'"); endif; ?>
                                 }
