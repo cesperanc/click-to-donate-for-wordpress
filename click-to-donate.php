@@ -2,7 +2,7 @@
 /*
   Plugin Name: Click to donate
   Description: Provides a system for managing "click to donate" campaigns based on user visits and clicks
-  Version: 1.0
+  Version: 1.0.1
   Plugin URI: http://code.google.com/p/click-to-donate-for-wordpress/
   Author: Cláudio Esperança, Diogo Serra
   Author URI: http://dei.estg.ipleiria.pt/

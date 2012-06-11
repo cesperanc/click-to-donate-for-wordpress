@@ -215,7 +215,7 @@ if (!class_exists('ClickToDonateController')):
          * @return boolean 
          */
         public static function getPosts($args) {
-            if(isset($args['query'])):
+            if(!isset($args['query'])):
                 $args['query'] = array();
             endif;
             $defaults = array(
