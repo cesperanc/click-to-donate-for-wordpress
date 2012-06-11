@@ -3,3 +3,4 @@
 /_tools/yuicompressor-2.4.7.jar
 /nbproject/
 .directory
+.svn*

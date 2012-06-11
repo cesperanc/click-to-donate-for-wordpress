@@ -1,5 +1,5 @@
 === Click to donate ===
-Contributors: cesperanc, dserra
+Contributors: cesperanc, codedmind
 Tags: clicks, visits, tracking, donate, donation, NGO, ONG, plugin, extension
 Requires at least: 3.2.0
 Tested up to: 3.3.2
