@@ -755,51 +755,53 @@ if (!class_exists('ClickToDonateView')):
             if (empty($posts))
                 return $posts;
 
-            foreach ($posts as $index => $post):
-                // If is a countable post type, is a single post and we are getting the post from the front office, verify and count the visit
-                if(get_post_type($post) == ClickToDonateController::POST_TYPE && is_single($post) && !is_admin()):
-                    $status = ClickToDonateController::bannerCanBeShown($post, true);
-                    switch($status):
-                        // The campaign was finished
-                        case ClickToDonateController::MSG_URL_ERROR:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Sorry, but the URL for this campaign is invalid.', 'ClickToDonate')."</span>";
-                            break;
-                        // The campaign was finished
-                        case ClickToDonateController::MSG_AUTHENTICATION_ERROR:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".sprintf(__('You must %s in the site to validate your visit.', 'ClickToDonate'), '<a href="'.wp_login_url(home_url()).'" title="'.__('Follow the link to login in the site', 'ClickToDonate').'">'.__('login', 'ClickToDonate').'</a>')."</span>";
-                            break;
-                        // The campaign was finished
-                        case ClickToDonateController::MSG_CAMPAIGN_FINISHED:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Thanks for visiting, but this campaign has been completed.', 'ClickToDonate')."</span>";
-                            break;
-                        // The campaign is scheduled to start
-                        case ClickToDonateController::MSG_CAMPAIGN_SCHEDULED:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Thanks for visiting, but this campaign has not started.', 'ClickToDonate')."</span>";
-                            break;
-                        case ClickToDonateController::MSG_CAMPAIGN_UNAVAILABLE:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Thanks for visiting, but this campaign is not available.', 'ClickToDonate')."</span>";
-                            break;
-                        case ClickToDonateController::MSG_RESTRITED_BY_COOKIE:
-                        case ClickToDonateController::MSG_RESTRITED_BY_LOGIN:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".sprintf(__('Thanks for visiting, but this campaign has already been visited by you recently. Please try again in %s.', 'ClickToDonate'), self::stringfyTime(ClickToDonateController::getCoolOffLimitRemainingForAuthenticatedUser($post)))."</span>";
-                            break;
-                        // Everything ok, let's try to register the visit
-                        case ClickToDonateController::MSG_OK:
-                            if (ClickToDonateController::registerVisit($post)):
-                                $posts[$index]->post_content.="<span class=\"ctd-visit-registered\"><hr/>".__('<br/>Visit registered.', 'ClickToDonate')."</span>";
+            if($query->is_single()):
+                foreach ($posts as $index => $post):
+                    // If is a countable post type, is a single post and we are getting the post from the front office, verify and count the visit
+                    if(get_post_type($post) == ClickToDonateController::POST_TYPE && !is_admin()):
+                        $status = ClickToDonateController::bannerCanBeShown($post, true);
+                        switch($status):
+                            // The campaign was finished
+                            case ClickToDonateController::MSG_URL_ERROR:
+                                    $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Sorry, but the URL for this campaign is invalid.', 'ClickToDonate')."</span>";
                                 break;
-                            endif;
-                        // Houston, we have problems
-                        case ClickToDonateController::MSG_UNKNOWN_ERROR:
-                        case ClickToDonateController::MSG_UNKNOWN_POST_STATUS:
-                        case ClickToDonateController::MSG_UNKNOWN_POST_TYPE:
-                        default:
-                                $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Unable to register the visit. Please try again later.', 'ClickToDonate')."</span>";
-                            break;
-                    endswitch;
-                endif;
-            endforeach;
-
+                            // The campaign was finished
+                            case ClickToDonateController::MSG_AUTHENTICATION_ERROR:
+                                    $posts[$index]->post_content="<span class=\"ctd-visit-error\">".sprintf(__('You must %s in the site to validate your visit.', 'ClickToDonate'), '<a href="'.wp_login_url(home_url()).'" title="'.__('Follow the link to login in the site', 'ClickToDonate').'">'.__('login', 'ClickToDonate').'</a>')."</span>";
+                                break;
+                            // The campaign was finished
+                            case ClickToDonateController::MSG_CAMPAIGN_FINISHED:
+                                    $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Thanks for visiting, but this campaign has been completed.', 'ClickToDonate')."</span>";
+                                break;
+                            // The campaign is scheduled to start
+                            case ClickToDonateController::MSG_CAMPAIGN_SCHEDULED:
+                                    $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Thanks for visiting, but this campaign has not started.', 'ClickToDonate')."</span>";
+                                break;
+                            case ClickToDonateController::MSG_CAMPAIGN_UNAVAILABLE:
+                                    $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Thanks for visiting, but this campaign is not available.', 'ClickToDonate')."</span>";
+                                break;
+                            case ClickToDonateController::MSG_RESTRITED_BY_COOKIE:
+                            case ClickToDonateController::MSG_RESTRITED_BY_LOGIN:
+                                    $posts[$index]->post_content="<span class=\"ctd-visit-error\">".sprintf(__('Thanks for visiting, but this campaign has already been visited by you recently. Please try again in %s.', 'ClickToDonate'), self::stringfyTime(ClickToDonateController::getCoolOffLimitRemainingForAuthenticatedUser($post)))."</span>";
+                                break;
+                            // Everything ok, let's try to register the visit
+                            case ClickToDonateController::MSG_OK:
+                                if (ClickToDonateController::registerVisit($post)):
+                                    $posts[$index]->post_content.="<span class=\"ctd-visit-registered\"><hr/>".__('<br/>Visit registered.', 'ClickToDonate')."</span>";
+                                    break;
+                                endif;
+                            // Houston, we have problems
+                            case ClickToDonateController::MSG_UNKNOWN_ERROR:
+                            case ClickToDonateController::MSG_UNKNOWN_POST_STATUS:
+                            case ClickToDonateController::MSG_UNKNOWN_POST_TYPE:
+                            default:
+                                    $posts[$index]->post_content="<span class=\"ctd-visit-error\">".__('Unable to register the visit. Please try again later.', 'ClickToDonate')."</span>";
+                                break;
+                        endswitch;
+                    endif;
+                endforeach;
+            endif;
+            
             return $posts;
         }
         

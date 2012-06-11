@@ -353,7 +353,7 @@ if (!class_exists('ClickToDonateModel')):
                 ';', $params), ARRAY_A)) && !empty($rows)):
                 
                 // If we have more than one banner, rearrange the data to a more suitable form
-                if(!empty($visitsData->postIds)):
+                if(count($visitsData->postIds)>1):
                     $tRows = array();
                     $bannerColumns = array();
                     
@@ -362,7 +362,7 @@ if (!class_exists('ClickToDonateModel')):
                     endforeach;
                     
                     foreach ($rows as $row):
-                        if(!is_array($tRows[$row[$dateField]])):
+                        if(!isset($tRows[$row[$dateField]]) || !is_array($tRows[$row[$dateField]])):
                             $tRows[$row[$dateField]]=array($dateField=>$row[$dateField])+$bannerColumns;
                         endif;
                         
