@@ -34,5 +34,8 @@ For the public area, any web browser that supports links. For the backoffice, In
 
 == Changelog ==
 
+= 1.0.3 =
+* Bug fixes and validation for Wordpress 3.4
+
 = 1.0 =
 * Initial plugin release
