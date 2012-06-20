@@ -58,7 +58,7 @@ if (!class_exists('ClickToDonateController')):
             add_action('init', array(__CLASS__, 'WpInit'));
             
             // Register the install database method to be executed when the plugin is activated
-            register_activation_hook(ClickToDonate::FILE, array(__CLASS__, 'install'));
+            register_activation_hook(ClickToDonate::FILE, array(__CLASS__, 'activation'));
 
             // Register the install database method to be executed when the plugin is updated
             add_action('plugins_loaded', array(__CLASS__, 'install'));
@@ -69,7 +69,7 @@ if (!class_exists('ClickToDonateController')):
             // Register the transitionPostStatus method to the Wordpress transition_post_status action hook
             add_action('transition_post_status', array(__CLASS__, 'transitionPostStatus'), 10, 3);
             
-            // Add the post_link filter to filter the post URL
+            // Add the post_type_link filter to filter the post URL
             add_filter('post_type_link', array(__CLASS__, 'postTypeLink'), 10, 4);
         }
         
@@ -79,88 +79,20 @@ if (!class_exists('ClickToDonateController')):
         public function WpInit() {
             load_plugin_textdomain('ClickToDonate', false, dirname(plugin_basename(ClickToDonate::FILE)) . '/langs');
             
-            register_post_type(self::POST_TYPE, array(
-                'hierarchical' => false,
-                'labels' => array(
-                    'name' => __('Campaigns', 'ClickToDonate'),
-                    'singular_name' => __('Campaign', 'ClickToDonate'),
-                    'add_new' => __('Add new', 'ClickToDonate'),
-                    'add_new_item' => __('Add new campaign', 'ClickToDonate'),
-                    'edit_item' => __('Edit campaign', 'ClickToDonate'),
-                    'new_item' => __('New campaign', 'ClickToDonate'),
-                    'view_item' => __('View campaign', 'ClickToDonate'),
-                    'search_items' => __('Search campaigns', 'ClickToDonate'),
-                    'not_found' => __('No campaign found', 'ClickToDonate'),
-                    'not_found_in_trash' => __('No campaigns were found on the recycle bin', 'ClickToDonate')
-                ),
-                'description' => __('Click to donate campaigns', 'ClickToDonate'),
-                'has_archive' => false,
-                'public' => true,
-                'publicly_queryable' => true,
-                'exclude_from_search' => true,
-                'show_ui' => true,
-                'show_in_menu' => true,
-                'show_in_nav_menus' => false,
-		'capability_type' => 'page',
-                'supports' => array('title', 'editor', 'revisions', 'thumbnail'),
-                'rewrite' => array(
-                    'slug' => self::URL_QUERY_PARAM,
-                    'with_front' => 'false'
-                ),
-                'query_var' => true
-            ));
-
-            if (!post_type_exists(self::STATUS_online)):
-                register_post_status(self::STATUS_online, array(
-                    'label' => __('Online', 'ClickToDonate'),
-                    'public' => true,
-                    'internal' => false,
-                    'private' => false,
-                    'exclude_from_search' => true,
-                    'show_in_admin_all_list' => true,
-                    'show_in_admin_status_list' => true,
-                    'label_count' => _n_noop('Online <span class="count">(%s)</span>', 'Online <span class="count">(%s)</span>'),
-                ));
-            endif;
-
-            if (!post_type_exists(self::STATUS_scheduled)):
-                register_post_status(self::STATUS_scheduled, array(
-                    'label' => __('Scheduled', 'ClickToDonate'),
-                    'public' => false,
-                    'internal' => false,
-                    'private' => true,
-                    'exclude_from_search' => true,
-                    'show_in_admin_all_list' => true,
-                    'show_in_admin_status_list' => true,
-                    'label_count' => _n_noop('Scheduled <span class="count">(%s)</span>', 'Scheduled <span class="count">(%s)</span>'),
-                ));
-            endif;
-
-            if (!post_type_exists(self::STATUS_finished)):
-                register_post_status(self::STATUS_finished, array(
-                    'label' => __('Finished', 'ClickToDonate'),
-                    'public' => false,
-                    'internal' => false,
-                    'private' => true,
-                    'exclude_from_search' => true,
-                    'show_in_admin_all_list' => true,
-                    'show_in_admin_status_list' => true,
-                    'label_count' => _n_noop('Finished <span class="count">(%s)</span>', 'Finished <span class="count">(%s)</span>'),
-                ));
-            endif;
-
-            if (!post_type_exists(self::STATUS_unavailable)):
-                register_post_status(self::STATUS_unavailable, array(
-                    'label' => __('Unavailable', 'ClickToDonate'),
-                    'public' => false,
-                    'internal' => false,
-                    'private' => true,
-                    'exclude_from_search' => true,
-                    'show_in_admin_all_list' => true,
-                    'show_in_admin_status_list' => true,
-                    'label_count' => _n_noop('Unavailable <span class="count">(%s)</span>', 'Unavailable <span class="count">(%s)</span>'),
-                ));
-            endif;
+            // Register the post types and statuses
+            self::registerPostType();
+        }
+        
+        /**
+         * Plugin activation hook
+         * @global $wp_rewrite to flush the rewrite rules
+         */
+        public static function activation() {
+            // Install the plugin requirements
+            self::install();
+            
+            // Flag to flush the rewrite rules on the next init
+            update_option(__CLASS__.'_flush_rules', true);
         }
         
         /**
@@ -172,13 +104,127 @@ if (!class_exists('ClickToDonateController')):
         
         /**
          * Uninstall the plugin data
+         * 
+         * @global $wp_rewrite to flush the rewrite rules
          */
         public static function uninstall() {
+            global $wp_rewrite;
+            
             //Uninstall the data
             ClickToDonateModel::uninstall();
             
             // Remove all the campaigns
             self::removePostType();
+            
+            if(method_exists($wp_rewrite, 'flush_rules'))
+                $wp_rewrite->flush_rules();
+        }
+        
+        /**
+         * Register the post type and linked states
+         * 
+         * @uses post_type_exists
+         * @uses register_post_type
+         * @uses post_type_exists
+         * @uses register_post_status
+         * @uses get_option
+         * @uses delete_option
+         * @uses flush_rewrite_rules
+         */
+        private static function registerPostType() {
+            // Create the post status
+            if(function_exists('register_post_type') && !post_type_exists(self::POST_TYPE)):
+                register_post_type(self::POST_TYPE, array(
+                    'hierarchical' => false,
+                    'labels' => array(
+                        'name' => __('Campaigns', 'ClickToDonate'),
+                        'singular_name' => __('Campaign', 'ClickToDonate'),
+                        'add_new' => __('Add new', 'ClickToDonate'),
+                        'add_new_item' => __('Add new campaign', 'ClickToDonate'),
+                        'edit_item' => __('Edit campaign', 'ClickToDonate'),
+                        'new_item' => __('New campaign', 'ClickToDonate'),
+                        'view_item' => __('View campaign', 'ClickToDonate'),
+                        'search_items' => __('Search campaigns', 'ClickToDonate'),
+                        'not_found' => __('No campaign found', 'ClickToDonate'),
+                        'not_found_in_trash' => __('No campaigns were found on the recycle bin', 'ClickToDonate')
+                    ),
+                    'description' => __('Click to donate campaigns', 'ClickToDonate'),
+                    'has_archive' => false,
+                    'public' => true,
+                    'publicly_queryable' => true,
+                    'exclude_from_search' => true,
+                    'show_ui' => true,
+                    'show_in_menu' => true,
+                    'show_in_nav_menus' => false,
+                    'capability_type' => 'page',
+                    'supports' => array('title', 'editor', 'revisions', 'thumbnail'),
+                    'rewrite' => array(
+                        'slug' => self::URL_QUERY_PARAM,
+                        'with_front' => 'false'
+                    ),
+                    'query_var' => true
+                ));
+                
+                // Force the flush of the rewrite rules to assume the new post type slug
+                if(get_option(__CLASS__.'_flush_rules', false) && function_exists('flush_rewrite_rules')):
+                    delete_option(__CLASS__.'_flush_rules');
+                    flush_rewrite_rules();
+                endif;
+            endif;
+            
+            if(function_exists('register_post_status')):
+                if (!post_type_exists(self::STATUS_online)):
+                    register_post_status(self::STATUS_online, array(
+                        'label' => __('Online', 'ClickToDonate'),
+                        'public' => true,
+                        'internal' => false,
+                        'private' => false,
+                        'exclude_from_search' => true,
+                        'show_in_admin_all_list' => true,
+                        'show_in_admin_status_list' => true,
+                        'label_count' => _n_noop('Online <span class="count">(%s)</span>', 'Online <span class="count">(%s)</span>'),
+                    ));
+                endif;
+
+                if (!post_type_exists(self::STATUS_scheduled)):
+                    register_post_status(self::STATUS_scheduled, array(
+                        'label' => __('Scheduled', 'ClickToDonate'),
+                        'public' => false,
+                        'internal' => false,
+                        'private' => true,
+                        'exclude_from_search' => true,
+                        'show_in_admin_all_list' => true,
+                        'show_in_admin_status_list' => true,
+                        'label_count' => _n_noop('Scheduled <span class="count">(%s)</span>', 'Scheduled <span class="count">(%s)</span>'),
+                    ));
+                endif;
+
+                if (!post_type_exists(self::STATUS_finished)):
+                    register_post_status(self::STATUS_finished, array(
+                        'label' => __('Finished', 'ClickToDonate'),
+                        'public' => false,
+                        'internal' => false,
+                        'private' => true,
+                        'exclude_from_search' => true,
+                        'show_in_admin_all_list' => true,
+                        'show_in_admin_status_list' => true,
+                        'label_count' => _n_noop('Finished <span class="count">(%s)</span>', 'Finished <span class="count">(%s)</span>'),
+                    ));
+                endif;
+
+                if (!post_type_exists(self::STATUS_unavailable)):
+                    register_post_status(self::STATUS_unavailable, array(
+                        'label' => __('Unavailable', 'ClickToDonate'),
+                        'public' => false,
+                        'internal' => false,
+                        'private' => true,
+                        'exclude_from_search' => true,
+                        'show_in_admin_all_list' => true,
+                        'show_in_admin_status_list' => true,
+                        'label_count' => _n_noop('Unavailable <span class="count">(%s)</span>', 'Unavailable <span class="count">(%s)</span>'),
+                    ));
+                endif;
+            endif;
         }
         
         /**
@@ -194,7 +240,7 @@ if (!class_exists('ClickToDonateController')):
                 'post_type' => self::POST_TYPE,
                 'posts_per_page' => -1,
                 'nopaging' => true
-                    ));
+            ));
 
             foreach ($posts as $post):
                 wp_delete_post(self::getPostID($post), true);

@@ -529,10 +529,10 @@ if (!class_exists('ClickToDonateView')):
                                     <div>
                                         <input title="<?php esc_attr_e('Specify the number of seconds between visits on the same campaign', 'ClickToDonate') ?>" id="ctd-cool-off-period" type="text" size="8" style="width: 70px;" name="<?php echo(__CLASS__ . self::$coolOff); ?>" value="<?php echo($time); ?>" />
                                         <select name="<?php echo(__CLASS__ . self::$coolOffUnit); ?>">
-                                            <option<?php ctd - selected($timeUnit, self::$coolOffUnitSeconds); ?> value='1'><?php _e('Second(s)', 'ClickToDonate') ?></option>
-                                            <option<?php ctd - selected($timeUnit, self::$coolOffUnitMinutes); ?> value='60'><?php _e('Minute(s)', 'ClickToDonate') ?></option>
-                                            <option<?php ctd - selected($timeUnit, self::$coolOffUnitHours); ?> value='3600'><?php _e('Hour(s)', 'ClickToDonate') ?></option>
-                                            <option<?php ctd - selected($timeUnit, self::$coolOffUnitDays); ?> value='86400'><?php _e('Day(s)', 'ClickToDonate') ?></option>
+                                            <option<?php selected($timeUnit, self::$coolOffUnitSeconds); ?> value='1'><?php _e('Second(s)', 'ClickToDonate') ?></option>
+                                            <option<?php selected($timeUnit, self::$coolOffUnitMinutes); ?> value='60'><?php _e('Minute(s)', 'ClickToDonate') ?></option>
+                                            <option<?php selected($timeUnit, self::$coolOffUnitHours); ?> value='3600'><?php _e('Hour(s)', 'ClickToDonate') ?></option>
+                                            <option<?php selected($timeUnit, self::$coolOffUnitDays); ?> value='86400'><?php _e('Day(s)', 'ClickToDonate') ?></option>
                                         </select>
                                     </div>
                                     <span id="ctd-readable-cool-off-period"></span></div>
@@ -583,13 +583,13 @@ if (!class_exists('ClickToDonateView')):
                             <label for="post_status"><?php _e('Status:', 'ClickToDonate') ?></label>
                             <input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo(esc_attr(('auto-draft' == $post->post_status ) ? ClickToDonateController::STATUS_unavailable : $post->post_status)); ?>" />
                             <select name='post_status' id='post_status' tabindex='4'>
-                                <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_online); ?> value='<?php echo(ClickToDonateController::STATUS_online); ?>'><?php _e('Online', 'ClickToDonate') ?></option>
-                                <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_finished); ?> value='<?php echo(ClickToDonateController::STATUS_finished); ?>'><?php _e('Completed', 'ClickToDonate') ?></option>
-                                <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_scheduled); ?> value='<?php echo(ClickToDonateController::STATUS_scheduled); ?>'><?php _e('Scheduled', 'ClickToDonate') ?></option>
+                                <option<?php selected($post->post_status, ClickToDonateController::STATUS_online); ?> value='<?php echo(ClickToDonateController::STATUS_online); ?>'><?php _e('Online', 'ClickToDonate') ?></option>
+                                <option<?php selected($post->post_status, ClickToDonateController::STATUS_finished); ?> value='<?php echo(ClickToDonateController::STATUS_finished); ?>'><?php _e('Completed', 'ClickToDonate') ?></option>
+                                <option<?php selected($post->post_status, ClickToDonateController::STATUS_scheduled); ?> value='<?php echo(ClickToDonateController::STATUS_scheduled); ?>'><?php _e('Scheduled', 'ClickToDonate') ?></option>
                                 <?php if ('auto-draft' == $post->post_status) : ?>
-                                    <option<?php ctd - selected($post->post_status, 'auto-draft'); ?> value='<?php echo(ClickToDonateController::STATUS_unavailable); ?>'><?php _e('Unavailable', 'ClickToDonate') ?></option>
+                                    <option<?php selected($post->post_status, 'auto-draft'); ?> value='<?php echo(ClickToDonateController::STATUS_unavailable); ?>'><?php _e('Unavailable', 'ClickToDonate') ?></option>
                                 <?php else : ?>
-                                    <option<?php ctd - selected($post->post_status, ClickToDonateController::STATUS_unavailable); ?> value='<?php echo(ClickToDonateController::STATUS_unavailable); ?>'><?php _e('Unavailable', 'ClickToDonate') ?></option>
+                                    <option<?php selected($post->post_status, ClickToDonateController::STATUS_unavailable); ?> value='<?php echo(ClickToDonateController::STATUS_unavailable); ?>'><?php _e('Unavailable', 'ClickToDonate') ?></option>
                         <?php endif; ?>
                             </select>
                         </div><?php // /misc-pub-section   ?>
