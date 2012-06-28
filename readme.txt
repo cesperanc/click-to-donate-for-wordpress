@@ -2,7 +2,7 @@
 Contributors: cesperanc, codedmind
 Tags: clicks, visits, tracking, donate, donation, NGO, ONG, plugin, extension
 Requires at least: 3.2.0
-Tested up to: 3.4
+Tested up to: 3.4.1
 Stable tag: 1.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,6 +33,11 @@ For the public area, any web browser that supports links. For the backoffice, In
 
 
 == Changelog ==
+
+= 1.0.4 = 
+* The text widget can now be used to provide a link for a campaign. Use the URL "#ctd-X" (where X is the ID of the campaign) on a href attribute to the link be recognized as a campaign link.
+* Bug fixes
+* Wordpress 3.4.1 compatibility tests
 
 = 1.0.3 =
 * Bug fixes and validation for Wordpress 3.4

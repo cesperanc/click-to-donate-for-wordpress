@@ -52,6 +52,11 @@ if (!class_exists('ClickToDonateView')):
                 
                 // Add the_content filter to filter the post content
                 add_filter('the_content', array(__CLASS__, 'theContent'));
+                
+                // Add widget_text filter to filter the text widget content
+                add_filter('widget_text', array(__CLASS__, 'theContent'));
+                
+                
             endif;
 
             // Register the savePost method to the Wordpress save_post action hook

@@ -428,7 +428,7 @@ if (!class_exists('ClickToDonateController')):
          * @return string with the filtered URL 
          */
         public function postTypeLink($post_link, $post, $leavename = false, $sample = false){
-            return (ClickToDonateController::bannerCanBeShown($post, false, false)==ClickToDonateController::MSG_OK)?self::createPostLink($post_link):$post_link;
+            return /*(ClickToDonateController::bannerCanBeShown($post, false, false)==ClickToDonateController::MSG_OK)?*/self::createPostLink($post_link)/*:$post_link*/;
         }
         
         /**
