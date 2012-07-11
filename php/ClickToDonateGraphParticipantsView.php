@@ -151,9 +151,9 @@ if (!class_exists('ClickToDonateGraphParticipantsView')):
                 ?>
                     <div style="margin: 10px 0 20px;">
                         <label class="selectit"><?php _e('Period start date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period start date', 'ClickToDonate') ?>" id="ctd-graphparticipants-startdate" type="text" /></label>
-                        <input id="ctd-hidden-graphparticipants-startdate" type="hidden" value="<?php echo(((current_time('timestamp')-3600*24*7)*1000)); ?>" />
+                        <input id="ctd-hidden-graphparticipants-startdate" type="hidden" value="<?php printf("%.0f", ((current_time('timestamp')-3600*24*7)*1000)); ?>" />
                         <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graphparticipants-enddate" type="text" /></label>
-                        <input id="ctd-hidden-graphparticipants-enddate" type="hidden" value="<?php echo((current_time('timestamp')*1000)); ?>" />
+                        <input id="ctd-hidden-graphparticipants-enddate" type="hidden" value="<?php printf("%.0f", (current_time('timestamp')*1000)); ?>" />
 
                         <a class="button" id="ctd-load-graphparticipants"><?php _e('Load', 'ClickToDonate'); ?></a>
                     </div>

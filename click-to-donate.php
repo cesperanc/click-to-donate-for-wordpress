@@ -2,7 +2,7 @@
 /*
   Plugin Name: Click to donate
   Description: Provides a system for managing "click to donate" campaigns based on user visits and clicks
-  Version: 1.0.4
+  Version: 1.0.5
   Plugin URI: http://code.google.com/p/click-to-donate-for-wordpress/
   Author: Cláudio Esperança, Diogo Serra
   Author URI: http://dei.estg.ipleiria.pt/
@@ -24,7 +24,7 @@
     along with this program; If not, see <http://www.gnu.org/licenses/>.
 */
 
-if (!class_exists('ClickToDonateKernel')):
+if (!class_exists('ClickToDonate')):
     class ClickToDonate {
         // Store the location of the current file in a constant to use by the child modules
         const FILE = __FILE__;

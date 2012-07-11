@@ -34,6 +34,11 @@ For the public area, any web browser that supports links. For the backoffice, In
 
 == Changelog ==
 
+= 1.0.5 = 
+* Bug fix on the graph views date interval when using PHP on Windows
+* CSS updates
+* Misspelled class name correction
+
 = 1.0.4 = 
 * The text widget can now be used to provide a link for a campaign. Use the URL "#ctd-X" (where X is the ID of the campaign) on a href attribute to the link be recognized as a campaign link.
 * Bug fixes

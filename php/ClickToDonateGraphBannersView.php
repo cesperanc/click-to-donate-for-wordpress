@@ -150,9 +150,9 @@ if (!class_exists('ClickToDonateGraphBannersView')):
                 ?>
                     <div style="margin: 10px 0 20px;">
                         <label class="selectit"><?php _e('Period start date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period start date', 'ClickToDonate') ?>" id="ctd-graphbanners-startdate" type="text" /></label>
-                        <input id="ctd-hidden-graphbanners-startdate" type="hidden" value="<?php echo(((current_time('timestamp')-3600*24*7)*1000)); ?>" />
+                        <input id="ctd-hidden-graphbanners-startdate" type="hidden" value="<?php printf("%.0f", ((current_time('timestamp')-3600*24*7)*1000)); ?>" />
                         <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graphbanners-enddate" type="text" /></label>
-                        <input id="ctd-hidden-graphbanners-enddate" type="hidden" value="<?php echo((current_time('timestamp')*1000)); ?>" />
+                        <input id="ctd-hidden-graphbanners-enddate" type="hidden" value="<?php printf("%.0f", (current_time('timestamp')*1000)); ?>" />
                         <label for="ctd-graphbanners-date-granularity" class="selectit"><?php _e('Period granularity:', 'ClickToDonate'); ?></label>
 
                         <select id="ctd-graphbanners-date-granularity">
