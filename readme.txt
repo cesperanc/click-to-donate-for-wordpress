@@ -10,6 +10,17 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Provides the required functionality to manage and monitoring advertising campaigns based on clicks by the site visitors.
 
 
+== Description ==
+
+This extension provides the functionality to create and manage advertising campaigns where their sponsors give a donation to the promoter based on the number of visits into those campaigns.
+
+The content manager can configure options like the campaign start and end dates, the time between user visits, maximum number of visits, etc. The system will automagically change the state of a campaign when those conditions are met (hidding the access links from the content).
+
+[youtube http://www.youtube.com/watch?v=NAEfXK-M0TE]
+
+This was an academic project developped on the [School of Technology and Management](http://www.estg.ipleiria.pt/ "Follow the link to visit the school site") - [Polytechnic Institute of Leiria](http://www.ipleiria.pt/ "Follow the link to visit the site") for the NGO [Ação para o Desenvolvimento](http://www.adbissau.org/ "Follow the link to visit the site").
+
+
 == Screenshots ==
 
 1. A special window is provided to create links to campaigns
