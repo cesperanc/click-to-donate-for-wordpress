@@ -67,7 +67,7 @@ if (!class_exists('ClickToDonateView')):
         /**
          * Register the scripts to be loaded on the backoffice, on our custom post type
          */
-        public function adminEnqueueScripts() {
+        public static function adminEnqueueScripts() {
             if (is_admin()):
                 $suffix = self::debugSufix();
             
@@ -75,12 +75,9 @@ if (!class_exists('ClickToDonateView')):
                     
                     if($current_screen->base=="post"):
                         // Register the scripts
-                        wp_enqueue_script(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("js/ui-spinner/ui-spinner$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), '1.20');
-
-
                         wp_enqueue_script(ClickToDonate::CLASS_NAME.'_common', plugins_url("js/common$suffix.js", ClickToDonate::FILE), array('jquery', 'jquery-ui-datepicker'), '1.0');
                         // Admin script
-                        wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME.'_common'), '1.0');
+                        wp_enqueue_script(ClickToDonate::CLASS_NAME.'_admin', plugins_url("js/admin$suffix.js", ClickToDonate::FILE), array('jquery-ui-datepicker', 'jquery-ui-spinner', ClickToDonate::CLASS_NAME.'_common'), '1.0');
                         // Localize the script
                         wp_localize_script(ClickToDonate::CLASS_NAME.'_admin', 'ctdAdminL10n', array(
                             'closeText' => __('Done', 'ClickToDonate'),
@@ -183,21 +180,20 @@ if (!class_exists('ClickToDonateView')):
         /**
          * Register the styles to be loaded on the backoffice on our custom post type
          */
-        public function adminPrintStyles() {
+        public static function adminPrintStyles() {
             if (is_admin()):
                 $suffix = self::debugSufix();
                 if(($current_screen = get_current_screen()) && $current_screen->post_type == ClickToDonateController::POST_TYPE):
-                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
-                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_ui-spinner', plugins_url("css/ui-spinner/ui-spinner$suffix.css", ClickToDonate::FILE), array(), '1.20');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.10.3.custom{$suffix}.css", ClickToDonate::FILE), array(), '1.10.3');
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_common', plugins_url("css/common$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
-                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_admin', plugins_url("css/admin$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_ui-spinner', ClickToDonate::CLASS_NAME . '_jquery-ui-theme', ClickToDonate::CLASS_NAME . '_common'), '1.0');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_admin', plugins_url("css/admin$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', ClickToDonate::CLASS_NAME . '_common'), '1.0');
                 endif;
                 
                 wp_enqueue_style('ctd-tinymce', plugins_url("css/tinymce/tinymce$suffix.css", ClickToDonate::FILE), array(), '1.0');
             endif;
         }
         
-        public function contextualHelpForCampaigns($screen, $tab) {
+        public static function contextualHelpForCampaigns($screen, $tab) {
             _e("
                 <p>Campaigns <strong>Click-to-donate</strong> are a special type of content that allow the accounting of visits by site visitors.</p>
                 <p>These campaigns can be based on advanced rules that allow complete control over what content is displayed to users.</p>", 'ClickToDonate'
@@ -215,7 +211,7 @@ if (!class_exists('ClickToDonateView')):
             _e("<p>On this screen you can search, edit, delete and create new campaigns.</p>", 'ClickToDonate');
         }
         
-        public function contextualHelpForCampaignsAssociations($screen, $tab) {
+        public static function contextualHelpForCampaignsAssociations($screen, $tab) {
             printf(__('
                 <p>The button %1$s on the WYSIWYG editor can be used to create special links for access to the campaigns.</p>
                 <p>Start by selecting the object (eg text or image) to which you want the link, and click the button %1$s in the editor.</p>
@@ -226,7 +222,7 @@ if (!class_exists('ClickToDonateView')):
             ), '<span style="display: inline-block; width: 20px; height: 20px; background: url(\''.plugins_url("images/icon.gif", ClickToDonate::FILE).'\') center top no-repeat;">&nbsp;</span>');
         }
         
-        public function contextualHelpForConfigurationOptions($screen, $tab) {
+        public static function contextualHelpForConfigurationOptions($screen, $tab) {
             _e("
                 <p>The <strong>Campaign Setup</strong> panel can used to set the properties and constraints associated with a campaign:
                     <ul>
@@ -259,7 +255,7 @@ if (!class_exists('ClickToDonateView')):
          * @param array $plugins with the URLs for the javascript files
          * @return array with our plugin added
          */
-        public function filterMceExternalPlugins($plugins) {
+        public static function filterMceExternalPlugins($plugins) {
             if (self::hasPermission()):
                 $suffix = self::debugSufix();
                 $plugins[ClickToDonate::CLASS_NAME] = plugin_dir_url(ClickToDonate::FILE) . "js/tinymce/tinymce$suffix.js";
@@ -273,7 +269,7 @@ if (!class_exists('ClickToDonateView')):
          * @param array $buttons with the buttons list
          * @return array with our button added
          */
-        public function filterMceButtons($buttons) {
+        public static function filterMceButtons($buttons) {
             if (self::hasPermission())
                 array_push($buttons, 'separator', ClickToDonate::CLASS_NAME);
 
@@ -285,7 +281,7 @@ if (!class_exists('ClickToDonateView')):
          * @param array $files with the list of locatization files
          * @return array
          */
-        public function filterMceExternalLanguages($files) {
+        public static function filterMceExternalLanguages($files) {
             if (self::hasPermission())
                 $files[] = plugin_dir_path(ClickToDonate::FILE) . 'php/langs/wp-langs.php';
 
@@ -298,7 +294,7 @@ if (!class_exists('ClickToDonateView')):
          * @param array $params to add our parameter
          * @return array with out parameter
          */
-        public function filterMceBeforeInit($params) {
+        public static function filterMceBeforeInit($params) {
             if (self::hasPermission()):
 
                 $info = get_plugin_data(ClickToDonate::FILE, false, true);
@@ -319,7 +315,7 @@ if (!class_exists('ClickToDonateView')):
          * 
          * @param type $settings 
          */
-        public function afterWpTinyMce($settings) {
+        public static function afterWpTinyMce($settings) {
             ?>
             <div style="display:none;">
                 <form id="ClickToDonateLinks" tabindex="-1">
@@ -380,7 +376,7 @@ if (!class_exists('ClickToDonateView')):
         /**
          * Send the campaigns list as a response of an ajax request 
          */
-        public function getBannersList() {
+        public static function getBannersList() {
             check_ajax_referer('ctd-links-list', '_ajax_ctd_links_nonce');
 
             $args = array();
@@ -418,7 +414,7 @@ if (!class_exists('ClickToDonateView')):
         /**
          * Add a metabox to the campaign post type
          */
-        public function addMetaBox() {
+        public static function addMetaBox() {
             // Replace the submit core metabox by ours
             add_meta_box('submitdiv', __('Campaign configuration', 'ClickToDonate'), array(__CLASS__, 'writeSubmitMetaBox'), ClickToDonateController::POST_TYPE, 'side', 'core');
         }
@@ -494,7 +490,7 @@ if (!class_exists('ClickToDonateView')):
                         <div class="ctd-enable-container">
                             <input id="ctd-require-login" name="<?php echo(__CLASS__ . self::$requireLogin); ?>" value="require_login"<?php checked(ClickToDonateController::isLoginRequired($post)); ?> type="checkbox"/><label class="selectit" for="ctd-require-login"><?php _e('Require visitor authentication', 'ClickToDonate'); ?></label>
                         </div>
-                        <fieldset id="ctd-enable-cool-off-container" class="ctd-enable-container">
+                        <fieldset id="ctd-enable-cool-off-container" class="ctd-enable-container ctd-jquery-ui">
                             <legend><input id="ctd-enable-cool-off" name="<?php echo(__CLASS__ . self::$enableCoolOff); ?>" value="enable_cool_off"<?php checked(ClickToDonateController::hasCoolOffLimit($post)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-cool-off"><?php _e('Cooling-off period', 'ClickToDonate'); ?></label></legend>
                             <div id="ctd-cool-off-container" class="start-hidden">
                                 <?php
@@ -533,7 +529,7 @@ if (!class_exists('ClickToDonateView')):
                                 <div><label for="ctd-cool-off-period" class="selectit"><?php _e('Cooling-off period:', 'ClickToDonate'); ?></label>
                                     <div>
                                         <input title="<?php esc_attr_e('Specify the number of seconds between visits on the same campaign', 'ClickToDonate') ?>" id="ctd-cool-off-period" type="text" size="8" style="width: 70px;" name="<?php echo(__CLASS__ . self::$coolOff); ?>" value="<?php echo($time); ?>" />
-                                        <select name="<?php echo(__CLASS__ . self::$coolOffUnit); ?>">
+                                        <select name="<?php echo(__CLASS__ . self::$coolOffUnit); ?>" id="ctd-cool-off-time-unit">
                                             <option<?php selected($timeUnit, self::$coolOffUnitSeconds); ?> value='1'><?php _e('Second(s)', 'ClickToDonate') ?></option>
                                             <option<?php selected($timeUnit, self::$coolOffUnitMinutes); ?> value='60'><?php _e('Minute(s)', 'ClickToDonate') ?></option>
                                             <option<?php selected($timeUnit, self::$coolOffUnitHours); ?> value='3600'><?php _e('Hour(s)', 'ClickToDonate') ?></option>
@@ -547,7 +543,7 @@ if (!class_exists('ClickToDonateView')):
 
                         </fieldset>
 
-                        <fieldset id="ctd-enable-maxclicks-container" class="ctd-enable-container">
+                        <fieldset id="ctd-enable-maxclicks-container" class="ctd-enable-container ctd-jquery-ui">
                             <legend><input id="ctd-enable-maxclicks" name="<?php echo(__CLASS__ . self::$enableClickLimits); ?>" value="enable_click_limits"<?php checked(ClickToDonateController::hasClicksLimit($post)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-maxclicks"><?php _e('Limit the number of clicks', 'ClickToDonate'); ?></label></legend>
                             <div id="ctd-maxclicks-container" class="start-hidden">
                                 <label class="selectit"><?php _e('Clicks limit:', 'ClickToDonate'); ?> <input title="<?php esc_attr_e('Specify the number of clicks allowed before disabling the campaign', 'ClickToDonate') ?>" id="ctd-maximum-clicks-limit" type="text" name="<?php echo(__CLASS__ . self::$maxClicks); ?>" value="<?php echo(ClickToDonateController::getClicksLimit($post)); ?>" /></label>
@@ -555,25 +551,25 @@ if (!class_exists('ClickToDonateView')):
 
                         </fieldset>
 
-                        <fieldset id="ctd-enable-startdate-container" class="ctd-enable-container">
+                        <fieldset id="ctd-enable-startdate-container" class="ctd-enable-container ctd-jquery-ui">
                             <legend>
                                 <input id="ctd-enable-startdate" name="<?php echo(__CLASS__ . self::$enableStartDate); ?>" value="enable_startDate"<?php checked(ClickToDonateController::hasStartDate($post)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-startdate"><?php _e('Set the campaign start date', 'ClickToDonate'); ?></label>
                             </legend>
                             <div id="ctd-startdate-container" class="start-hidden">
-                                <label class="selectit"><?php _e('Start date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the start date when the campaign is supposed to start', 'ClickToDonate') ?>" id="ctd-startdate" type="text" /></label>
+                                <label class="selectit"><?php _e('Start date:', 'ClickToDonate'); ?> <input size="8" maxlength="10" title="<?php esc_attr_e('Specify the start date when the campaign is supposed to start', 'ClickToDonate') ?>" id="ctd-startdate" type="text" /></label>
                                 <input id="ctd-hidden-startdate" type="hidden" name="<?php echo(__CLASS__ . self::$startDate); ?>" value="<?php echo(date('Y-n-j', $startDate)); ?>" />
-                                @<input title="<?php esc_attr_e('Specify the campaign starting hours', 'ClickToDonate') ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-starthours" name="<?php echo(__CLASS__ . '_startHours'); ?>" type="text" value="<?php echo($startHours[0]); ?>" />:<input title="<?php esc_attr_e('Specify the campaign starting minutes', 'ClickToDonate') ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-startminutes" name="<?php echo(__CLASS__ . '_startMinutes'); ?>" type="text" value="<?php echo($startMinutes[0]); ?>" />
+                                <div class="ctd-timer-container">@<input title="<?php esc_attr_e('Specify the campaign starting hours', 'ClickToDonate') ?>" size="2" maxlength="2" id="ctd-starthours" name="<?php echo(__CLASS__ . '_startHours'); ?>" type="text" value="<?php echo($startHours[0]); ?>" /><span class="ctd-time-separator"> : </span><input title="<?php esc_attr_e('Specify the campaign starting minutes', 'ClickToDonate') ?>" size="2" maxlength="2" id="ctd-startminutes" name="<?php echo(__CLASS__ . '_startMinutes'); ?>" type="text" value="<?php echo($startMinutes[0]); ?>" /></div>
                             </div>
                         </fieldset>
 
-                        <fieldset id="ctd-enable-enddate-container" class="ctd-enable-container">
+                        <fieldset id="ctd-enable-enddate-container" class="ctd-enable-container ctd-jquery-ui">
                             <legend>
                                 <input id="ctd-enable-enddate" name="<?php echo(__CLASS__ . self::$enableEndDate); ?>" value="enable_endDate"<?php checked(ClickToDonateController::hasEndDate($post)); ?> type="checkbox"/><label class="selectit" for="ctd-enable-enddate"><?php _e('Set the campaign end date', 'ClickToDonate'); ?></label>
                             </legend>
                             <div id="ctd-enddate-container" class="start-hidden">
-                                <label class="selectit"><?php _e('End date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the end date when the campaign is supposed to end', 'ClickToDonate') ?>" id="ctd-enddate" type="text" name="<?php echo(__CLASS__ . self::$endDate); ?>" /></label>
+                                <label class="selectit"><?php _e('End date:', 'ClickToDonate'); ?> <input size="8" maxlength="10" title="<?php esc_attr_e('Specify the end date when the campaign is supposed to end', 'ClickToDonate') ?>" id="ctd-enddate" type="text" name="<?php echo(__CLASS__ . self::$endDate); ?>" /></label>
                                 <input id="ctd-hidden-enddate" type="hidden" name="<?php echo(__CLASS__ . self::$endDate); ?>" value="<?php echo(date('Y-n-j', $endDate)); ?>" />
-                                @<input title="<?php esc_attr_e('Specify the campaign ending hours', 'ClickToDonate') ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-endhours" name="<?php echo(__CLASS__ . '_endHours'); ?>" type="text" value="<?php echo($endHours[0]); ?>" />:<input title="<?php esc_attr_e('Specify the campaign ending minutes', 'ClickToDonate') ?>" style="width: 2em;" size="2" maxlength="2" id="ctd-endminutes" name="<?php echo(__CLASS__ . '_endMinutes'); ?>" type="text" value="<?php echo($endMinutes[0]); ?>" />
+                                <div class="ctd-timer-container">@<input title="<?php esc_attr_e('Specify the campaign ending hours', 'ClickToDonate') ?>" size="2" maxlength="2" id="ctd-endhours" name="<?php echo(__CLASS__ . '_endHours'); ?>" type="text" value="<?php echo($endHours[0]); ?>" /><span class="ctd-time-separator"> : </span><input title="<?php esc_attr_e('Specify the campaign ending minutes', 'ClickToDonate') ?>" size="2" maxlength="2" id="ctd-endminutes" name="<?php echo(__CLASS__ . '_endMinutes'); ?>" type="text" value="<?php echo($endMinutes[0]); ?>" /></div>
                             </div>
                         </fieldset>
                     </div>
@@ -652,7 +648,7 @@ if (!class_exists('ClickToDonateView')):
          * @param int $postId
          * @return int with the post id
          */
-        public function savePost($postId) {
+        public static function savePost($postId) {
             if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE):
                 return $postId;
             endif;
@@ -756,7 +752,7 @@ if (!class_exists('ClickToDonateView')):
          * @param WP_Query $query
          * @return array with the (possible) filtered posts 
          */
-        public function thePosts($posts, $query) {
+        public static function thePosts($posts, $query) {
             if (empty($posts))
                 return $posts;
 
@@ -815,7 +811,7 @@ if (!class_exists('ClickToDonateView')):
          * 
          * @param string $content 
          */
-        public function theContent($content){
+        public static function theContent($content){
             $matches = array();
             $patterns = array();
             $replacements = array();

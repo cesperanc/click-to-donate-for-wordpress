@@ -107,14 +107,14 @@ $j(function(){
     // Attach the spinner to the time fields
     $j('#ctd-starthours, #ctd-endhours').spinner($j.extend(true, {}, timeDefaults, {
         'max': 23
-    })).css({
+    }))/*.css({
         'margin-right': 0,
         'text-align': 'right'
-    });
+    })*/;
     
     $j('#ctd-startminutes, #ctd-endminutes').spinner($j.extend(true, {}, timeDefaults, {
         'max': 59
-    })).css({'margin-right': '0'});
+    }))/*.css({'margin-right': '0'})*/;
     
     // Hide the hidden elements
     $j(".start-hidden").hide();

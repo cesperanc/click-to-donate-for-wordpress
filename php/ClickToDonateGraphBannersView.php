@@ -28,7 +28,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
         /**
          * Register the scripts to be loaded on the backoffice, on our custom post type
          */
-        public function adminEnqueueScripts() {
+        public static function adminEnqueueScripts() {
             if (is_admin()):
                 $suffix = ClickToDonateView::debugSufix();
             
@@ -109,13 +109,13 @@ if (!class_exists('ClickToDonateGraphBannersView')):
         /**
          * Register the styles to be loaded on the backoffice on our custom post type
          */
-        public function adminPrintStyles() {
+        public static function adminPrintStyles() {
             if (is_admin()):
                 $suffix = ClickToDonateView::debugSufix();
             
                 $current_screen = get_current_screen();
                 if(current_user_can('publish_pages') && ($current_screen->id=='dashboard' || $current_screen->post_type == ClickToDonateController::POST_TYPE)):
-                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.8.20.custom$suffix.css", ClickToDonate::FILE), array(), '1.8.20');
+                    wp_enqueue_style(ClickToDonate::CLASS_NAME . '_jquery-ui-theme', plugins_url("css/jquery-ui/jquery-ui-1.10.3.custom{$suffix}.css", ClickToDonate::FILE), array(), '1.10.3');
                     wp_enqueue_style(ClickToDonate::CLASS_NAME . '_common', plugins_url("css/common$suffix.css", ClickToDonate::FILE), array(ClickToDonate::CLASS_NAME . '_jquery-ui-theme'), '1.0');
                 endif;
             endif;
@@ -124,7 +124,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
         /**
          * Add a metabox to dashboard
          */
-        public function wpDashboardSetup() {
+        public static function wpDashboardSetup() {
             // Add our metabox with the graphics to the dashboard
             if(current_user_can('publish_pages')):
                 wp_add_dashboard_widget(__CLASS__, __('Campaigns views', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'));
@@ -134,7 +134,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
         /**
          * Add a metabox to the campaign post type
          */
-        public function addMetaBox() {
+        public static function addMetaBox() {
             // Add our metabox with the graphics to our custom post type
             if(current_user_can('publish_pages')):
                 add_meta_box(__CLASS__, __('Campaign views', 'ClickToDonate'), array(__CLASS__, 'writeMetaBox'), ClickToDonateController::POST_TYPE);
@@ -149,9 +149,9 @@ if (!class_exists('ClickToDonateGraphBannersView')):
             if(current_user_can('publish_pages')):
                 ?>
                     <div style="margin: 10px 0 20px;">
-                        <label class="selectit"><?php _e('Period start date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period start date', 'ClickToDonate') ?>" id="ctd-graphbanners-startdate" type="text" /></label>
+                        <label class="selectit"><?php _e('Period start date:', 'ClickToDonate'); ?> <input style="text-align: center;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period start date', 'ClickToDonate') ?>" id="ctd-graphbanners-startdate" type="text" /></label>
                         <input id="ctd-hidden-graphbanners-startdate" type="hidden" value="<?php printf("%.0f", ((current_time('timestamp')-3600*24*7)*1000)); ?>" />
-                        <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="width: 6em;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graphbanners-enddate" type="text" /></label>
+                        <label class="selectit"><?php _e('Period end date:', 'ClickToDonate'); ?> <input style="text-align: center;" size="8" maxlength="10" title="<?php esc_attr_e('Specify the period end date', 'ClickToDonate') ?>" id="ctd-graphbanners-enddate" type="text" /></label>
                         <input id="ctd-hidden-graphbanners-enddate" type="hidden" value="<?php printf("%.0f", (current_time('timestamp')*1000)); ?>" />
                         <label for="ctd-graphbanners-date-granularity" class="selectit"><?php _e('Period granularity:', 'ClickToDonate'); ?></label>
 
@@ -194,7 +194,7 @@ if (!class_exists('ClickToDonateGraphBannersView')):
         /**
          * Send the campaigns list as a response of an ajax request 
          */
-        public function getBannerVisits() {
+        public static function getBannerVisits() {
             if(current_user_can('publish_pages')):
                 check_ajax_referer('ctd-get-visits', '_ajax_ctd_get_visits_nonce');
 
@@ -225,8 +225,9 @@ if (!class_exists('ClickToDonateGraphBannersView')):
                         $title = __('Day', 'ClickToDonate');
                         break;
                 endswitch;
-                if(count($results->postIds)==1):
+                if(count($results->postIds)==1 && $postId==0):
                     $resultsArray[] = array($title, __('Total', 'ClickToDonate'));
+                    
                     foreach ($results->data as $result):
                         $values = array();
                         foreach ($result as $key=>$value):

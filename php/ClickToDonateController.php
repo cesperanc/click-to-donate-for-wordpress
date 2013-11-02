@@ -76,7 +76,7 @@ if (!class_exists('ClickToDonateController')):
         /**
          * Register the post type for the campaigns
          */
-        public function WpInit() {
+        public static function WpInit() {
             load_plugin_textdomain('ClickToDonate', false, dirname(plugin_basename(ClickToDonate::FILE)) . '/langs');
             
             // Register the post types and statuses
@@ -321,7 +321,7 @@ if (!class_exists('ClickToDonateController')):
          * @param string $oldStatus with the old post status
          * @param object $post with the post object
          */
-        public function transitionPostStatus($newStatus, $oldStatus, $post) {
+        public static function transitionPostStatus($newStatus, $oldStatus, $post) {
             self::updatePostStatus(self::getPostID($post));
         }
 
@@ -332,7 +332,7 @@ if (!class_exists('ClickToDonateController')):
          * @return string with the post status
          */
         public static function updatePostStatus($post = 0) {
-            $post = &get_post($post);
+            $post = get_post($post);
             if(get_post_type($post)==self::POST_TYPE):
                 // Compute the new status
                 $newStatus = false;
@@ -427,7 +427,7 @@ if (!class_exists('ClickToDonateController')):
          * @param string $sample
          * @return string with the filtered URL 
          */
-        public function postTypeLink($post_link, $post, $leavename = false, $sample = false){
+        public static function postTypeLink($post_link, $post, $leavename = false, $sample = false){
             return /*(ClickToDonateController::bannerCanBeShown($post, false, false)==ClickToDonateController::MSG_OK)?*/self::createPostLink($post_link)/*:$post_link*/;
         }
         

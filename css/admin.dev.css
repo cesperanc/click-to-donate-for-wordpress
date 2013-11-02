@@ -2,12 +2,6 @@
     display: hidden;
 }
 
-#ctd-startminutes,
-#ctd-endminutes{
-    margin-right: 0;
-    text-align: right;
-}
-
 .ctd-enable-container{
     margin: 0 2px;
     border: 1px none transparent;
@@ -32,4 +26,29 @@
 #ctd-campaign-admin{
     padding: 6px 10px 8px;
     margin-top : 6px;
+}
+
+.ctd-jquery-ui .ui-widget .ui-spinner-input{
+    box-shadow: none;
+    border-color: transparent;
+    background-color: transparent;
+    text-align: right;
+    margin-left: 0;
+}
+
+.ctd-time-separator{
+    font-weight: bold;
+}
+
+.ctd-timer-container{
+    text-align: right;
+    margin-top: 5px;
+}
+
+#ctd-startdate,
+#ctd-enddate,
+#ctd-cool-off-time-unit{
+    padding: 0.5em 0.5em;
+    text-align: center;
+    height: auto;
 }

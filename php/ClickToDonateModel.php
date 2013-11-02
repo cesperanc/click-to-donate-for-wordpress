@@ -353,7 +353,7 @@ if (!class_exists('ClickToDonateModel')):
                 ';', $params), ARRAY_A)) && !empty($rows)):
                 
                 // If we have more than one banner, rearrange the data to a more suitable form
-                if(count($visitsData->postIds)>1):
+                if(count($visitsData->postIds)>=1 && $post<=0):
                     $tRows = array();
                     $bannerColumns = array();
                     

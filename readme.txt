@@ -2,7 +2,7 @@
 Contributors: cesperanc, codedmind
 Tags: clicks, visits, tracking, donate, donation, NGO, ONG, plugin, extension
 Requires at least: 3.2.0
-Tested up to: 3.4.1
+Tested up to: 3.7.1
 Stable tag: 1.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -44,6 +44,11 @@ For the public area, any web browser that supports links. For the backoffice, In
 
 
 == Changelog ==
+
+= 1.0.6 = 
+* Bug fix on the graph view when showing the results on the dashboard for just one campaign (thanks JML0691)
+* Strict warning fixes on class methods invoked by WordPress hooks
+* Updates to use the integrated jquery ui from wordpress library
 
 = 1.0.5 = 
 * Bug fix on the graph views date interval when using PHP on Windows
