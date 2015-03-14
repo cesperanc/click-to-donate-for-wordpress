@@ -16,29 +16,29 @@ This was an academic project developped on the [School of Technology and Managem
 
 A special window is provided to create links to campaigns
 
-![http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-1.png](http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-1.png)
+![](https://github.com/cesperanc/click-to-donate-for-wordpress/raw/master/screenshot-1.png)
 
 
 There are many configuration options associated with a campaign to provide full control
 
-![http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-2.png](http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-2.png)
+![](https://github.com/cesperanc/click-to-donate-for-wordpress/raw/master/screenshot-2.png)
 
 
 The manager can easily monitor the campaign progress
 
-![http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-3.png](http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-3.png)
+![](https://github.com/cesperanc/click-to-donate-for-wordpress/raw/master/screenshot-3.png)
 
 
 On the dashboard, the manager can monitor the progress of all the campaigns
 
-![http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-4.png](http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-4.png)
+![](https://github.com/cesperanc/click-to-donate-for-wordpress/raw/master/screenshot-4.png)
 
 
 Also in the dashboard, the registered users can view their ranking compared with all the others users, while the manager can view the ranking of all the users
 
-![http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-5.png](http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-5.png)
+![](https://github.com/cesperanc/click-to-donate-for-wordpress/raw/master/screenshot-5.png)
 
 
 Contextual help is provided for assistance
 
-![http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-6.png](http://click-to-donate-for-wordpress.googlecode.com/git/screenshot-6.png)
+![](https://github.com/cesperanc/click-to-donate-for-wordpress/raw/master/screenshot-6.png)
